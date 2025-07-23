@@ -5,6 +5,10 @@ const snippets = [
 		path: "/snippets/motion/button",
 		name: "Button",
 	},
+	{
+		path: "/snippets/motion/clerk-card",
+		name: "Clerk Card",
+	},
 ];
 
 export default function Home() {
