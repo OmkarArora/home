@@ -4,7 +4,7 @@ export default function SnippetsLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<main className="flex justify-center items-center min-h-screen w-screen">
+		<main className="flex justify-center items-center min-h-screen w-screen bg-white">
 			{children}
 		</main>
 	);

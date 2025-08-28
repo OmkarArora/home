@@ -267,6 +267,9 @@ export default function Home() {
 								"Tailwind CSS",
 								"HTML5",
 								"CSS3",
+								"Shadcn UI",
+								"Radix UI",
+								"Motion (Framer Motion)",
 							]}
 						/>
 					</div>
