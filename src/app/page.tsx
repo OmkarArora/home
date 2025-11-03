@@ -70,7 +70,7 @@ export default function Home() {
 						</div>
 						<div className="flex items-center gap-2">
 							<Building className="w-4 h-4" />
-							<span>Sparklin Innovations</span>
+							<span>Sparklin</span>
 						</div>
 					</div>
 				</div>
@@ -80,96 +80,40 @@ export default function Home() {
 			<section id="work" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work Experience</h2>
 				<div className="space-y-12">
-					<div className="border-l-2 border-border pl-6">
-						<div className="flex items-start justify-between mb-4">
-							<div>
-								<h3 className="text-xl font-semibold">
-									Software Development Engineer 2
-								</h3>
-								<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-									<Building className="w-4 h-4" />
-									<span>Sparklin Innovations Pvt Ltd, New Delhi</span>
-									<Calendar className="w-4 h-4" />
-									<span>April 2024 - Present</span>
-								</div>
-							</div>
-						</div>
-						<div className="space-y-3 text-muted-foreground">
-							<p>
-								Leading frontend development for key products (Openvy,
-								Recommendations.email, Jupitun) using React.js, Next.js, and
-								TypeScript.
-							</p>
-							<p>
-								Enhanced application performance through SEO optimization and
-								advanced caching, reducing data fetching time by 30% and
-								improving organic traffic by 20%.
-							</p>
-							<p>
-								Built responsive and visually consistent UIs with Tailwind CSS,
-								championing technical excellence through code reviews and
-								mentoring.
-							</p>
-						</div>
-					</div>
+					<WorkExperience
+						title="Software Development Engineer 2"
+						company="Sparklin Innovations Pvt Ltd, New Delhi"
+						startDate="April 2024"
+						endDate="Present"
+						description={[
+							"Leading frontend development for key products (Openvy, Recommendations.email, Jupitun) using React.js, Next.js, and TypeScript.",
+							"Enhanced application performance through SEO optimization and advanced caching, reducing data fetching time by 30% and improving organic traffic by 20%.",
+							"Built responsive and visually consistent UIs with Tailwind CSS, championing technical excellence through code reviews and mentoring.",
+						]}
+					/>
 
-					<div className="border-l-2 border-border pl-6">
-						<div className="flex items-start justify-between mb-4">
-							<div>
-								<h3 className="text-xl font-semibold">
-									Software Development Engineer
-								</h3>
-								<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-									<Building className="w-4 h-4" />
-									<span>Sparklin Innovations Pvt Ltd, New Delhi</span>
-									<Calendar className="w-4 h-4" />
-									<span>November 2021 - April 2024</span>
-								</div>
-							</div>
-						</div>
-						<div className="space-y-3 text-muted-foreground">
-							<p>
-								Designed and implemented front-end architecture for Openvy using
-								Next.js and Tailwind CSS.
-							</p>
-							<p>
-								Contributed to full-stack development projects, focusing on
-								front-end optimization and feature scalability.
-							</p>
-							<p>
-								Developed and tested React Native mobile prototypes, improving
-								mobile user engagement by 15%.
-							</p>
-						</div>
-					</div>
+					<WorkExperience
+						title="Software Development Engineer"
+						company="Sparklin Innovations Pvt Ltd, New Delhi"
+						startDate="November 2021"
+						endDate="April 2024"
+						description={[
+							"Designed and implemented front-end architecture for Openvy using Next.js and Tailwind CSS.",
+							"Contributed to full-stack development projects, focusing on front-end optimization and feature scalability.",
+							"Developed and tested React Native mobile prototypes, improving mobile user engagement by 15%.",
+						]}
+					/>
 
-					<div className="border-l-2 border-border pl-6">
-						<div className="flex items-start justify-between mb-4">
-							<div>
-								<h3 className="text-xl font-semibold">
-									Frontend Developer Intern
-								</h3>
-								<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-									<Building className="w-4 h-4" />
-									<span>
-										Homerunn, Avana Property Solutions Pvt. Ltd., Noida
-									</span>
-									<Calendar className="w-4 h-4" />
-									<span>June 2020 - September 2020</span>
-								</div>
-							</div>
-						</div>
-						<div className="space-y-3 text-muted-foreground">
-							<p>
-								Resolved critical UI bugs and optimized rendering, improving
-								page load speed by 20%.
-							</p>
-							<p>
-								Ensured seamless experience across 3+ major browsers through
-								cross-browser compatibility testing.
-							</p>
-						</div>
-					</div>
+					<WorkExperience
+						title="Frontend Developer Intern"
+						company="Homerunn, Avana Property Solutions Pvt. Ltd., Noida"
+						startDate="June 2020"
+						endDate="September 2020"
+						description={[
+							"Resolved critical UI bugs and optimized rendering, improving page load speed by 20%.",
+							"Ensured seamless experience across 3+ major browsers through cross-browser compatibility testing.",
+						]}
+					/>
 				</div>
 			</section>
 
@@ -481,6 +425,43 @@ export default function Home() {
 					</p>
 				</div>
 			</footer>
+		</div>
+	);
+}
+
+function WorkExperience({
+	title,
+	company,
+	startDate,
+	endDate,
+	description,
+}: {
+	title: string;
+	company: string;
+	startDate: string;
+	endDate: string;
+	description: string[];
+}) {
+	return (
+		<div className="border-l-2 border-border pl-6">
+			<div className="flex items-start justify-between mb-4">
+				<div>
+					<h3 className="text-xl font-semibold">{title}</h3>
+					<div className="flex items-center text-sm text-muted-foreground mt-1">
+						<Building className="w-4 h-4" />
+						<span className="pl-1 pr-4">{company}</span>
+						<Calendar className="w-4 h-4" />
+						<span className="pl-1 pr-2">
+							{startDate} - {endDate}
+						</span>
+					</div>
+				</div>
+			</div>
+			<div className="space-y-3 text-muted-foreground">
+				{description.map((item, index) => (
+					<p key={index}>{item}</p>
+				))}
+			</div>
 		</div>
 	);
 }
