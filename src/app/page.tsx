@@ -175,7 +175,7 @@ export default function Home() {
 
 			{/* Work Projects */}
 			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
-				<h2 className="text-2xl font-semibold mb-12">Work Projects</h2>
+				<h2 className="text-2xl font-semibold mb-12">Work</h2>
 				<div className="space-y-6">
 					<div className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors">
 						<div className="flex items-start justify-between mb-4">
