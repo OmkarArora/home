@@ -76,7 +76,7 @@ function DropDown() {
 				ease: "easeInOut",
 			}}
 			className="flex w-50 bg-gray-200 justify-between rounded-md px-2 pl-3 cursor-pointer relative hover:bg-gray-300"
-			onClick={(e) => setOpen((prev) => !prev)}
+			onClick={() => setOpen((prev) => !prev)}
 		>
 			{open ? "CLOSE" : "OPEN"}
 			<ChevronDown />

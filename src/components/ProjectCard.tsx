@@ -21,7 +21,7 @@ export function ProjectCard({
 	status,
 	anchorWrap = false,
 }: ProjectCardProps) {
-	const CardWrapper = (
+	const CardWrapper =
 		anchorWrap && href
 			? (props: React.ComponentProps<"a">) => (
 					<a
@@ -41,8 +41,7 @@ export function ProjectCard({
 							props.className ?? ""
 						}`}
 					/>
-			  )
-	) as any;
+			  );
 
 	return (
 		<CardWrapper>
