@@ -177,6 +177,21 @@ export default function Home() {
 			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work Projects</h2>
 				<div className="space-y-6">
+					<div className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors">
+						<div className="flex items-start justify-between mb-4">
+							<h3 className="text-xl font-semibold">Jupitun</h3>
+						</div>
+						<p className="text-muted-foreground mb-4">
+							Developed scalable frontend architecture with focus on performance
+							optimization and user experience with a Local-First approach and
+							Optimistic Updates.
+						</p>
+						<SkillPills
+							skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
+							size="sm"
+						/>
+					</div>
+
 					<a
 						href="https://openvy.com/"
 						target="_blank"
@@ -184,7 +199,12 @@ export default function Home() {
 						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
 					>
 						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">Openvy</h3>
+							<h3 className="text-xl font-semibold">
+								Openvy{" "}
+								<span className="text-sm font-normal text-muted-foreground">
+									(Sunsetted)
+								</span>
+							</h3>
 							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
 						</div>
 						<p className="text-muted-foreground mb-4">
@@ -213,7 +233,12 @@ export default function Home() {
 						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
 					>
 						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">Recommendations.email</h3>
+							<h3 className="text-xl font-semibold">
+								Recommendations.email{" "}
+								<span className="text-sm font-normal text-muted-foreground">
+									(Sunsetted)
+								</span>
+							</h3>
 							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
 						</div>
 						<p className="text-muted-foreground mb-4">
@@ -233,21 +258,70 @@ export default function Home() {
 							size="sm"
 						/>
 					</a>
+				</div>
+			</section>
 
-					<div className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors">
+			{/* Personal Projects */}
+			<section className="max-w-4xl mx-auto px-6 py-16">
+				<h2 className="text-2xl font-semibold mb-12">Personal Projects</h2>
+				<div className="space-y-6">
+					<a
+						href="https://github.com/OmkarArora/team-resume-builder"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
+					>
 						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">Jupitun</h3>
+							<h3 className="text-xl font-semibold">Team Resume Builder</h3>
+							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
 						</div>
 						<p className="text-muted-foreground mb-4">
-							Developed scalable frontend architecture with focus on performance
-							optimization and user experience with a Local-First approach and
-							Optimistic Updates.
+							A modern React app to create, edit, and export professional
+							resumes with PDF preview/download, team management, and a
+							centralized, type-safe routing system.
 						</p>
 						<SkillPills
-							skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
+							skills={[
+								"React (Vite)",
+								"TypeScript",
+								"React Router",
+								"Tailwind CSS",
+								"shadcn/ui",
+								"Zustand",
+								"@react-pdf/renderer",
+							]}
 							size="sm"
 						/>
-					</div>
+					</a>
+
+					<a
+						href="https://github.com/OmkarArora/highlight-extension"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
+					>
+						<div className="flex items-start justify-between mb-4">
+							<h3 className="text-xl font-semibold">
+								Website Highlight Saver (Chrome Extension)
+							</h3>
+							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+						</div>
+						<p className="text-muted-foreground mb-4">
+							Highlight text on any page and save locally with a beautiful popup
+							UI, website exclusions, full-page view, and optional AI summaries.
+						</p>
+						<SkillPills
+							skills={[
+								"TypeScript",
+								"React",
+								"Manifest V3",
+								"Webpack",
+								"Chrome Storage API",
+								"CSS",
+							]}
+							size="sm"
+						/>
+					</a>
 				</div>
 			</section>
 
