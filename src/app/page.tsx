@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-	ArrowUpRight,
 	Mail,
 	Github,
 	Linkedin,
@@ -10,6 +9,8 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SkillPills } from "@/components/skill-pills";
+import { ProjectCard } from "@/components/ProjectCard";
+import WorkExperienceCard from "@/components/WorkExperienceCard";
 
 export default function Home() {
 	const currentYear = new Date().getFullYear();
@@ -64,13 +65,13 @@ export default function Home() {
 						high-performance applications.
 					</p>
 					<div className="flex items-center gap-4 text-sm text-muted-foreground">
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-1">
 							<MapPin className="w-4 h-4" />
 							<span>Nagpur, Maharashtra, India</span>
 						</div>
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-1">
 							<Building className="w-4 h-4" />
-							<span>Sparklin</span>
+							<span>Sparklin Innovations Pvt Ltd, New Delhi</span>
 						</div>
 					</div>
 				</div>
@@ -80,7 +81,7 @@ export default function Home() {
 			<section id="work" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work Experience</h2>
 				<div className="space-y-12">
-					<WorkExperience
+					<WorkExperienceCard
 						title="Software Development Engineer 2"
 						company="Sparklin Innovations Pvt Ltd, New Delhi"
 						startDate="April 2024"
@@ -92,7 +93,7 @@ export default function Home() {
 						]}
 					/>
 
-					<WorkExperience
+					<WorkExperienceCard
 						title="Software Development Engineer"
 						company="Sparklin Innovations Pvt Ltd, New Delhi"
 						startDate="November 2021"
@@ -104,7 +105,7 @@ export default function Home() {
 						]}
 					/>
 
-					<WorkExperience
+					<WorkExperienceCard
 						title="Frontend Developer Intern"
 						company="Homerunn, Avana Property Solutions Pvt. Ltd., Noida"
 						startDate="June 2020"
@@ -121,87 +122,44 @@ export default function Home() {
 			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work</h2>
 				<div className="space-y-6">
-					<div className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors">
-						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">Jupitun</h3>
-						</div>
-						<p className="text-muted-foreground mb-4">
-							Developed scalable frontend architecture with focus on performance
-							optimization and user experience with a Local-First approach and
-							Optimistic Updates.
-						</p>
-						<SkillPills
-							skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
-							size="sm"
-						/>
-					</div>
+					<ProjectCard
+						title="Jupitun"
+						description="Developed scalable frontend architecture with focus on performance optimization and user experience with a Local-First approach and Optimistic Updates."
+						skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
+					/>
 
-					<a
+					<ProjectCard
+						title="Openvy"
+						status="(Sunsetted)"
+						anchorWrap
 						href="https://openvy.com/"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
-					>
-						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">
-								Openvy{" "}
-								<span className="text-sm font-normal text-muted-foreground">
-									(Sunsetted)
-								</span>
-							</h3>
-							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-						</div>
-						<p className="text-muted-foreground mb-4">
-							Lead frontend development for the product Openvy using Next.js and
-							Tailwind CSS. Implemented advanced caching strategies and SEO
-							optimization.
-						</p>
-						<SkillPills
-							skills={[
-								"Next.js",
-								"React.js",
-								"TypeScript",
-								"Tailwind CSS",
-								"Caching",
-								"Motion (Framer Motion)",
-								"SEO",
-							]}
-							size="sm"
-						/>
-					</a>
+						description="Lead frontend development for the product Openvy using Next.js and Tailwind CSS. Implemented advanced caching strategies and SEO optimization."
+						skills={[
+							"Next.js",
+							"React.js",
+							"TypeScript",
+							"Tailwind CSS",
+							"Caching",
+							"Motion (Framer Motion)",
+							"SEO",
+						]}
+					/>
 
-					<a
+					<ProjectCard
+						title="Recommendations.email"
+						status="(Sunsetted)"
+						anchorWrap
 						href="https://recommendations.email/"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
-					>
-						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">
-								Recommendations.email{" "}
-								<span className="text-sm font-normal text-muted-foreground">
-									(Sunsetted)
-								</span>
-							</h3>
-							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-						</div>
-						<p className="text-muted-foreground mb-4">
-							Built responsive and performant email templates using React Email,
-							and a word guessing game. The app allows user to use their Openvy
-							login to keep track of scores!
-						</p>
-						<SkillPills
-							skills={[
-								"Next.js",
-								"React.js",
-								"Tailwind CSS",
-								"React Email",
-								"TypeScript",
-								"State Management",
-							]}
-							size="sm"
-						/>
-					</a>
+						description="Built responsive and performant email templates using React Email, and a word guessing game. The app allows user to use their Openvy login to keep track of scores!"
+						skills={[
+							"Next.js",
+							"React.js",
+							"Tailwind CSS",
+							"React Email",
+							"TypeScript",
+							"State Management",
+						]}
+					/>
 				</div>
 			</section>
 
@@ -209,63 +167,36 @@ export default function Home() {
 			<section className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Personal Projects</h2>
 				<div className="space-y-6">
-					<a
-						href="https://github.com/OmkarArora/team-resume-builder"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
-					>
-						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">Team Resume Builder</h3>
-							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-						</div>
-						<p className="text-muted-foreground mb-4">
-							A modern React app to create, edit, and export professional
-							resumes with PDF preview/download, team management, and a
-							centralized, type-safe routing system.
-						</p>
-						<SkillPills
-							skills={[
-								"React (Vite)",
-								"TypeScript",
-								"React Router",
-								"Tailwind CSS",
-								"shadcn/ui",
-								"Zustand",
-								"@react-pdf/renderer",
-							]}
-							size="sm"
-						/>
-					</a>
+					<ProjectCard
+						title="Team Resume Builder"
+						href="https://team-resume-builder.vercel.app/"
+						githubUrl="https://github.com/OmkarArora/team-resume-builder"
+						description="A modern React app to create, edit, and export professional resumes with PDF preview/download, team management, and a centralized, type-safe routing system."
+						skills={[
+							"React (Vite)",
+							"TypeScript",
+							"React Router",
+							"Tailwind CSS",
+							"shadcn/ui",
+							"Zustand",
+							"@react-pdf/renderer",
+						]}
+					/>
 
-					<a
+					<ProjectCard
+						title="Website Highlight Saver (Chrome Extension)"
+						anchorWrap
 						href="https://github.com/OmkarArora/highlight-extension"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md"
-					>
-						<div className="flex items-start justify-between mb-4">
-							<h3 className="text-xl font-semibold">
-								Website Highlight Saver (Chrome Extension)
-							</h3>
-							<ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-						</div>
-						<p className="text-muted-foreground mb-4">
-							Highlight text on any page and save locally with a beautiful popup
-							UI, website exclusions, full-page view, and optional AI summaries.
-						</p>
-						<SkillPills
-							skills={[
-								"TypeScript",
-								"React",
-								"Manifest V3",
-								"Webpack",
-								"Chrome Storage API",
-								"CSS",
-							]}
-							size="sm"
-						/>
-					</a>
+						description="Highlight text on any page and save locally with a beautiful popup UI, website exclusions, full-page view, and optional AI summaries."
+						skills={[
+							"TypeScript",
+							"React",
+							"Manifest V3",
+							"Webpack",
+							"Chrome Storage API",
+							"CSS",
+						]}
+					/>
 				</div>
 			</section>
 
@@ -425,43 +356,6 @@ export default function Home() {
 					</p>
 				</div>
 			</footer>
-		</div>
-	);
-}
-
-function WorkExperience({
-	title,
-	company,
-	startDate,
-	endDate,
-	description,
-}: {
-	title: string;
-	company: string;
-	startDate: string;
-	endDate: string;
-	description: string[];
-}) {
-	return (
-		<div className="border-l-2 border-border pl-6">
-			<div className="flex items-start justify-between mb-4">
-				<div>
-					<h3 className="text-xl font-semibold">{title}</h3>
-					<div className="flex items-center text-sm text-muted-foreground mt-1">
-						<Building className="w-4 h-4" />
-						<span className="pl-1 pr-4">{company}</span>
-						<Calendar className="w-4 h-4" />
-						<span className="pl-1 pr-2">
-							{startDate} - {endDate}
-						</span>
-					</div>
-				</div>
-			</div>
-			<div className="space-y-3 text-muted-foreground">
-				{description.map((item, index) => (
-					<p key={index}>{item}</p>
-				))}
-			</div>
 		</div>
 	);
 }
