@@ -1,6 +1,6 @@
 import { ArrowUpRight, Github } from "lucide-react";
 import { buttonVariants, Button } from "@/components/ui/button";
-import { SkillPills } from "@/components/skill-pills";
+import { SkillPills } from "@/components/home/skill-pills";
 
 type ProjectCardProps = {
 	title: string;

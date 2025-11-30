@@ -7,54 +7,15 @@ import {
 	Calendar,
 	Building,
 } from "lucide-react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { SkillPills } from "@/components/skill-pills";
-import { ProjectCard } from "@/components/ProjectCard";
-import WorkExperienceCard from "@/components/WorkExperienceCard";
+import { SkillPills } from "@/components/home/skill-pills";
+import { ProjectCard } from "@/components/home/ProjectCard";
+import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 
 export default function Home() {
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<div className="min-h-screen bg-background text-foreground">
-			{/* Header */}
-			<header className="border-b border-border/40">
-				<div className="max-w-4xl mx-auto px-6 py-6">
-					<nav className="flex items-center justify-between">
-						<div className="text-xl font-semibold">omkar</div>
-						<div className="flex items-center gap-6">
-							<div className="flex items-center gap-6 text-sm text-muted-foreground">
-								<Link
-									href="#work"
-									className="hover:text-foreground transition-colors"
-								>
-									work
-								</Link>
-								<Link
-									href="#projects"
-									className="hover:text-foreground transition-colors"
-								>
-									projects
-								</Link>
-								{/* <Link
-									href="#writing"
-									className="hover:text-foreground transition-colors"
-								>
-									writing
-								</Link> */}
-								<Link
-									href="#contact"
-									className="hover:text-foreground transition-colors"
-								>
-									contact
-								</Link>
-							</div>
-							<ModeToggle />
-						</div>
-					</nav>
-				</div>
-			</header>
-
+		<>
 			{/* Hero Section */}
 			<section className="max-w-4xl mx-auto px-6 py-20">
 				<div className="space-y-6">
@@ -356,6 +317,6 @@ export default function Home() {
 					</p>
 				</div>
 			</footer>
-		</div>
+		</>
 	);
 }
