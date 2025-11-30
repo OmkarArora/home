@@ -3,6 +3,7 @@ import { Calendar, Building, MapPin } from "lucide-react";
 import { SkillPills } from "@/components/home/skill-pills";
 import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
+import { BlogPreview } from "@/components/home/BlogPreview";
 
 export default function Home() {
 	return (
@@ -29,42 +30,58 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Work Experience */}
-			<section id="work" className="max-w-4xl mx-auto px-6 py-16">
-				<h2 className="text-2xl font-semibold mb-12">Work Experience</h2>
-				<div className="space-y-12">
-					<WorkExperienceCard
-						title="Software Development Engineer 2"
-						company="Sparklin Innovations Pvt Ltd, New Delhi"
-						startDate="April 2024"
-						endDate="Present"
-						description={[
-							"Leading frontend development for key products (Openvy, Recommendations.email, Jupitun) using React.js, Next.js, and TypeScript.",
-							"Enhanced application performance through SEO optimization and advanced caching, reducing data fetching time by 30% and improving organic traffic by 20%.",
-							"Built responsive and visually consistent UIs with Tailwind CSS, championing technical excellence through code reviews and mentoring.",
+			{/* Blog Section */}
+			<BlogPreview />
+
+			{/* Personal Projects */}
+			<section className="max-w-4xl mx-auto px-6 py-16">
+				<h2 className="text-2xl font-semibold mb-12">Projects</h2>
+				<div className="space-y-6">
+					<ProjectCard
+						title="Portfolio Website"
+						href="https://omkararora.com"
+						githubUrl="https://github.com/OmkarArora/home"
+						description="A modern portfolio website built with Next.js App Router, featuring an MDX blog with custom components, dynamic OG image generation, SEO optimization, and a clean, responsive design."
+						skills={[
+							"Next.js",
+							"React.js",
+							"TypeScript",
+							"MDX",
+							"Tailwind CSS",
+							"shadcn/ui",
+							"SEO",
+							"OG Images",
 						]}
 					/>
 
-					<WorkExperienceCard
-						title="Software Development Engineer"
-						company="Sparklin Innovations Pvt Ltd, New Delhi"
-						startDate="November 2021"
-						endDate="April 2024"
-						description={[
-							"Designed and implemented front-end architecture for Openvy using Next.js and Tailwind CSS.",
-							"Contributed to full-stack development projects, focusing on front-end optimization and feature scalability.",
-							"Developed and tested React Native mobile prototypes, improving mobile user engagement by 15%.",
+					<ProjectCard
+						title="Team Resume Builder"
+						href="https://team-resume-builder.vercel.app/"
+						githubUrl="https://github.com/OmkarArora/team-resume-builder"
+						description="A modern React app to create, edit, and export professional resumes with PDF preview/download, team management, and a centralized, type-safe routing system."
+						skills={[
+							"React (Vite)",
+							"TypeScript",
+							"React Router",
+							"Tailwind CSS",
+							"shadcn/ui",
+							"Zustand",
+							"@react-pdf/renderer",
 						]}
 					/>
 
-					<WorkExperienceCard
-						title="Frontend Developer Intern"
-						company="Homerunn, Avana Property Solutions Pvt. Ltd., Noida"
-						startDate="June 2020"
-						endDate="September 2020"
-						description={[
-							"Resolved critical UI bugs and optimized rendering, improving page load speed by 20%.",
-							"Ensured seamless experience across 3+ major browsers through cross-browser compatibility testing.",
+					<ProjectCard
+						title="Website Highlight Saver (Chrome Extension)"
+						anchorWrap
+						href="https://github.com/OmkarArora/highlight-extension"
+						description="Highlight text on any page and save locally with a beautiful popup UI, website exclusions, full-page view, and optional AI summaries."
+						skills={[
+							"TypeScript",
+							"React",
+							"Manifest V3",
+							"Webpack",
+							"Chrome Storage API",
+							"CSS",
 						]}
 					/>
 				</div>
@@ -115,38 +132,42 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Personal Projects */}
-			<section className="max-w-4xl mx-auto px-6 py-16">
-				<h2 className="text-2xl font-semibold mb-12">Personal Projects</h2>
-				<div className="space-y-6">
-					<ProjectCard
-						title="Team Resume Builder"
-						href="https://team-resume-builder.vercel.app/"
-						githubUrl="https://github.com/OmkarArora/team-resume-builder"
-						description="A modern React app to create, edit, and export professional resumes with PDF preview/download, team management, and a centralized, type-safe routing system."
-						skills={[
-							"React (Vite)",
-							"TypeScript",
-							"React Router",
-							"Tailwind CSS",
-							"shadcn/ui",
-							"Zustand",
-							"@react-pdf/renderer",
+			{/* Work Experience */}
+			<section id="work" className="max-w-4xl mx-auto px-6 py-16">
+				<h2 className="text-2xl font-semibold mb-12">Work Experience</h2>
+				<div className="space-y-12">
+					<WorkExperienceCard
+						title="Software Development Engineer 2"
+						company="Sparklin Innovations Pvt Ltd, New Delhi"
+						startDate="April 2024"
+						endDate="Present"
+						description={[
+							"Leading frontend development for key products (Openvy, Recommendations.email, Jupitun) using React.js, Next.js, and TypeScript.",
+							"Enhanced application performance through SEO optimization and advanced caching, reducing data fetching time by 30% and improving organic traffic by 20%.",
+							"Built responsive and visually consistent UIs with Tailwind CSS, championing technical excellence through code reviews and mentoring.",
 						]}
 					/>
 
-					<ProjectCard
-						title="Website Highlight Saver (Chrome Extension)"
-						anchorWrap
-						href="https://github.com/OmkarArora/highlight-extension"
-						description="Highlight text on any page and save locally with a beautiful popup UI, website exclusions, full-page view, and optional AI summaries."
-						skills={[
-							"TypeScript",
-							"React",
-							"Manifest V3",
-							"Webpack",
-							"Chrome Storage API",
-							"CSS",
+					<WorkExperienceCard
+						title="Software Development Engineer"
+						company="Sparklin Innovations Pvt Ltd, New Delhi"
+						startDate="November 2021"
+						endDate="April 2024"
+						description={[
+							"Designed and implemented front-end architecture for Openvy using Next.js and Tailwind CSS.",
+							"Contributed to full-stack development projects, focusing on front-end optimization and feature scalability.",
+							"Developed and tested React Native mobile prototypes, improving mobile user engagement by 15%.",
+						]}
+					/>
+
+					<WorkExperienceCard
+						title="Frontend Developer Intern"
+						company="Homerunn, Avana Property Solutions Pvt. Ltd., Noida"
+						startDate="June 2020"
+						endDate="September 2020"
+						description={[
+							"Resolved critical UI bugs and optimized rendering, improving page load speed by 20%.",
+							"Ensured seamless experience across 3+ major browsers through cross-browser compatibility testing.",
 						]}
 					/>
 				</div>
@@ -238,7 +259,7 @@ export default function Home() {
 						<Calendar className="w-4 h-4" />
 						<span>2017-2021</span>
 					</div>
-					<p className="text-muted-foreground mt-2">CGPA: 9.37</p>
+					<p className="text-muted-foreground mt-2">CGPA: 9.47</p>
 				</div>
 			</section>
 		</>
