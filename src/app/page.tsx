@@ -5,6 +5,11 @@ import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 import { BlogPreview } from "@/components/home/BlogPreview";
 
+// TODO:
+// 1. Better Syntax highlighting for code blocks
+// 2. "Copy Code" button in blog code blocks
+// 3. Fix Header in mobile view
+
 export default function Home() {
 	return (
 		<>
@@ -17,13 +22,13 @@ export default function Home() {
 						Specializing in React.js, Next.js, and TypeScript to build scalable,
 						high-performance applications.
 					</p>
-					<div className="flex items-center gap-4 text-sm text-muted-foreground">
+					<div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
 						<div className="flex items-center gap-1">
-							<MapPin className="w-4 h-4" />
+							<MapPin className="w-4 h-4 shrink-0" />
 							<span>Nagpur, Maharashtra, India</span>
 						</div>
 						<div className="flex items-center gap-1">
-							<Building className="w-4 h-4" />
+							<Building className="w-4 h-4 shrink-0" />
 							<span>Sparklin Innovations Pvt Ltd, New Delhi</span>
 						</div>
 					</div>
