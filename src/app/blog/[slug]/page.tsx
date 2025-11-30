@@ -2,16 +2,6 @@ import { baseUrl } from "@/app/sitemap";
 import { CustomMDX } from "@/components/mdx/mdx";
 import { formatDate, getBlogPosts } from "@/lib/posts";
 
-/**
-// TODO
-1. MetaData - DONE
-2. Sitemap
-3. OG Images
-4. JSON LD
-5. robots
-6. Syntax Highlighting
- */
-
 export async function generateStaticParams() {
 	const posts = await getBlogPosts();
 
@@ -111,7 +101,7 @@ export default async function Page({
 				}}
 			/>
 
-			<article className="prose lg:prose-xl">
+			<article className="prose prose-theme dark:prose-invert max-w-none">
 				<h1 className="mb-0!">{post.metadata.title}</h1>
 				<div className="flex justify-between items-center mb-8 text-sm">
 					<p className="text-sm text-muted-foreground">
