@@ -1,0 +1,384 @@
+---
+title: "SEO Optimization for Your Next.js MDX Blog"
+publishedAt: "2025-11-30"
+summary: "Learn how to optimize your Next.js MDX blog for search engines with metadata, Open Graph tags, JSON-LD structured data, and dynamic OG images."
+keywords: "seo, nextjs, mdx, blog, optimization, metadata, open graph, json-ld, og images, search engine optimization"
+---
+
+Search Engine Optimization (SEO) is crucial for making your blog discoverable. In this guide, I'll show you how to add comprehensive SEO optimization to your Next.js MDX blog, including metadata, Open Graph tags, JSON-LD structured data, and dynamic OG image generation.
+
+## Prerequisites
+
+This guide assumes you already have a Next.js MDX blog set up. If you haven't, check out [How I built my Blog with MDX, Next.js, and Tailwind CSS](/blog/how-i-built-my-blog) first.
+
+## Step 1: Set Up Base URL Configuration
+
+First, create or update your `src/app/sitemap.ts` file to export a `baseUrl` constant:
+
+```ts
+export const baseUrl = "https://yourdomain.com";
+```
+
+This will be used throughout your SEO implementation for generating absolute URLs.
+
+## Step 2: Add Metadata Generation
+
+Update your blog post page (`src/app/blog/[slug]/page.tsx`) to include the `generateMetadata` function:
+
+```tsx
+import { baseUrl } from "@/app/sitemap";
+import { CustomMDX } from "@/components/mdx/mdx";
+import { formatDate, getBlogPosts } from "@/lib/posts";
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const slug = (await params).slug;
+
+	const posts = await getBlogPosts();
+	const post = posts.find((post) => post.slug === slug);
+	if (!post) {
+		return;
+	}
+
+	let {
+		title,
+		publishedAt: publishedTime,
+		summary: description,
+		image,
+		keywords,
+	} = post.metadata;
+	let ogImage = image
+		? image
+		: `${baseUrl}/og?title=${encodeURIComponent(title)}`;
+
+	return {
+		title,
+		description,
+		keywords: keywords || undefined,
+		openGraph: {
+			title,
+			description,
+			type: "article",
+			publishedTime,
+			url: `${baseUrl}/blog/${post.slug}`,
+			images: [
+				{
+					url: ogImage,
+				},
+			],
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+			images: [ogImage],
+		},
+	};
+}
+
+export default async function Page({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const slug = (await params).slug;
+	const posts = await getBlogPosts();
+	const post = posts.find((post) => post.slug === slug);
+
+	if (!post) {
+		return (
+			<section className="max-w-4xl mx-auto px-6 py-16">
+				<div>Post not found</div>
+			</section>
+		);
+	}
+
+	return (
+		<section className="max-w-4xl mx-auto px-6 py-16">
+			<h1 className="text-2xl font-semibold tracking-tighter mb-4">
+				{post.metadata.title}
+			</h1>
+			<div className="flex justify-between items-center mb-8 text-sm">
+				<p className="text-sm text-muted-foreground">
+					{formatDate(post.metadata.publishedAt)}
+				</p>
+			</div>
+			<article className="prose">
+				<CustomMDX source={post.content} />
+			</article>
+		</section>
+	);
+}
+```
+
+### What This Does
+
+- **Title and Description**: Uses your post's frontmatter for SEO-friendly meta tags
+- **Keywords**: Adds meta keywords tag (comma-separated) for additional SEO context
+- **Open Graph Tags**: Enables rich previews when sharing on social media (Facebook, LinkedIn, etc.)
+- **Twitter Cards**: Optimizes how your posts appear when shared on Twitter/X
+- **Article Type**: Tells search engines this is a blog post with a publication date
+
+> **Note**: While meta keywords are no longer used by major search engines like Google, some smaller search engines and tools may still reference them. They can also be useful for internal organization and documentation purposes.
+
+## Step 3: Add JSON-LD Structured Data
+
+JSON-LD (JavaScript Object Notation for Linked Data) helps search engines understand your content better. Add this to your blog post page:
+
+```tsx
+export default async function Page({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const slug = (await params).slug;
+	const posts = await getBlogPosts();
+	const post = posts.find((post) => post.slug === slug);
+
+	if (!post) {
+		return (
+			<section className="max-w-4xl mx-auto px-6 py-16">
+				<div>Post not found</div>
+			</section>
+		);
+	}
+
+	return (
+		<section className="max-w-4xl mx-auto px-6 py-16">
+			<script
+				type="application/ld+json"
+				suppressHydrationWarning
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify({
+						"@context": "https://schema.org",
+						"@type": "BlogPosting",
+						headline: post.metadata.title,
+						datePublished: post.metadata.publishedAt,
+						dateModified: post.metadata.publishedAt,
+						description: post.metadata.summary,
+						image: post.metadata.image
+							? `${baseUrl}${post.metadata.image}`
+							: `${baseUrl}/og?title=${encodeURIComponent(
+									post.metadata.title
+							  )}`,
+						url: `${baseUrl}/blog/${post.slug}`,
+						author: {
+							"@type": "Person",
+							name: "Your Name",
+						},
+					}),
+				}}
+			/>
+			<h1 className="text-2xl font-semibold tracking-tighter mb-4">
+				{post.metadata.title}
+			</h1>
+			<div className="flex justify-between items-center mb-8 text-sm">
+				<p className="text-sm text-muted-foreground">
+					{formatDate(post.metadata.publishedAt)}
+				</p>
+			</div>
+			<article className="prose">
+				<CustomMDX source={post.content} />
+			</article>
+		</section>
+	);
+}
+```
+
+### What This Does
+
+- **BlogPosting Schema**: Tells search engines this is a blog post
+- **Structured Metadata**: Provides clear information about the post's title, date, description, and author
+- **Rich Snippets**: Can enable rich results in search engines, potentially showing publication dates and other metadata
+
+## Step 4: Create Dynamic OG Image Generation
+
+Open Graph (OG) images are the preview images shown when your blog posts are shared on social media. Let's create a dynamic OG image generator.
+
+Create `src/app/og/route.tsx`:
+
+```tsx
+import { ImageResponse } from "next/og";
+
+export function GET(request: Request) {
+	let url = new URL(request.url);
+	let title = url.searchParams.get("title") || "Next.js Blog";
+
+	return new ImageResponse(
+		(
+			<div
+				style={{
+					height: "100%",
+					width: "100%",
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					justifyContent: "center",
+					backgroundColor: "#fff",
+					fontSize: 32,
+					fontWeight: 600,
+				}}
+			>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						padding: "40px",
+						maxWidth: "900px",
+					}}
+				>
+					<h2
+						style={{
+							fontSize: 72,
+							fontWeight: 700,
+							lineHeight: 1.2,
+							margin: 0,
+							color: "#000",
+						}}
+					>
+						{title}
+					</h2>
+				</div>
+			</div>
+		),
+		{
+			width: 1200,
+			height: 630,
+		}
+	);
+}
+```
+
+### What This Does
+
+- **Dynamic Images**: Generates OG images on-the-fly based on the post title
+- **Social Media Optimization**: Ensures your posts look great when shared
+- **Fallback**: If a post doesn't have a custom image, it uses this dynamic generator
+
+### Customizing OG Images
+
+You can customize the OG image design by modifying the styles in the `ImageResponse`. For example, you could add:
+
+- Your logo or branding
+- Custom colors matching your site
+- Additional metadata like author name or date
+- Background patterns or gradients
+
+## Step 5: Add Keywords and Image Support to Frontmatter
+
+Update your post frontmatter to optionally include keywords and a custom OG image:
+
+```mdx
+---
+title: "My Blog Post"
+publishedAt: "2024-12-19"
+summary: "This is a summary of my blog post."
+keywords: "nextjs, react, web development, tutorial"
+image: "/images/blog-post-og.png"
+---
+
+# My Blog Post
+
+Content here...
+```
+
+- **Keywords**: Comma-separated list of relevant keywords for your post. While not used by major search engines, they can be helpful for documentation and some smaller search tools.
+- **Image**: If the `image` field is present, it will be used instead of the dynamically generated OG image.
+
+## Step 6: Create a Sitemap (Optional but Recommended)
+
+Create or update `src/app/sitemap.ts` to include your blog posts:
+
+```ts
+import { getBlogPosts } from "@/lib/posts";
+
+export const baseUrl = "https://yourdomain.com";
+
+export default async function sitemap() {
+	const blogs = (await getBlogPosts()).map((post) => ({
+		url: `${baseUrl}/blog/${post.slug}`,
+		lastModified: post.metadata.publishedAt,
+	}));
+
+	let routes = ["", "/blog"].map((route) => ({
+		url: `${baseUrl}${route}`,
+		lastModified: new Date().toISOString().split("T")[0],
+	}));
+
+	return [...routes, ...blogs];
+}
+```
+
+This helps search engines discover and index all your blog posts.
+
+## Step 7: Add robots.txt (Optional)
+
+Create `src/app/robots.ts`:
+
+```ts
+export default function robots() {
+	return {
+		rules: {
+			userAgent: "*",
+			allow: "/",
+			disallow: "/private/",
+		},
+		sitemap: "https://yourdomain.com/sitemap.xml",
+	};
+}
+```
+
+This tells search engines which pages to crawl and where to find your sitemap.
+
+## Testing Your SEO
+
+### 1. Test Open Graph Tags
+
+Use these tools to preview how your posts will look when shared:
+
+- [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
+- [Twitter Card Validator](https://cards-dev.twitter.com/validator)
+- [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
+
+### 2. Test Structured Data
+
+Use Google's Rich Results Test to verify your JSON-LD:
+
+- [Rich Results Test](https://search.google.com/test/rich-results)
+
+### 3. Check Metadata
+
+View page source and verify:
+
+- `<title>` tag matches your post title
+- `<meta name="description">` contains your summary
+- `<meta name="keywords">` contains your keywords (if provided)
+- Open Graph tags are present
+- JSON-LD script is included
+
+## Best Practices
+
+1. **Unique Titles**: Each post should have a unique, descriptive title
+2. **Compelling Summaries**: Write summaries that encourage clicks (150-160 characters)
+3. **Relevant Keywords**: If using keywords, keep them relevant and avoid keyword stuffing (5-10 keywords max)
+4. **High-Quality Images**: Use custom OG images when possible for better engagement
+5. **Regular Updates**: Keep your sitemap updated as you add new posts
+6. **Mobile-Friendly**: Ensure your blog is responsive (Next.js handles this well)
+
+## Conclusion
+
+You've now added comprehensive SEO optimization to your Next.js MDX blog! Your setup includes:
+
+- ✅ Dynamic metadata generation
+- ✅ Meta keywords support
+- ✅ Open Graph tags for social sharing
+- ✅ Twitter Card optimization
+- ✅ JSON-LD structured data
+- ✅ Dynamic OG image generation
+- ✅ Sitemap support
+- ✅ Robots.txt configuration
+
+These optimizations will help your blog posts rank better in search engines and look great when shared on social media. Happy optimizing! 🚀

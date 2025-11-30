@@ -64,15 +64,15 @@ function RoundedImage(props: ImageProps) {
 	);
 }
 
-function Code({
-	children,
-	...props
-}: {
-	children: React.ReactNode;
-} & React.HTMLAttributes<HTMLElement>) {
-	let codeHTML = highlight(String(children));
-	return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
-}
+// function Code({
+// 	children,
+// 	...props
+// }: {
+// 	children: React.ReactNode;
+// } & React.HTMLAttributes<HTMLElement>) {
+// 	let codeHTML = highlight(String(children));
+// 	return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
+// }
 
 function slugify(str: string | React.ReactNode): string {
 	return String(str)
@@ -116,7 +116,7 @@ let components = {
 	h6: createHeading(6),
 	Image: RoundedImage,
 	a: CustomLink,
-	code: Code,
+	// code: Code,
 	Table,
 };
 

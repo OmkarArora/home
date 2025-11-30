@@ -1,0 +1,480 @@
+---
+title: "How I built my Blog with MDX, Next.js, and Tailwind CSS"
+publishedAt: "2025-11-30"
+summary: "A comprehensive guide on setting up an MDX blog in Next.js with custom components and Tailwind Typography."
+keywords: "mdx, nextjs, tailwind css, blog, tutorial, react, markdown, web development"
+---
+
+MDX (Markdown + JSX) is a powerful way to write blog posts that combine the simplicity of Markdown with the flexibility of React components. In this guide, I'll walk you through setting up a complete MDX blog system in your Next.js application, including custom components and beautiful typography.
+
+## Prerequisites
+
+Before we begin, make sure you have a Next.js project set up. This guide assumes you're using Next.js 16+ with the App Router.
+
+## Step 1: Install Required Dependencies
+
+First, install the necessary packages:
+
+```bash
+npm install next-mdx-remote
+npm install -D @tailwindcss/typography
+```
+
+- **next-mdx-remote**: Allows you to render MDX content in React components
+- **@tailwindcss/typography**: Provides beautiful typographic styles for your blog content
+
+## Step 2: Configure Next.js
+
+Update your `next.config.ts` to include MDX in the page extensions:
+
+```ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
+};
+
+export default nextConfig;
+```
+
+## Step 3: Create the Posts Directory Structure
+
+Create a directory to store your blog posts. I recommend placing them in `src/content/posts/`:
+
+```
+src/
+  content/
+    posts/
+      your-first-post.mdx
+      your-second-post.mdx
+```
+
+## Step 4: Create the Posts Utility Library
+
+Create a utility file `src/lib/posts.ts` to handle reading and parsing MDX files:
+
+```ts
+import fs from "fs/promises";
+import path from "path";
+
+type Metadata = {
+	title: string;
+	publishedAt: string;
+	summary: string;
+	image?: string;
+	keywords?: string;
+};
+
+function parseFrontmatter(fileContent: string) {
+	let frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
+	let match = frontmatterRegex.exec(fileContent);
+	let frontMatterBlock = match![1];
+	let content = fileContent.replace(frontmatterRegex, "").trim();
+	let frontMatterLines = frontMatterBlock.trim().split("\n");
+	let metadata: Partial<Metadata> = {};
+
+	frontMatterLines.forEach((line) => {
+		let [key, ...valueArr] = line.split(": ");
+		let value = valueArr.join(": ").trim();
+		value = value.replace(/^['"](.*)['"]$/, "$1"); // Remove quotes
+		metadata[key.trim() as keyof Metadata] = value;
+	});
+
+	return { metadata: metadata as Metadata, content };
+}
+
+async function getMDXFiles(dir: string) {
+	const files = await fs.readdir(dir);
+	return files.filter((file) => path.extname(file) === ".mdx");
+}
+
+async function readMDXFile(filePath: string) {
+	const rawContent = await fs.readFile(filePath, "utf-8");
+	return parseFrontmatter(rawContent);
+}
+
+async function getMDXData(dir: string) {
+	const mdxFiles = await getMDXFiles(dir);
+	const posts = await Promise.all(
+		mdxFiles.map(async (file) => {
+			const { metadata, content } = await readMDXFile(path.join(dir, file));
+			const slug = path.basename(file, path.extname(file));
+
+			return {
+				metadata,
+				slug,
+				content,
+			};
+		})
+	);
+	return posts;
+}
+
+export async function getBlogPosts() {
+	return getMDXData(path.join(process.cwd(), "src", "content", "posts"));
+}
+
+export function formatDate(date: string, includeRelative = false) {
+	let currentDate = new Date();
+	if (!date.includes("T")) {
+		date = `${date}T00:00:00`;
+	}
+	let targetDate = new Date(date);
+
+	let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
+	let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
+	let daysAgo = currentDate.getDate() - targetDate.getDate();
+
+	let formattedDate = "";
+
+	if (yearsAgo > 0) {
+		formattedDate = `${yearsAgo}y ago`;
+	} else if (monthsAgo > 0) {
+		formattedDate = `${monthsAgo}mo ago`;
+	} else if (daysAgo > 0) {
+		formattedDate = `${daysAgo}d ago`;
+	} else {
+		formattedDate = "Today";
+	}
+
+	let fullDate = targetDate.toLocaleString("en-us", {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+
+	if (!includeRelative) {
+		return fullDate;
+	}
+
+	return `${fullDate} (${formattedDate})`;
+}
+```
+
+This utility:
+
+- Reads all `.mdx` files from the posts directory
+- Parses frontmatter metadata (title, publishedAt, summary, image, keywords)
+- Extracts the slug from the filename
+- Provides a date formatting function
+
+## Step 5: Create Custom MDX Components
+
+Create `src/components/mdx/mdx.tsx` with custom components for rendering MDX:
+
+```tsx
+import Link from "next/link";
+import Image, { type ImageProps } from "next/image";
+import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
+import React from "react";
+
+type TableData = {
+	headers: string[];
+	rows: string[][];
+};
+
+function Table({ data }: { data: TableData }) {
+	let headers = data.headers.map((header: string, index: number) => (
+		<th key={index}>{header}</th>
+	));
+	let rows = data.rows.map((row: string[], index: number) => (
+		<tr key={index}>
+			{row.map((cell: string, cellIndex: number) => (
+				<td key={cellIndex}>{cell}</td>
+			))}
+		</tr>
+	));
+
+	return (
+		<table>
+			<thead>
+				<tr>{headers}</tr>
+			</thead>
+			<tbody>{rows}</tbody>
+		</table>
+	);
+}
+
+function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+	let href = props.href;
+
+	if (!href) {
+		return <a {...props} />;
+	}
+
+	if (href.startsWith("/")) {
+		return (
+			<Link href={href} {...props}>
+				{props.children}
+			</Link>
+		);
+	}
+
+	if (href.startsWith("#")) {
+		return <a {...props} />;
+	}
+
+	return <a target="_blank" rel="noopener noreferrer" {...props} />;
+}
+
+function RoundedImage(props: ImageProps) {
+	const { alt, className, ...rest } = props;
+	return (
+		<Image
+			alt={alt || ""}
+			className={`rounded-lg ${className || ""}`}
+			{...rest}
+		/>
+	);
+}
+
+function slugify(str: string | React.ReactNode): string {
+	return String(str)
+		.toString()
+		.toLowerCase()
+		.trim()
+		.replace(/\s+/g, "-")
+		.replace(/&/g, "-and-")
+		.replace(/[^\w\-]+/g, "")
+		.replace(/\-\-+/g, "-");
+}
+
+function createHeading(level: number) {
+	const Heading = ({ children }: { children: React.ReactNode }) => {
+		let slug = slugify(children);
+		return React.createElement(
+			`h${level}`,
+			{ id: slug },
+			[
+				React.createElement("a", {
+					href: `#${slug}`,
+					key: `link-${slug}`,
+					className: "anchor",
+				}),
+			],
+			children
+		);
+	};
+
+	Heading.displayName = `Heading${level}`;
+
+	return Heading;
+}
+
+let components = {
+	h1: createHeading(1),
+	h2: createHeading(2),
+	h3: createHeading(3),
+	h4: createHeading(4),
+	h5: createHeading(5),
+	h6: createHeading(6),
+	Image: RoundedImage,
+	a: CustomLink,
+	Table,
+};
+
+export function CustomMDX(props: MDXRemoteProps) {
+	return (
+		<MDXRemote
+			{...props}
+			components={{ ...components, ...(props.components || {}) }}
+		/>
+	);
+}
+```
+
+This component provides:
+
+- **Custom links** that handle internal Next.js routes, external links, and anchors
+- **Image components** with rounded corners
+- **Heading anchors** for easy linking to sections
+- **Table support** for structured data
+
+Note: Typography styling is handled by `@tailwindcss/typography` (see Step 10).
+
+## Step 6: Create the Blog Listing Page
+
+Create `src/app/blog/page.tsx`:
+
+```tsx
+import { BlogPosts } from "@/components/blog/posts";
+
+export const metadata = {
+	title: "Blog",
+	description: "Read my blog.",
+};
+
+export default function Page() {
+	return (
+		<section className="max-w-4xl mx-auto px-6 py-16">
+			<h1 className="text-2xl font-semibold mb-12 tracking-tighter">Blog</h1>
+			<BlogPosts />
+		</section>
+	);
+}
+```
+
+## Step 7: Create the Blog Posts Component
+
+Create `src/components/blog/posts.tsx`:
+
+```tsx
+import { formatDate, getBlogPosts } from "@/lib/posts";
+import Link from "next/link";
+
+export async function BlogPosts() {
+	let allBlogs = await getBlogPosts();
+
+	return (
+		<div>
+			{allBlogs.map((post) => (
+				<Link
+					key={post.slug}
+					className="flex flex-col space-y-1 mb-4"
+					href={`/blog/${post.slug}`}
+				>
+					<div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+						<p className="text-neutral-600 dark:text-neutral-400 w-[100px] tabular-nums">
+							{formatDate(post.metadata.publishedAt, false)}
+						</p>
+						<p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
+							{post.metadata.title}
+						</p>
+					</div>
+				</Link>
+			))}
+		</div>
+	);
+}
+```
+
+## Step 8: Create the Dynamic Blog Post Page
+
+Create `src/app/blog/[slug]/page.tsx`:
+
+```tsx
+import { CustomMDX } from "@/components/mdx/mdx";
+import { formatDate, getBlogPosts } from "@/lib/posts";
+
+export async function generateStaticParams() {
+	const posts = await getBlogPosts();
+
+	return posts.map((post) => ({
+		slug: post.slug,
+	}));
+}
+
+export default async function Page({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}) {
+	const slug = (await params).slug;
+	const posts = await getBlogPosts();
+	const post = posts.find((post) => post.slug === slug);
+
+	if (!post) {
+		return (
+			<section className="max-w-4xl mx-auto px-6 py-16">
+				<div>Post not found</div>
+			</section>
+		);
+	}
+
+	return (
+		<section className="max-w-4xl mx-auto px-6 py-16">
+			<h1 className="text-2xl font-semibold tracking-tighter mb-4">
+				{post.metadata.title}
+			</h1>
+			<div className="flex justify-between items-center mb-8 text-sm">
+				<p className="text-sm text-muted-foreground">
+					{formatDate(post.metadata.publishedAt)}
+				</p>
+			</div>
+			<article className="prose">
+				<CustomMDX source={post.content} />
+			</article>
+		</section>
+	);
+}
+```
+
+This page:
+
+- Generates static paths for all blog posts at build time
+- Renders the MDX content using our custom component
+
+## Step 9: Create Your First Blog Post
+
+Create a new `.mdx` file in `src/content/posts/`:
+
+````mdx
+---
+title: "My First Blog Post"
+publishedAt: "2024-12-19"
+summary: "This is a summary of my first blog post."
+keywords: "mdx, nextjs, blog, tutorial"
+---
+
+# My First Blog Post
+
+Welcome to my blog! This is written in MDX.
+
+## Code Example
+
+Here's a code example:
+
+```tsx
+const MyComponent = () => {
+	return <div>Hello, world!</div>;
+};
+```
+````
+
+## Features
+
+- **Markdown** syntax for easy writing
+- **JSX components** for interactive content
+- **Beautiful typography** with Tailwind Typography
+
+## Step 10: Configure Tailwind Typography
+
+To enable beautiful typography styles for your blog content, you need to configure `@tailwindcss/typography` in your Tailwind CSS setup.
+
+### For Tailwind CSS v4
+
+If you're using Tailwind CSS v4, add the typography plugin to your `globals.css`:
+
+```css
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+```
+
+### For Tailwind CSS v3
+
+If you're using Tailwind CSS v3, add the plugin to your `tailwind.config.js`:
+
+```js
+module.exports = {
+	theme: {
+		extend: {},
+	},
+	plugins: [require("@tailwindcss/typography")],
+};
+```
+
+The `prose` class is automatically applied to your article element (as shown in Step 8), which will style all the markdown elements including code blocks, headings, lists, and more. The typography plugin provides beautiful default styles that work great for blog content.
+
+## Conclusion
+
+You now have a fully functional MDX blog in your Next.js application! The setup includes:
+
+- ✅ MDX file parsing with frontmatter
+- ✅ Custom React components for enhanced content
+- ✅ Beautiful typography with Tailwind Typography
+- ✅ Static site generation for fast performance
+- ✅ Responsive design
+
+You can now create new blog posts by simply adding `.mdx` files to your `src/content/posts/` directory with the proper frontmatter format.
+
+Happy blogging! 🎉

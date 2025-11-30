@@ -38,6 +38,7 @@ export async function generateMetadata({
 		publishedAt: publishedTime,
 		summary: description,
 		image,
+		keywords,
 	} = post.metadata;
 	let ogImage = image
 		? image
@@ -46,6 +47,7 @@ export async function generateMetadata({
 	return {
 		title,
 		description,
+		keywords: keywords || undefined,
 		openGraph: {
 			title,
 			description,
@@ -108,15 +110,14 @@ export default async function Page({
 					}),
 				}}
 			/>
-			<h1 className="text-2xl font-semibold tracking-tighter mb-4">
-				{post.metadata.title}
-			</h1>
-			<div className="flex justify-between items-center mb-8 text-sm">
-				<p className="text-sm text-muted-foreground">
-					{formatDate(post.metadata.publishedAt)}
-				</p>
-			</div>
-			<article className="prose">
+
+			<article className="prose lg:prose-xl">
+				<h1 className="mb-0!">{post.metadata.title}</h1>
+				<div className="flex justify-between items-center mb-8 text-sm">
+					<p className="text-sm text-muted-foreground">
+						{formatDate(post.metadata.publishedAt)}
+					</p>
+				</div>
 				<CustomMDX source={post.content} />
 			</article>
 		</section>
