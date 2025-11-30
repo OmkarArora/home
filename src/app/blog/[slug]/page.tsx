@@ -1,6 +1,6 @@
 import { baseUrl } from "@/app/sitemap";
 import { CustomMDX } from "@/components/mdx/mdx";
-import { formatDate, getBlogPosts } from "@/lib/posts";
+import { formatDate, getBlogPosts, getPostBySlug } from "@/lib/posts";
 
 export async function generateStaticParams() {
 	const posts = await getBlogPosts();
@@ -17,8 +17,7 @@ export async function generateMetadata({
 }) {
 	const slug = (await params).slug;
 
-	const posts = await getBlogPosts();
-	const post = posts.find((post) => post.slug === slug);
+	const post = await getPostBySlug(slug);
 	if (!post) {
 		return;
 	}
@@ -32,7 +31,7 @@ export async function generateMetadata({
 	} = post.metadata;
 	let ogImage = image
 		? image
-		: `${baseUrl}/og?title=${encodeURIComponent(title)}`;
+		: `${baseUrl}/og?slug=${encodeURIComponent(slug)}`;
 
 	return {
 		title,
@@ -91,7 +90,7 @@ export default async function Page({
 						description: post.metadata.summary,
 						image: post.metadata.image
 							? `${baseUrl}${post.metadata.image}`
-							: `/og?title=${encodeURIComponent(post.metadata.title)}`,
+							: `/og?slug=${encodeURIComponent(slug)}`,
 						url: `${baseUrl}/blog/${post.slug}`,
 						author: {
 							"@type": "Person",
