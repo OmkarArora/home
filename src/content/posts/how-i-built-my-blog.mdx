@@ -27,7 +27,7 @@ npm install -D @tailwindcss/typography
 
 Update your `next.config.ts` to include MDX in the page extensions:
 
-```ts
+```ts showLineNumbers
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -53,7 +53,7 @@ src/
 
 Create a utility file `src/lib/posts.ts` to handle reading and parsing MDX files:
 
-```ts
+```ts showLineNumbers
 import fs from "fs/promises";
 import path from "path";
 
@@ -162,7 +162,7 @@ This utility:
 
 Create `src/components/mdx/mdx.tsx` with custom components for rendering MDX:
 
-```tsx
+```tsx showLineNumbers
 import Link from "next/link";
 import Image, { type ImageProps } from "next/image";
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
@@ -318,7 +318,7 @@ export default function Page() {
 
 Create `src/components/blog/posts.tsx`:
 
-```tsx
+```tsx showLineNumbers
 import { formatDate, getBlogPosts } from "@/lib/posts";
 import Link from "next/link";
 
@@ -352,7 +352,7 @@ export async function BlogPosts() {
 
 Create `src/app/blog/[slug]/page.tsx`:
 
-```tsx
+```tsx showLineNumbers
 import { CustomMDX } from "@/components/mdx/mdx";
 import { formatDate, getBlogPosts } from "@/lib/posts";
 
@@ -408,7 +408,7 @@ This page:
 
 Create a new `.mdx` file in `src/content/posts/`:
 
-````mdx
+````mdx showLineNumbers
 ---
 title: "My First Blog Post"
 publishedAt: "2024-12-19"

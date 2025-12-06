@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image, { type ImageProps } from "next/image";
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
-import { highlight } from "sugar-high";
+import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
 import React from "react";
 
 type TableData = {
@@ -64,16 +65,6 @@ function RoundedImage(props: ImageProps) {
 	);
 }
 
-// function Code({
-// 	children,
-// 	...props
-// }: {
-// 	children: React.ReactNode;
-// } & React.HTMLAttributes<HTMLElement>) {
-// 	let codeHTML = highlight(String(children));
-// 	return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
-// }
-
 function slugify(str: string | React.ReactNode): string {
 	return String(str)
 		.toString()
@@ -116,7 +107,6 @@ let components = {
 	h6: createHeading(6),
 	Image: RoundedImage,
 	a: CustomLink,
-	// code: Code,
 	Table,
 };
 
@@ -125,6 +115,23 @@ export function CustomMDX(props: MDXRemoteProps) {
 		<MDXRemote
 			{...props}
 			components={{ ...components, ...(props.components || {}) }}
+			options={{
+				mdxOptions: {
+					remarkPlugins: [remarkGfm],
+					rehypePlugins: [
+						[
+							rehypePrettyCode,
+							{
+								theme: {
+									light: "github-light",
+									dark: "github-dark",
+								},
+								keepBackground: false,
+							},
+						],
+					],
+				},
+			}}
 		/>
 	);
 }

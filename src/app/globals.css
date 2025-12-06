@@ -161,3 +161,57 @@ button {
 	--tw-prose-invert-th-borders: var(--border);
 	--tw-prose-invert-td-borders: var(--border);
 }
+
+/* Code highlighting styles for rehype-pretty-code */
+pre {
+	@apply overflow-x-auto rounded-lg border border-border bg-muted p-4;
+}
+
+pre code {
+	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
+	counter-reset: line;
+	box-decoration-break: clone;
+}
+
+pre code > * {
+	@apply px-0;
+}
+
+pre code .line {
+	@apply inline-block min-h-[1rem] w-full px-4 py-0.5;
+}
+
+pre code[data-line-numbers] {
+	counter-reset: line;
+}
+
+pre code[data-line-numbers] > .line::before {
+	counter-increment: line;
+	content: counter(line);
+	@apply mr-4 inline-block w-4 text-right text-muted-foreground;
+}
+
+pre code .line--highlighted {
+	@apply bg-accent/50;
+}
+
+pre code .line-highlighted {
+	@apply bg-accent/50;
+}
+
+code {
+	@apply rounded bg-muted px-1.5 py-0.5 text-sm font-mono;
+}
+
+pre code .word {
+	@apply bg-transparent p-0;
+}
+
+/* Dark mode adjustments */
+.dark pre {
+	@apply bg-muted;
+}
+
+.dark pre code {
+	@apply bg-transparent;
+}
