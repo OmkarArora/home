@@ -8,9 +8,9 @@ import { BlogPreview } from "@/components/home/BlogPreview";
 // TODO:
 // 1. Better Syntax highlighting for code blocks
 // 2. "Copy Code" button in blog code blocks
-// 3. Write LinkedIn and Twitter posts telling people about blogs
 // 4. Make sure the blogs are correct -  proof read
 // 5. Add a Download Resume btn
+// 6. Fun (Maybe AI generated) blog headers images
 
 export default function Home() {
 	return (
