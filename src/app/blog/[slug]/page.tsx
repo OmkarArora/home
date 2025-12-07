@@ -111,7 +111,8 @@ export default async function Page({
 			</article>
 
 			{(slug === "how-i-built-my-blog" ||
-				slug === "seo-optimization-for-nextjs-blog") && (
+				slug === "seo-optimization-for-nextjs-blog" ||
+				slug === "improving-syntax-highlighting") && (
 				<div className="mt-12 pt-8 border-t border-border">
 					<p className="text-sm text-muted-foreground mb-2">
 						Here's a link to my{" "}
@@ -133,9 +134,9 @@ export default async function Page({
 									clipRule="evenodd"
 								/>
 							</svg>
-							<span>GitHub portfolio</span>
+							<span>GitHub</span>
 						</a>{" "}
-						with MDX blogs so you can refer to it.
+						portfolio repository with MDX blogs so you can refer to it.
 					</p>
 				</div>
 			)}
