@@ -4,9 +4,16 @@ import Link from "next/link";
 export async function BlogPosts() {
 	let allBlogs = await getBlogPosts();
 
+	// Sort by published date (newest first)
+	const sortedBlogs = allBlogs.sort((a, b) => {
+		const dateA = new Date(a.metadata.publishedAt).getTime();
+		const dateB = new Date(b.metadata.publishedAt).getTime();
+		return dateB - dateA;
+	});
+
 	return (
 		<div>
-			{allBlogs.map((post) => (
+			{sortedBlogs.map((post) => (
 				<Link
 					key={post.slug}
 					className="flex flex-col space-y-1 mb-4"

@@ -1,0 +1,341 @@
+---
+title: "Improving Syntax Highlighting in Our Next.js MDX Blog"
+publishedAt: "2025-12-07"
+summary: "A journey from Tailwind CSS Typography to VS Code-like code blocks with syntax highlighting, line numbers, and copy buttons using remark-gfm and rehype-pretty-code."
+keywords: "syntax highlighting, rehype-pretty-code, remark-gfm, nextjs, mdx, code blocks, line numbers, copy button, shiki"
+---
+
+When I first built my blog, I relied on Tailwind CSS Typography for styling code blocks, which provided basic formatting but no syntax highlighting or advanced features. In this post, I'll walk you through how I upgraded from plain code blocks to a professional, VS Code-like code block experience with syntax highlighting, line numbers, and copy buttons.
+
+## The Starting Point
+
+Initially, my blog relied on Tailwind CSS Typography (`@tailwindcss/typography`) for styling code blocks. While this provided basic styling, it had limitations:
+
+- No syntax highlighting (just plain text)
+- No line numbers
+- No copy functionality
+- Limited visual distinction between code and regular text
+
+The basic setup worked for simple code snippets, but I wanted a more professional, feature-rich code block experience that would make code examples easier to read and use.
+
+## The Upgrade Plan
+
+I decided to migrate to a more powerful solution using:
+
+1. **remark-gfm** - For GitHub Flavored Markdown support (tables, strikethrough, task lists)
+2. **rehype-pretty-code** - For VS Code-like syntax highlighting powered by Shiki
+3. **Custom components** - For adding copy buttons and better styling
+
+## Step 1: Installing the Dependencies
+
+First, I installed the necessary packages:
+
+```bash
+npm install remark-gfm rehype-pretty-code shiki
+```
+
+- **remark-gfm**: Adds GitHub Flavored Markdown features
+- **rehype-pretty-code**: Provides VS Code-like syntax highlighting
+- **shiki**: The syntax highlighter that powers rehype-pretty-code (peer dependency)
+
+## Step 2: Configuring the MDX Component
+
+I updated my `CustomMDX` component to use the new plugins:
+
+```tsx showLineNumbers
+import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
+
+export function CustomMDX(props: MDXRemoteProps) {
+	return (
+		<MDXRemote
+			{...props}
+			components={{ ...components, ...(props.components || {}) }}
+			options={{
+				mdxOptions: {
+					remarkPlugins: [remarkGfm],
+					rehypePlugins: [
+						[
+							rehypePrettyCode,
+							{
+								theme: {
+									light: "github-light",
+									dark: "github-dark",
+								},
+								keepBackground: false,
+							},
+						],
+					],
+				},
+			}}
+		/>
+	);
+}
+```
+
+The configuration uses:
+
+- **GitHub themes**: Light and dark mode support
+- **keepBackground: false**: Allows Tailwind CSS to control backgrounds
+
+## Step 3: Adding CSS Styles
+
+Next, I added comprehensive CSS styles for the code blocks:
+
+```css showLineNumbers
+/* Code highlighting styles for rehype-pretty-code */
+pre {
+	@apply relative overflow-x-auto rounded-lg border border-border bg-muted p-4;
+}
+
+pre code {
+	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
+	counter-reset: line;
+	box-decoration-break: clone;
+}
+
+pre code .line {
+	@apply inline-block min-h-[1rem] w-full px-4 py-0.5;
+}
+
+pre code[data-line-numbers] {
+	counter-reset: line;
+}
+
+pre code[data-line-numbers] > .line::before,
+pre code[data-line-numbers] > [data-line]::before,
+pre code[data-line-numbers] > span[data-line]::before {
+	counter-increment: line;
+	content: counter(line);
+	display: inline-block;
+	width: 1rem;
+	margin-right: 1rem;
+	text-align: right;
+	color: oklch(0.556 0 0);
+	user-select: none;
+}
+
+.dark pre code[data-line-numbers] > .line::before,
+.dark pre code[data-line-numbers] > [data-line]::before,
+.dark pre code[data-line-numbers] > span[data-line]::before {
+	color: oklch(0.708 0 0);
+}
+```
+
+The CSS uses CSS counters to generate line numbers, which is more performant than JavaScript-based solutions.
+
+## Step 4: Enabling Line Numbers
+
+To enable line numbers, you simply add `showLineNumbers` to your code fence meta string:
+
+````markdown
+```tsx showLineNumbers
+const greeting = "Hello, World!";
+```
+````
+
+The `rehype-pretty-code` plugin automatically detects this and adds the `data-line-numbers` attribute to the code element.
+
+## Step 5: Adding a Copy Button
+
+One of the most requested features was a copy button for code blocks. I created a custom component to handle this:
+
+### Copy Button Component
+
+```tsx showLineNumbers
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+
+export function CopyButton({ code }: { code: string }) {
+	const [copied, setCopied] = useState(false);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	const copyToClipboard = async () => {
+		try {
+			await navigator.clipboard.writeText(code);
+			setCopied(true);
+
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+
+			timeoutRef.current = setTimeout(() => {
+				setCopied(false);
+			}, 2000);
+		} catch (err) {
+			console.error("Failed to copy code:", err);
+		}
+	};
+
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
+	return (
+		<button
+			onClick={copyToClipboard}
+			className="absolute top-2 right-2 p-2 rounded-md bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+			aria-label={copied ? "Copied!" : "Copy code"}
+			title={copied ? "Copied!" : "Copy code"}
+		>
+			{copied ? (
+				<svg
+					className="w-4 h-4"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M5 13l4 4L19 7"
+					/>
+				</svg>
+			) : (
+				<svg
+					className="w-4 h-4"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+					/>
+				</svg>
+			)}
+		</button>
+	);
+}
+```
+
+### Code Block Wrapper
+
+I created a wrapper component that extracts the code text and renders the copy button:
+
+```tsx showLineNumbers
+"use client";
+
+import { useState } from "react";
+import { CopyButton } from "./copy-button";
+
+export function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
+	const [code, setCode] = useState("");
+
+	function extractCode(node: HTMLPreElement | null) {
+		if (node) {
+			const codeElement = node.querySelector("code");
+			if (codeElement) {
+				const lines = codeElement.querySelectorAll(
+					"[data-line], .line, span[class*='line']"
+				);
+				if (lines.length > 0) {
+					const textContent = Array.from(lines)
+						.map((line) => line.textContent || "")
+						.join("\n")
+						.trim();
+					setCode(textContent || codeElement.textContent || "");
+				} else {
+					setCode(codeElement.textContent || "");
+				}
+			}
+		}
+	}
+
+	const { children, className: propsClassName, ...restProps } = props;
+	const className = propsClassName ? `${propsClassName} group` : "group";
+
+	return (
+		<pre {...restProps} ref={extractCode} className={className}>
+			{code && <CopyButton code={code} />}
+			{children}
+		</pre>
+	);
+}
+```
+
+Then I registered it in the MDX components:
+
+```tsx showLineNumbers
+let components = {
+	// ... other components
+	pre: CodeBlock,
+};
+```
+
+## Challenges and Solutions
+
+### Challenge 1: Line Numbers Not Appearing
+
+Initially, line numbers weren't showing up. The issue was that `rehype-pretty-code` uses `[data-line]` attributes on span elements, but my CSS was only targeting `.line` class elements.
+
+**Solution**: Updated CSS selectors to handle both:
+
+```css
+pre code[data-line-numbers] > .line::before,
+pre code[data-line-numbers] > [data-line]::before,
+pre code[data-line-numbers] > span[data-line]::before {
+	/* line number styles */
+}
+```
+
+### Challenge 2: Code Not Rendering
+
+When I first added the copy button wrapper, the code stopped rendering. This was because I was returning early when `code` was empty, but `useEffect` runs after the initial render.
+
+**Solution**: Always render children, and conditionally render the copy button:
+
+```tsx
+return (
+	<pre {...restProps} ref={extractCode} className={className}>
+		{code && <CopyButton code={code} />}
+		{children} {/* Always rendered */}
+	</pre>
+);
+```
+
+### Challenge 3: Extracting Code Text
+
+Extracting the actual code text (without line numbers) for copying was tricky because line numbers are added via CSS `::before` pseudo-elements.
+
+**Solution**: Query for line elements and extract their text content, which naturally excludes the CSS-generated line numbers:
+
+```tsx
+const lines = codeElement.querySelectorAll("[data-line], .line");
+const textContent = Array.from(lines)
+	.map((line) => line.textContent || "")
+	.join("\n");
+```
+
+## Results
+
+The upgrade resulted in:
+
+✅ **VS Code-like syntax highlighting** with accurate tokenization  
+✅ **Line numbers** that can be enabled per code block  
+✅ **Copy buttons** that appear on hover  
+✅ **Dark mode support** with theme switching  
+✅ **Better accessibility** with proper ARIA labels  
+✅ **Improved UX** with visual feedback on copy
+
+## Best Practices
+
+1. **Use semantic HTML**: The copy button uses proper button elements with ARIA labels
+2. **Progressive enhancement**: Code blocks work without JavaScript, copy button enhances the experience
+3. **Performance**: CSS counters for line numbers are more performant than JavaScript
+4. **Accessibility**: Always include ARIA labels and keyboard navigation support
+
+## Conclusion
+
+Upgrading from basic Tailwind CSS Typography styling to a professional syntax highlighting solution significantly improved the reading and coding experience on my blog. The combination of `remark-gfm`, `rehype-pretty-code`, and custom components provides a robust foundation for displaying code that matches modern development tools.
+
+The implementation is maintainable, performant, and provides a great user experience. If you're looking to improve code blocks in your own blog, I highly recommend this approach!
