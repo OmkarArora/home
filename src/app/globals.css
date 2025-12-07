@@ -164,7 +164,7 @@ button {
 
 /* Code highlighting styles for rehype-pretty-code */
 pre {
-	@apply overflow-x-auto rounded-lg border border-border bg-muted p-4;
+	@apply relative overflow-x-auto rounded-lg border border-border bg-muted p-4;
 }
 
 pre code {
@@ -185,10 +185,35 @@ pre code[data-line-numbers] {
 	counter-reset: line;
 }
 
-pre code[data-line-numbers] > .line::before {
+pre code[data-line-numbers] > .line::before,
+pre code[data-line-numbers] > [data-line]::before,
+pre code[data-line-numbers] > span[data-line]::before {
 	counter-increment: line;
 	content: counter(line);
-	@apply mr-4 inline-block w-4 text-right text-muted-foreground;
+	display: inline-block;
+	width: 1rem;
+	margin-right: 1rem;
+	text-align: right;
+	color: oklch(0.556 0 0);
+	user-select: none;
+}
+
+.dark pre code[data-line-numbers] > .line::before,
+.dark pre code[data-line-numbers] > [data-line]::before,
+.dark pre code[data-line-numbers] > span[data-line]::before {
+	color: oklch(0.708 0 0);
+}
+
+pre code[data-line-numbers-max-digits="2"] > .line::before,
+pre code[data-line-numbers-max-digits="2"] > [data-line]::before,
+pre code[data-line-numbers-max-digits="2"] > span[data-line]::before {
+	width: 1.5rem;
+}
+
+pre code[data-line-numbers-max-digits="3"] > .line::before,
+pre code[data-line-numbers-max-digits="3"] > [data-line]::before,
+pre code[data-line-numbers-max-digits="3"] > span[data-line]::before {
+	width: 2rem;
 }
 
 pre code .line--highlighted {

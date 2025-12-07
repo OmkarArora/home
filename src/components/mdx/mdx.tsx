@@ -3,6 +3,7 @@ import Image, { type ImageProps } from "next/image";
 import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
+import { CodeBlock } from "./code-block";
 import React from "react";
 
 type TableData = {
@@ -107,6 +108,7 @@ let components = {
 	h6: createHeading(6),
 	Image: RoundedImage,
 	a: CustomLink,
+	pre: CodeBlock,
 	Table,
 };
 
