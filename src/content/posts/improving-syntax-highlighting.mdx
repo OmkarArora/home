@@ -121,6 +121,15 @@ pre code[data-line-numbers] > span[data-line]::before {
 .dark pre code[data-line-numbers] > span[data-line]::before {
 	color: oklch(0.708 0 0);
 }
+
+/* Syntax highlighting - use the CSS variables set by rehype-pretty-code */
+pre code span {
+	color: var(--shiki-light);
+}
+
+.dark pre code span {
+	color: var(--shiki-dark);
+}
 ```
 
 The CSS uses CSS counters to generate line numbers, which is more performant than JavaScript-based solutions.

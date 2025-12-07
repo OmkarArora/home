@@ -232,6 +232,15 @@ pre code .word {
 	@apply bg-transparent p-0;
 }
 
+/* Syntax highlighting - use the CSS variables set by rehype-pretty-code */
+pre code span {
+	color: var(--shiki-light);
+}
+
+.dark pre code span {
+	color: var(--shiki-dark);
+}
+
 /* Dark mode adjustments */
 .dark pre {
 	@apply bg-muted;
