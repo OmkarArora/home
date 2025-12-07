@@ -33,7 +33,7 @@ export default function Home() {
 			<BlogPreview />
 
 			{/* Personal Projects */}
-			<section className="max-w-4xl mx-auto px-6 py-16">
+			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Projects</h2>
 				<div className="space-y-6">
 					<ProjectCard
@@ -87,7 +87,7 @@ export default function Home() {
 			</section>
 
 			{/* Work Projects */}
-			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
+			<section className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work</h2>
 				<div className="space-y-6">
 					<ProjectCard
