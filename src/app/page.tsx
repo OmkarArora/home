@@ -1,13 +1,8 @@
-import Link from "next/link";
 import { Calendar, Building, MapPin } from "lucide-react";
 import { SkillPills } from "@/components/home/skill-pills";
 import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 import { BlogPreview } from "@/components/home/BlogPreview";
-
-// TODO:
-// 5. Add a Download Resume btn
-// 6. Fun (Maybe AI generated) blog headers images
 
 export default function Home() {
 	return (
