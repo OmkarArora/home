@@ -1,12 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+	type CarouselApi,
+} from "@/components/ui/carousel";
+import { waitUntil } from "@/lib/utils";
 
-type ProjectSlug = "openvy" | "remail";
+export type ProjectSlug =
+	| "openvy"
+	| "remail"
+	| "jupitun"
+	| "portfolio"
+	| "team-resume-builder"
+	| "highlight-extension";
 
 const PROJECT_IMAGES: Record<ProjectSlug, string[]> = {
 	openvy: [
@@ -21,6 +34,15 @@ const PROJECT_IMAGES: Record<ProjectSlug, string[]> = {
 		"/images/projects/remail/screenshot2.webp",
 		"/images/projects/remail/screenshot3.webp",
 	],
+	jupitun: [],
+	portfolio: [],
+	"team-resume-builder": [
+		"/images/projects/team-resume-builder/screenshot1.webp",
+		"/images/projects/team-resume-builder/screenshot2.webp",
+		"/images/projects/team-resume-builder/screenshot3.webp",
+		"/images/projects/team-resume-builder/screenshot4.webp",
+	],
+	"highlight-extension": [],
 };
 
 type ProjectGalleryProps = {
@@ -30,13 +52,28 @@ type ProjectGalleryProps = {
 export function ProjectGallery({ project }: ProjectGalleryProps) {
 	const images = PROJECT_IMAGES[project];
 	const [open, setOpen] = useState(false);
-	const [activeIndex, setActiveIndex] = useState(0);
+	const [api, setApi] = useState<CarouselApi>();
+	const [current, setCurrent] = useState(0);
+	const [selectedIndex, setSelectedIndex] = useState(0);
 
-	const goTo = (index: number) => {
-		const total = images.length;
-		const next = (index + total) % total;
-		setActiveIndex(next);
-	};
+	useEffect(() => {
+		if (!api) {
+			return;
+		}
+
+		setCurrent(api.selectedScrollSnap() + 1);
+
+		api.on("select", () => {
+			setCurrent(api.selectedScrollSnap() + 1);
+		});
+	}, [api]);
+
+	useEffect(() => {
+		if (!api || !open) {
+			return;
+		}
+		api.scrollTo(selectedIndex);
+	}, [api, selectedIndex, open]);
 
 	if (!images?.length) return null;
 
@@ -45,104 +82,90 @@ export function ProjectGallery({ project }: ProjectGalleryProps) {
 			open={open}
 			onOpenChange={(nextOpen) => {
 				setOpen(nextOpen);
-				if (!nextOpen) setActiveIndex(0);
+				if (!nextOpen) {
+					waitUntil(300).then(() => {
+						setSelectedIndex(0);
+					});
+				}
 			}}
 		>
-			<div className="mt-4 space-y-3">
-				<div className="flex items-center justify-between">
-					<p className="text-sm font-medium text-muted-foreground">
-						Screenshots
-					</p>
-					<p className="text-xs text-muted-foreground">
-						{images.length} image{images.length > 1 ? "s" : ""}
-					</p>
-				</div>
-
-				<div className="relative">
-					<DialogTrigger asChild>
-						<button
-							type="button"
-							className="group relative w-full overflow-hidden rounded-md border border-border/70 bg-muted/40"
-							aria-label="Open screenshots gallery"
-						>
-							<div className="flex gap-2 p-1">
-								{images.slice(0, 3).map((src, i) => (
-									<div
-										key={src}
-										className="relative h-24 flex-1 overflow-hidden rounded-sm"
-									>
-										<Image
-											src={src}
-											alt={`${project} screenshot ${i + 1}`}
-											fill
-											className="object-cover transition-transform duration-300 group-hover:scale-105"
-											sizes="(max-width: 768px) 33vw, 120px"
-										/>
-										{i === 2 && images.length > 3 && (
-											<div className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs font-medium text-white backdrop-blur-sm">
-												+{images.length - 2} more
-											</div>
-										)}
-									</div>
-								))}
-							</div>
-						</button>
-					</DialogTrigger>
+			<div className="mb-6">
+				<div className="overflow-x-auto scrollbar-hide -mx-6 px-6">
+					<div className="flex gap-3 min-w-max">
+						{images.map((src, i) => (
+							<DialogTrigger key={src} asChild>
+								<button
+									type="button"
+									onClick={() => {
+										setSelectedIndex(i);
+									}}
+									className="group relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-md border border-border/70 bg-muted/40 transition-all hover:border-border hover:shadow-md"
+									aria-label={`View screenshot ${i + 1}`}
+								>
+									<Image
+										src={src}
+										alt={`${project} screenshot ${i + 1}`}
+										fill
+										className="object-cover transition-transform duration-300 group-hover:scale-105"
+										sizes="192px"
+										quality={100}
+									/>
+								</button>
+							</DialogTrigger>
+						))}
+					</div>
 				</div>
 			</div>
 
-			<DialogContent className="p-0">
-				<div className="relative flex h-full w-full max-h-[90vh] max-w-4xl flex-col overflow-hidden rounded-lg bg-background shadow-2xl">
-					<header className="flex items-center justify-between border-b border-border/60 px-4 py-3 sm:px-6">
+			<DialogContent className="p-0 max-w-[95vw] sm:max-w-[90vw] h-[95vh] max-h-[95vh] w-full flex flex-col">
+				<div className="relative flex h-full w-full flex-col overflow-hidden rounded-lg bg-background shadow-2xl">
+					<header className="flex items-center justify-between border-b border-border/60 px-4 py-3 sm:px-6 flex-shrink-0">
 						<div>
 							<p className="text-sm font-medium capitalize">{project}</p>
 							<p className="text-xs text-muted-foreground">
-								{activeIndex + 1} / {images.length}
+								{current} / {images.length}
 							</p>
 						</div>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-8 w-8"
-							onClick={() => setOpen(false)}
-							aria-label="Close gallery"
-						>
-							<X className="h-4 w-4" />
-						</Button>
 					</header>
 
-					<main className="relative flex flex-1 items-center justify-center bg-muted/40">
-						<button
-							type="button"
-							className="absolute left-2 z-10 rounded-full border border-border/70 bg-background/90 p-1 text-muted-foreground shadow-sm backdrop-blur-sm transition hover:bg-background hover:text-foreground"
-							onClick={() => goTo(activeIndex - 1)}
-							aria-label="Previous image"
+					<main className="relative flex flex-1 items-center justify-center bg-muted/40 min-h-0 overflow-hidden">
+						<Carousel
+							setApi={setApi}
+							opts={{
+								align: "center",
+								loop: true,
+							}}
+							className="w-full h-full [&_[data-slot=carousel-content]]:h-full"
 						>
-							<ChevronLeft className="h-4 w-4" />
-						</button>
-						<button
-							type="button"
-							className="absolute right-2 z-10 rounded-full border border-border/70 bg-background/90 p-1 text-muted-foreground shadow-sm backdrop-blur-sm transition hover:bg-background hover:text-foreground"
-							onClick={() => goTo(activeIndex + 1)}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-4 w-4" />
-						</button>
-
-						<div className="relative aspect-video w-full max-w-3xl">
-							<Image
-								key={images[activeIndex]}
-								src={images[activeIndex]}
-								alt={`${project} screenshot ${activeIndex + 1}`}
-								fill
-								className="object-contain"
-								sizes="(max-width: 768px) 100vw, 70vw"
-								priority
-							/>
-						</div>
+							<CarouselContent className="-ml-0 h-full [&>div]:h-full">
+								{images.map((src, index) => (
+									<CarouselItem
+										key={src}
+										className="pl-0 basis-full h-full flex items-center justify-center"
+									>
+										<div className="relative w-full h-full flex items-center justify-center p-4">
+											<div className="relative w-full h-full drop-shadow-2xl">
+												<Image
+													src={src}
+													alt={`${project} screenshot ${index + 1}`}
+													fill
+													className="object-contain"
+													sizes="(max-width: 768px) 95vw, 90vw"
+													priority={index === selectedIndex}
+													quality={100}
+													draggable={false}
+												/>
+											</div>
+										</div>
+									</CarouselItem>
+								))}
+							</CarouselContent>
+							<CarouselPrevious className="left-4 border-border/70 bg-background/90 hover:bg-background" />
+							<CarouselNext className="right-4 border-border/70 bg-background/90 hover:bg-background" />
+						</Carousel>
 					</main>
 
-					<footer className="border-t border-border/60 px-4 py-3 sm:px-6">
+					<footer className="border-t border-border/60 px-4 py-3 sm:px-6 flex-shrink-0">
 						<div className="flex items-center justify-between gap-3">
 							<div className="flex items-center gap-2 text-xs text-muted-foreground">
 								<span>Use arrows or swipe to change slides.</span>
@@ -153,11 +176,11 @@ export function ProjectGallery({ project }: ProjectGalleryProps) {
 										key={idx}
 										type="button"
 										className={`h-1.5 rounded-full transition-all ${
-											idx === activeIndex
+											idx + 1 === current
 												? "w-4 bg-foreground"
 												: "w-1.5 bg-border"
 										}`}
-										onClick={() => setActiveIndex(idx)}
+										onClick={() => api?.scrollTo(idx)}
 										aria-label={`Go to image ${idx + 1}`}
 									/>
 								))}

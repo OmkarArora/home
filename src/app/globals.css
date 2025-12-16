@@ -126,6 +126,16 @@ button {
 	cursor: pointer;
 }
 
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none; /* Chrome, Safari and Opera */
+}
+
 /* Custom Prose Theme using Tailwind Typography v4 @utility pattern */
 @utility prose-theme {
 	--tw-prose-body: var(--foreground);

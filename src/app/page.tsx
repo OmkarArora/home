@@ -39,6 +39,7 @@ export default function Home() {
 				<div className="space-y-6">
 					<ProjectCard
 						title="Portfolio Website"
+						project="portfolio"
 						href="https://omkararora.com"
 						githubUrl="https://github.com/OmkarArora/home"
 						description="A modern portfolio website built with Next.js App Router, featuring an MDX blog with custom components, dynamic OG image generation, SEO optimization, and a clean, responsive design."
@@ -56,6 +57,7 @@ export default function Home() {
 
 					<ProjectCard
 						title="Team Resume Builder"
+						project="team-resume-builder"
 						href="https://team-resume-builder.vercel.app/"
 						githubUrl="https://github.com/OmkarArora/team-resume-builder"
 						description="A modern React app to create, edit, and export professional resumes with PDF preview/download, team management, and a centralized, type-safe routing system."
@@ -72,6 +74,7 @@ export default function Home() {
 
 					<ProjectCard
 						title="Website Highlight Saver (Chrome Extension)"
+						project="highlight-extension"
 						anchorWrap
 						href="https://github.com/OmkarArora/highlight-extension"
 						description="Highlight text on any page and save locally with a beautiful popup UI, website exclusions, full-page view, and optional AI summaries."
@@ -93,11 +96,13 @@ export default function Home() {
 				<div className="space-y-6">
 					<ProjectCard
 						title="Jupitun"
+						project="jupitun"
 						description="Developed scalable frontend architecture with focus on performance optimization and user experience with a Local-First approach and Optimistic Updates."
 						skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
 					/>
 
 					<ProjectCard
+						project="openvy"
 						title="Openvy"
 						status="(Sunsetted)"
 						anchorWrap
@@ -113,10 +118,10 @@ export default function Home() {
 							"SEO",
 						]}
 					/>
-					<ProjectGallery project="openvy" />
 
 					<ProjectCard
 						title="Recommendations.email"
+						project="remail"
 						status="(Sunsetted)"
 						anchorWrap
 						href="https://recommendations.email/"
@@ -130,7 +135,6 @@ export default function Home() {
 							"State Management",
 						]}
 					/>
-					<ProjectGallery project="remail" />
 				</div>
 			</section>
 
