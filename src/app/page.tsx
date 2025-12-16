@@ -3,6 +3,7 @@ import { SkillPills } from "@/components/home/skill-pills";
 import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 import { BlogPreview } from "@/components/home/BlogPreview";
+import { ProjectGallery } from "@/components/home/ProjectGallery";
 
 export default function Home() {
 	return (
@@ -112,6 +113,7 @@ export default function Home() {
 							"SEO",
 						]}
 					/>
+					<ProjectGallery project="openvy" />
 
 					<ProjectCard
 						title="Recommendations.email"
@@ -128,6 +130,7 @@ export default function Home() {
 							"State Management",
 						]}
 					/>
+					<ProjectGallery project="remail" />
 				</div>
 			</section>
 
