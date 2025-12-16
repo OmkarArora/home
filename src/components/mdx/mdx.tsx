@@ -4,6 +4,11 @@ import { MDXRemote, type MDXRemoteProps } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { CodeBlock } from "./code-block";
+import { InteractiveDemo } from "./InteractiveDemo";
+import { OptimisticLikeDemo } from "./demos/OptimisticLikeDemo";
+import { OptimisticTodoDemo } from "./demos/OptimisticTodoDemo";
+import { UseOptimisticThreadDemo } from "./demos/UseOptimisticThreadDemo";
+import { OptimisticComparisonDemo } from "./demos/OptimisticComparisonDemo";
 import React from "react";
 
 type TableData = {
@@ -110,6 +115,11 @@ let components = {
 	a: CustomLink,
 	pre: CodeBlock,
 	Table,
+	InteractiveDemo,
+	OptimisticLikeDemo,
+	OptimisticTodoDemo,
+	UseOptimisticThreadDemo,
+	OptimisticComparisonDemo,
 };
 
 export function CustomMDX(props: MDXRemoteProps) {

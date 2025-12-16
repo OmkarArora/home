@@ -160,6 +160,13 @@ This example illustrates the core optimistic pattern:
 
 We'll reuse this mental model in the rest of the post.
 
+<InteractiveDemo
+	title="Try It: Optimistic Like Button"
+	description="Click the button to see optimistic updates in action. Notice how it updates instantly, then syncs in the background. Occasionally it will fail to demonstrate rollback."
+>
+	<OptimisticLikeDemo />
+</InteractiveDemo>
+
 ## Implementation Patterns
 
 ### 1. React Query / TanStack Query
@@ -211,6 +218,13 @@ This pattern is great when:
 - Your data already lives in React Query.
 - You want **automatic cache updates** and **refetch on settle**.
 - You prefer colocating optimistic logic with mutations.
+
+<InteractiveDemo
+	title="Try It: Optimistic Todo List"
+	description="Add, toggle, and delete todos to see optimistic updates in action. Items appear instantly, then sync in the background. Try adding multiple items quickly to see how it handles rapid updates."
+>
+	<OptimisticTodoDemo />
+</InteractiveDemo>
 
 ### 2. Custom "Optimistic Mutation" Hook
 
@@ -350,6 +364,13 @@ export function UseOptimisticThread() {
 
 `useOptimistic` shines when you already use React Server Components or Server Actions and want optimistic UI without manually managing snapshots.
 
+<InteractiveDemo
+	title="Try It: Message Thread with useOptimistic"
+	description="Send messages to see React 19's useOptimistic hook in action. Messages appear instantly with a 'Sending...' indicator, then sync in the background."
+>
+	<UseOptimisticThreadDemo />
+</InteractiveDemo>
+
 ## Error Handling Strategies
 
 Optimistic updates are only safe if you handle errors well.
@@ -383,17 +404,32 @@ Always ask: _what does the user see if this fails?_ and _can they recover?_
 - Rollback if the request fails.
 - Optionally show a subtle error or toast.
 
+The like button demo above demonstrates this pattern in action.
+
 ### Todo Application
 
 - Optimistically add a new todo to the list.
 - Instantly strike-through when marking complete.
 - Optimistically delete while providing an undo for a few seconds.
 
+The todo list demo above shows a complete CRUD implementation with optimistic updates.
+
 ### Shopping Cart
 
 - Optimistically add items to the cart badge.
 - Update quantities immediately while syncing in the background.
 - If a product goes out of stock, roll back and explain why.
+
+### Side-by-Side Comparison
+
+See the difference between optimistic and pessimistic updates:
+
+<InteractiveDemo
+	title="Optimistic vs Pessimistic Updates"
+	description="Click both buttons to see the difference. The optimistic version updates instantly, while the pessimistic version waits for the server response."
+>
+	<OptimisticComparisonDemo />
+</InteractiveDemo>
 
 ## Best Practices & Common Pitfalls
 
@@ -427,3 +463,32 @@ Optimistic updates are one of the most effective ways to make your UI feel fast 
 - You can implement them with plain React state, React Query, or React 19's `useOptimistic`.
 
 Start small: pick a low-risk interaction like a like button or todo toggle, add an optimistic update, and observe how much better the app feels. Then extend the pattern to more flows where speed and responsiveness matter most.
+
+## Additional Resources
+
+### Official Documentation
+
+- **[React `useOptimistic` Hook](https://react.dev/reference/react/useOptimistic)** - Official React documentation for the `useOptimistic` hook
+- **[TanStack Query Optimistic Updates](https://tanstack.com/query/latest/docs/react/guides/optimistic-updates)** - Comprehensive guide to optimistic updates with React Query
+- **[React Server Actions](https://react.dev/reference/rsc/server-actions)** - Learn how to combine `useOptimistic` with Server Actions
+
+### Further Reading
+
+- **UX Patterns**: Research on perceived performance and user experience patterns
+- **Performance Optimization**: Techniques for measuring and improving perceived performance
+- **State Management**: Best practices for managing complex state in React applications
+
+### Related Blog Posts
+
+If you're interested in building more interactive content, check out my other posts on [building an MDX blog](/blog/how-i-built-my-blog) and [adding interactive demos to MDX](/blog/interactive-demos-in-mdx).
+
+### Practice
+
+Try implementing optimistic updates in your own projects:
+
+1. Start with a simple toggle (like/favorite button)
+2. Move to list operations (add/remove items)
+3. Experiment with React Query or `useOptimistic` for more complex scenarios
+4. Test failure scenarios to ensure your rollback logic works correctly
+
+Remember: the goal is to make your UI feel instant and responsive, not to hide errors. Always provide clear feedback when things go wrong.
