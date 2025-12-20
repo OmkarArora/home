@@ -78,7 +78,7 @@ Ask yourself:
 
 - "If this fails, can I **safely rollback** without confusing the user?"
 - "Is this operation **highly likely to succeed**?"
-- "Is the **UI jarring** if we occasionally undo an action?"
+- "Would an **occasional undo** feel natural and acceptable to users?"
 
 If the answers are mostly "yes", optimistic updates are a strong candidate.
 
@@ -305,7 +305,9 @@ export function UseOptimisticThread() {
 	const [messages, setMessages] = useState<
 		{ text: string; sending?: boolean }[]
 	>([{ text: "Hello there!", sending: false }]);
+
 	const [isPending, startTransition] = useTransition();
+
 	const [optimisticMessages, addOptimisticMessage] = useOptimistic(
 		messages,
 		(state, newMessage: string) => [
@@ -314,9 +316,14 @@ export function UseOptimisticThread() {
 		]
 	);
 
+	const formRef = useRef<HTMLFormElement>(null);
+
 	async function handleSend(formData: FormData) {
 		const text = String(formData.get("message") || "").trim();
 		if (!text) return;
+
+		// Makes sure the input is cleared after the message is sent instantly, instead of waiting for the server response
+		formRef.current?.reset();
 
 		addOptimisticMessage(text);
 
@@ -331,7 +338,11 @@ export function UseOptimisticThread() {
 
 	return (
 		<div className="space-y-3 text-sm">
-			<form action={handleSend} className="flex items-center gap-2">
+			<form
+				ref={formRef}
+				action={handleSend}
+				className="flex items-center gap-2"
+			>
 				<input
 					name="message"
 					placeholder="Say hi!"
@@ -377,9 +388,11 @@ Optimistic updates are only safe if you handle errors well.
 
 ### 1. Rollback Mechanisms
 
-- **Snapshot pattern**: store the previous state before the optimistic change.
+- **Snapshot pattern**: store the previous state before the optimistic change, then restore it on error.
 - **Inverse operation**: sometimes you can compute a rollback from the current state (e.g., toggling a boolean twice).
-- **Undo UI**: instead of silently rolling back, let users explicitly undo.
+- **Automatic rollback with retry**: roll back automatically on error, show a clear error message, and provide a retry button.
+
+**Note**: "Undo UI" (letting users explicitly undo) is better suited for **successful** operations where users might want to reverse their action (like Gmail's "undo send"). For failed optimistic updates, automatic rollback with clear error messaging is typically better UX than asking users to undo something that never actually happened.
 
 ### 2. Communicating Errors
 
@@ -395,6 +408,27 @@ Optimistic updates are only safe if you handle errors well.
 - **Cross-device conflicts**: another device updates the same record.
 
 Always ask: _what does the user see if this fails?_ and _can they recover?_
+
+### 4. Subtle Bugs and Inconsistencies
+
+Optimistic updates can introduce subtle bugs that are easy to miss:
+
+- **State drift**: The client shows one state, but the server has a different state. This can happen if the server modifies your data (e.g., normalizing text, adding timestamps, or applying business rules) and you don't reconcile after the response.
+
+- **Stale optimistic state**: If a user navigates away or the component unmounts before the request completes, you might have orphaned optimistic updates that never get reconciled.
+
+- **Ordering issues**: Rapid clicks can cause optimistic updates to apply in a different order than server responses arrive. For example, clicking "like" then "unlike" quickly might result in both requests succeeding, leaving the final state incorrect.
+
+- **Server response mismatch**: The server might return data that differs from your optimistic update (e.g., different ID, modified timestamp, or transformed values). If you don't handle this, your UI can show stale or incorrect data.
+
+- **Memory leaks**: Pending optimistic updates that never complete can accumulate, especially if you're tracking them in arrays or maps without cleanup.
+
+**Mitigation strategies**:
+
+- Always reconcile with server responses (use `onSettled` in React Query, or refetch after mutations).
+- Cancel pending requests when components unmount.
+- Use request IDs or timestamps to handle out-of-order responses.
+- Validate that server responses match your expectations before applying them.
 
 ## Real-World Examples
 
@@ -437,7 +471,7 @@ See the difference between optimistic and pessimistic updates:
 
 - **Always** keep enough information to rollback.
 - **Design for failure**: test with the network throttled and forced errors.
-- **Show intent**: small "Saving…" or "Syncing…" labels can build trust.
+- **Show intent**: small "Saving…" or "Syncing…" labels can build trust. However, for non-mission-critical operations or actions that succeed close to 100% of the time (like likes or simple toggles), you may not need to show unnecessary labels—the instant UI update is often feedback enough.
 - **Refetch or reconcile** after the server responds to avoid long-term drift.
 
 ### Don't
@@ -445,6 +479,22 @@ See the difference between optimistic and pessimistic updates:
 - Don't use optimistic updates for **irreversible, high-risk actions**.
 - Don't hide errors completely—users should understand when something failed.
 - Don't ignore **race conditions**; think about ordering and last-write-wins.
+
+### Avoiding Over-Engineering
+
+It's easy to over-engineer optimistic updates. Here's how to keep it simple:
+
+- **Start simple**: For basic toggles or counters, a simple `useState` with snapshot rollback is often enough. You don't need React Query or complex state machines.
+
+- **Don't optimize prematurely**: If your operation succeeds 99%+ of the time and failures are rare, a basic rollback might be sufficient. You don't need elaborate retry queues, exponential backoff, or conflict resolution for a like button.
+
+- **Use existing tools**: React Query's `useMutation` and React 19's `useOptimistic` already handle many edge cases. Don't reinvent the wheel unless you have specific requirements.
+
+- **Progressive enhancement**: Start with optimistic updates for the happy path, then add error handling, retries, and reconciliation only when you encounter real issues.
+
+- **Know when to skip**: If implementing optimistic updates requires complex state synchronization, conflict resolution, or extensive testing, consider whether the UX benefit is worth the added complexity. Sometimes waiting for the server response is fine.
+
+Remember: the goal is to make your UI feel fast, not to build a perfect distributed system. Keep it simple, test the failure cases, and iterate based on real user feedback.
 
 ### Performance Considerations
 

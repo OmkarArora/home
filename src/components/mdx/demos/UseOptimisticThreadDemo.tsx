@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useRef, useState, useTransition } from "react";
 
 function deliverMessage(message: string): Promise<string> {
 	return new Promise((resolve) => {
@@ -12,7 +12,9 @@ export function UseOptimisticThreadDemo() {
 	const [messages, setMessages] = useState<
 		{ text: string; sending?: boolean }[]
 	>([{ text: "Hello there!", sending: false }]);
+
 	const [isPending, startTransition] = useTransition();
+
 	const [optimisticMessages, addOptimisticMessage] = useOptimistic(
 		messages,
 		(state, newMessage: string) => [
@@ -21,9 +23,14 @@ export function UseOptimisticThreadDemo() {
 		]
 	);
 
+	const formRef = useRef<HTMLFormElement>(null);
+
 	async function handleSend(formData: FormData) {
 		const text = String(formData.get("message") || "").trim();
 		if (!text) return;
+
+		// Makes sure the input is cleared after the message is sent instantly, instead of waiting for the server response
+		formRef.current?.reset();
 
 		addOptimisticMessage(text);
 
@@ -38,7 +45,11 @@ export function UseOptimisticThreadDemo() {
 
 	return (
 		<div className="space-y-3 text-sm border rounded-lg p-4 bg-muted/30">
-			<form action={handleSend} className="flex items-center gap-2">
+			<form
+				ref={formRef}
+				action={handleSend}
+				className="flex items-center gap-2"
+			>
 				<input
 					name="message"
 					placeholder="Say hi!"
