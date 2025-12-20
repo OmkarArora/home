@@ -1,0 +1,28 @@
+{
+	"name": "Omkar Arora - Frontend Engineer",
+	"short_name": "Omkar Arora",
+	"description": "Portfolio and blog by Omkar Arora, Frontend Engineer.",
+	"icons": [
+		{
+			"src": "/images/android-chrome-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/images/android-chrome-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		},
+		{
+			"src": "/images/apple-touch-icon.png",
+			"sizes": "180x180",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	],
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"theme_color": "#0f172a",
+	"background_color": "#0b1220"
+}

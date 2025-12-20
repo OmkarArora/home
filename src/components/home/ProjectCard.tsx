@@ -1,9 +1,11 @@
 import { ArrowUpRight, Github } from "lucide-react";
 import { buttonVariants, Button } from "@/components/ui/button";
 import { SkillPills } from "@/components/home/skill-pills";
+import { ProjectGallery, ProjectSlug } from "./ProjectGallery";
 
 type ProjectCardProps = {
 	title: string;
+	project: ProjectSlug;
 	description: string;
 	skills: string[];
 	href?: string; // main link (live app or repo)
@@ -14,6 +16,7 @@ type ProjectCardProps = {
 
 export function ProjectCard({
 	title,
+	project,
 	description,
 	skills,
 	href,
@@ -21,7 +24,7 @@ export function ProjectCard({
 	status,
 	anchorWrap = false,
 }: ProjectCardProps) {
-	const CardWrapper =
+	const ContentWrapper =
 		anchorWrap && href
 			? (props: React.ComponentProps<"a">) => (
 					<a
@@ -29,22 +32,15 @@ export function ProjectCard({
 						href={href}
 						target="_blank"
 						rel="noopener noreferrer"
-						className={`group border border-border rounded-lg p-6 hover:border-border/60 transition-colors block hover:shadow-md ${
-							props.className ?? ""
-						}`}
+						className={`group block ${props.className ?? ""}`}
 					/>
 			  )
 			: (props: React.ComponentProps<"div">) => (
-					<div
-						{...props}
-						className={`group border border-border rounded-lg p-6 hover:border-border/60 transition-colors hover:shadow-md ${
-							props.className ?? ""
-						}`}
-					/>
+					<div className={`group ${props.className ?? ""}`} {...props} />
 			  );
 
 	return (
-		<CardWrapper>
+		<div className="border border-border rounded-lg p-6 hover:border-border/60 transition-colors hover:shadow-md">
 			<div className="flex items-start justify-between mb-4">
 				<h3 className="text-xl font-semibold">
 					{title}{" "}
@@ -54,7 +50,6 @@ export function ProjectCard({
 						</span>
 					) : null}
 				</h3>
-
 				<div className="flex items-center gap-2">
 					{githubUrl ? (
 						<Button
@@ -76,41 +71,33 @@ export function ProjectCard({
 					) : null}
 
 					{href ? (
-						anchorWrap ? (
-							<span
-								className={
-									buttonVariants({ variant: "ghost", size: "sm" }) +
-									" hover:bg-transparent"
-								}
-								aria-hidden
+						<Button
+							asChild
+							variant="ghost"
+							size="sm"
+							className="hover:bg-transparent"
+						>
+							<a
+								href={href}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Open link"
+								title="Open link"
 							>
-								<ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-							</span>
-						) : (
-							<Button
-								asChild
-								variant="ghost"
-								size="sm"
-								className="hover:bg-transparent"
-							>
-								<a
-									href={href}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="Open link"
-									title="Open link"
-								>
-									<ArrowUpRight className="w-4 h-4" />
-								</a>
-							</Button>
-						)
+								<ArrowUpRight className="w-4 h-4" />
+							</a>
+						</Button>
 					) : null}
 				</div>
 			</div>
 
-			<p className="text-muted-foreground mb-4">{description}</p>
+			<ProjectGallery project={project} />
 
-			<SkillPills skills={skills} size="sm" />
-		</CardWrapper>
+			<ContentWrapper>
+				<p className="text-muted-foreground mb-4">{description}</p>
+
+				<SkillPills skills={skills} size="sm" />
+			</ContentWrapper>
+		</div>
 	);
 }

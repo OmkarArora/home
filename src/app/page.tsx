@@ -1,16 +1,9 @@
-import Link from "next/link";
 import { Calendar, Building, MapPin } from "lucide-react";
 import { SkillPills } from "@/components/home/skill-pills";
 import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 import { BlogPreview } from "@/components/home/BlogPreview";
-
-// TODO:
-// 1. Better Syntax highlighting for code blocks
-// 2. "Copy Code" button in blog code blocks
-// 4. Make sure the blogs are correct -  proof read
-// 5. Add a Download Resume btn
-// 6. Fun (Maybe AI generated) blog headers images
+import { ProjectGallery } from "@/components/home/ProjectGallery";
 
 export default function Home() {
 	return (
@@ -41,11 +34,12 @@ export default function Home() {
 			<BlogPreview />
 
 			{/* Personal Projects */}
-			<section className="max-w-4xl mx-auto px-6 py-16">
+			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Projects</h2>
 				<div className="space-y-6">
 					<ProjectCard
 						title="Portfolio Website"
+						project="portfolio"
 						href="https://omkararora.com"
 						githubUrl="https://github.com/OmkarArora/home"
 						description="A modern portfolio website built with Next.js App Router, featuring an MDX blog with custom components, dynamic OG image generation, SEO optimization, and a clean, responsive design."
@@ -63,6 +57,7 @@ export default function Home() {
 
 					<ProjectCard
 						title="Team Resume Builder"
+						project="team-resume-builder"
 						href="https://team-resume-builder.vercel.app/"
 						githubUrl="https://github.com/OmkarArora/team-resume-builder"
 						description="A modern React app to create, edit, and export professional resumes with PDF preview/download, team management, and a centralized, type-safe routing system."
@@ -79,6 +74,7 @@ export default function Home() {
 
 					<ProjectCard
 						title="Website Highlight Saver (Chrome Extension)"
+						project="highlight-extension"
 						anchorWrap
 						href="https://github.com/OmkarArora/highlight-extension"
 						description="Highlight text on any page and save locally with a beautiful popup UI, website exclusions, full-page view, and optional AI summaries."
@@ -95,16 +91,18 @@ export default function Home() {
 			</section>
 
 			{/* Work Projects */}
-			<section id="projects" className="max-w-4xl mx-auto px-6 py-16">
+			<section className="max-w-4xl mx-auto px-6 py-16">
 				<h2 className="text-2xl font-semibold mb-12">Work</h2>
 				<div className="space-y-6">
 					<ProjectCard
 						title="Jupitun"
+						project="jupitun"
 						description="Developed scalable frontend architecture with focus on performance optimization and user experience with a Local-First approach and Optimistic Updates."
 						skills={["Next.js", "React.js", "Tailwind CSS", "Scalability"]}
 					/>
 
 					<ProjectCard
+						project="openvy"
 						title="Openvy"
 						status="(Sunsetted)"
 						anchorWrap
@@ -123,6 +121,7 @@ export default function Home() {
 
 					<ProjectCard
 						title="Recommendations.email"
+						project="remail"
 						status="(Sunsetted)"
 						anchorWrap
 						href="https://recommendations.email/"
