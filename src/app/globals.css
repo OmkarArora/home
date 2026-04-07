@@ -259,3 +259,20 @@ pre code span {
 .dark pre code {
 	@apply bg-transparent;
 }
+
+@keyframes goku-sprite-attack {
+	from {
+		object-position: 0% 0%;
+	}
+	to {
+		object-position: 100% 0%;
+	}
+}
+
+.goku-sprite {
+	width: 320px;
+	height: 290px;
+	object-fit: cover;
+	animation: goku-sprite-attack 2s steps(3, jump-none) infinite;
+	image-rendering: pixelated;
+}
