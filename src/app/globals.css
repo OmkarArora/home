@@ -272,14 +272,14 @@ pre code span {
 	left: 300px; /* align with Goku hands */
 	top: 140px;
 
-	width: 400px;
+	width: 500px;
 	height: 40px;
 
 	background: linear-gradient(
 		90deg,
 		#00f0ff 0%,
 		#ffffff 30%,
-		#00cfff 60%,
+		#00cfff 65%,
 		transparent 100%
 	);
 
