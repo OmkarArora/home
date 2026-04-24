@@ -18,16 +18,21 @@ export function StepByStepDemo({
 	title,
 	description,
 }: StepByStepDemoProps) {
+	const safeSteps = Array.isArray(steps) ? steps : [];
 	const [currentStep, setCurrentStep] = useState(0);
 
+	if (safeSteps.length === 0) {
+		return null;
+	}
+
 	const goToStep = (step: number) => {
-		if (step >= 0 && step < steps.length) {
+		if (step >= 0 && step < safeSteps.length) {
 			setCurrentStep(step);
 		}
 	};
 
 	const nextStep = () => {
-		if (currentStep < steps.length - 1) {
+		if (currentStep < safeSteps.length - 1) {
 			setCurrentStep(currentStep + 1);
 		}
 	};
@@ -56,7 +61,7 @@ export function StepByStepDemo({
 			<div className="p-6 bg-background">
 				{/* Step indicators */}
 				<div className="flex items-center justify-between mb-6">
-					{steps.map((step, index) => (
+					{safeSteps.map((step, index) => (
 						<div key={index} className="flex items-center flex-1">
 							<button
 								onClick={() => goToStep(index)}
@@ -71,7 +76,7 @@ export function StepByStepDemo({
 							>
 								{index + 1}
 							</button>
-							{index < steps.length - 1 && (
+							{index < safeSteps.length - 1 && (
 								<div
 									className={`flex-1 h-0.5 mx-2 ${
 										index < currentStep ? "bg-primary" : "bg-muted"
@@ -85,10 +90,10 @@ export function StepByStepDemo({
 				{/* Current step content */}
 				<div className="mb-6">
 					<h5 className="text-base font-semibold text-foreground mb-3">
-						Step {currentStep + 1}: {steps[currentStep].title}
+						Step {currentStep + 1}: {safeSteps[currentStep].title}
 					</h5>
 					<div className="text-sm text-foreground">
-						{steps[currentStep].content}
+						{safeSteps[currentStep].content}
 					</div>
 				</div>
 
@@ -102,11 +107,11 @@ export function StepByStepDemo({
 						Previous
 					</button>
 					<span className="text-xs text-muted-foreground">
-						{currentStep + 1} of {steps.length}
+						{currentStep + 1} of {safeSteps.length}
 					</span>
 					<button
 						onClick={nextStep}
-						disabled={currentStep === steps.length - 1}
+						disabled={currentStep === safeSteps.length - 1}
 						className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 					>
 						Next

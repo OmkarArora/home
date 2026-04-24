@@ -21,6 +21,10 @@ export function ComparisonDemo({
 	right,
 	description,
 }: ComparisonDemoProps) {
+	if (!left || !right) {
+		return null;
+	}
+
 	const [activeTab, setActiveTab] = useState<"left" | "right" | "both">("both");
 
 	return (
