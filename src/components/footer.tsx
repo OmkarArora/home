@@ -55,9 +55,7 @@ export function Footer() {
 
 						<div className="flex items-center gap-3">
 							<MapPin className="w-5 h-5 text-muted-foreground" />
-							<span className="text-muted-foreground">
-								Nagpur, Maharashtra, India
-							</span>
+							<span className="text-muted-foreground">Gurugram, India</span>
 						</div>
 					</div>
 				</div>

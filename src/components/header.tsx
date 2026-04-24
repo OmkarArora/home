@@ -23,6 +23,7 @@ export function Header() {
 		{ href: "/blog", label: "blog" },
 		{ href: isHomePage ? "#work" : "/#work", label: "work" },
 		{ href: isHomePage ? "#contact" : "/#contact", label: "contact" },
+		{ href: "/resume", label: "resume", newTab: true },
 	];
 
 	return (
@@ -42,6 +43,8 @@ export function Header() {
 								<Link
 									key={link.href}
 									href={link.href}
+									target={link.newTab ? "_blank" : undefined}
+									rel={link.newTab ? "noopener noreferrer" : undefined}
 									className="hover:text-foreground transition-colors"
 								>
 									{link.label}
@@ -70,6 +73,8 @@ export function Header() {
 										<DropdownMenuItem key={link.href} asChild>
 											<Link
 												href={link.href}
+												target={link.newTab ? "_blank" : undefined}
+												rel={link.newTab ? "noopener noreferrer" : undefined}
 												onClick={() => setMobileMenuOpen(false)}
 												className="w-full"
 											>

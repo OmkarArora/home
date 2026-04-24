@@ -20,11 +20,11 @@ export default function Home() {
 					<div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
 						<div className="flex items-center gap-1">
 							<MapPin className="w-4 h-4 shrink-0" />
-							<span>Nagpur, Maharashtra, India</span>
+							<span>Gurugram, India</span>
 						</div>
 						<div className="flex items-center gap-1">
 							<Building className="w-4 h-4 shrink-0" />
-							<span>Sparklin Innovations Pvt Ltd, New Delhi</span>
+							<span>Ixigo, Gurugram, India</span>
 						</div>
 					</div>
 				</div>
@@ -144,7 +144,7 @@ export default function Home() {
 				<div className="space-y-12">
 					<WorkExperienceCard
 						title="Software Development Engineer 2"
-						company="Sparklin Innovations Pvt Ltd, New Delhi"
+						company="Ixigo, Gurugram"
 						startDate="April 2024"
 						endDate="Present"
 						description={[
