@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { SiteChrome } from "@/components/site-chrome";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -106,9 +107,9 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<div className="min-h-screen bg-background text-foreground flex flex-col">
-						<Header />
-						<main className="flex-1">{children}</main>
-						<Footer />
+						<SiteChrome header={<Header />} footer={<Footer />}>
+							{children}
+						</SiteChrome>
 					</div>
 				</ThemeProvider>
 			</body>
