@@ -126,7 +126,10 @@ export default async function PatchNotes() {
 								{role.from}–{role.to}
 							</span>
 							<div>
-								<h3 className="text-xl font-bold tracking-tight">{role.company}</h3>
+								<div className="flex flex-wrap items-center gap-2">
+									<h3 className="text-xl font-bold tracking-tight">{role.company}</h3>
+									{role.placeholder && <PlaceholderTag />}
+								</div>
 								<p className={`${label} mt-1`}>{role.title}</p>
 							</div>
 							<p className="mt-2 leading-relaxed text-[var(--muted)] md:mt-0 md:pt-1">{role.summary}</p>

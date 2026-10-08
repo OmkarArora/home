@@ -138,7 +138,7 @@ export const projects: Project[] = [
 	},
 ];
 
-export type Role = {
+export type Role = Placeholder & {
 	company: string;
 	title: string;
 	from: string;
@@ -149,24 +149,26 @@ export type Role = {
 };
 
 export const roles: Role[] = [
-	// Attributions as on the current site. QUESTION for Omkar: were Openvy,
-	// Recommendations.email and Jupitun ixigo products or Sparklin ones?
 	{
+		// PLACEHOLDER until Omkar sends his ixigo work.
+		placeholder: true,
 		company: "ixigo",
 		title: "Software Development Engineer 2",
 		from: "2024",
 		to: "Now",
-		summary:
-			"Frontend for key products; caching and SEO work that cut data-fetching time 30% and lifted organic traffic 20%.",
-		products: ["Openvy", "Recommendations.email", "Jupitun"],
+		summary: "What you own at ixigo, in a line.",
 	},
 	{
+		// Openvy, Recommendations.email and Jupitun were all Sparklin products
+		// (confirmed by Omkar). The 30% / 20% caching and SEO numbers sat beside
+		// them on the old site, so they move here too. QUESTION: confirm.
 		company: "Sparklin Innovations",
 		title: "Software Development Engineer",
 		from: "2021",
 		to: "2024",
 		summary:
-			"Frontend architecture for Openvy, full-stack feature work, and React Native prototypes that lifted mobile engagement 15%.",
+			"Frontend for Openvy, Recommendations.email and Jupitun. Caching and SEO work cut data-fetching time 30% and lifted organic traffic 20%; React Native prototypes lifted mobile engagement 15%.",
+		products: ["Openvy", "Recommendations.email", "Jupitun"],
 	},
 	{
 		company: "Homerunn",
