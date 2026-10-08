@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { PlaceholderTag, SectionHead, base, label, mono } from "@/components/lab/a/ui";
+import { Reveal } from "@/components/lab/a/Reveal";
+import { PlaceholderTag, SectionHead, base, label, mono, riseAt } from "@/components/lab/a/ui";
 import { latestPosts } from "@/components/lab/data";
 import { identity, projects, roles, shipped, yearsOfExperience } from "@/content/profile";
 
@@ -18,10 +19,10 @@ export default async function PatchNotes() {
 			{/* ─── Hero: headline + player card ─── */}
 			<section className="grid gap-10 py-14 md:grid-cols-12 md:py-24">
 				<div className="md:col-span-7">
-					<p className={label}>
+					<p className={`${label} rise`} style={riseAt(0)}>
 						{identity.title} · {identity.company}
 					</p>
-					<h1 className="mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
+					<h1 style={riseAt(1)} className="rise mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
 						Ships{" "}
 						<span className="relative inline-block">
 							<span className="absolute inset-x-[-0.08em] bottom-[0.08em] top-[0.18em] -z-0 -skew-x-6 bg-[var(--accent)]" />
@@ -30,8 +31,8 @@ export default async function PatchNotes() {
 						<br />
 						interfaces.
 					</h1>
-					<p className="mt-8 max-w-lg text-lg leading-relaxed text-[var(--muted)]">{identity.pitch}</p>
-					<div className={`${mono} mt-10 flex flex-wrap gap-3 text-xs uppercase tracking-wider`}>
+					<p style={riseAt(2)} className="rise mt-8 max-w-lg text-lg leading-relaxed text-[var(--muted)]">{identity.pitch}</p>
+					<div style={riseAt(3)} className={`${mono} rise mt-10 flex flex-wrap gap-3 text-xs uppercase tracking-wider`}>
 						<a
 							href={identity.links.resume}
 							className="bg-[var(--ink)] px-4 py-3 font-bold text-[var(--bg)] transition-transform hover:-translate-y-0.5"
@@ -47,7 +48,7 @@ export default async function PatchNotes() {
 					</div>
 				</div>
 
-				<aside className="self-end md:col-span-5">
+				<aside style={riseAt(4)} className="rise self-end md:col-span-5">
 					<div className="border border-[var(--ink)] bg-[var(--card)]">
 						<div
 							className={`${mono} border-b border-[var(--ink)] px-4 py-2 text-[11px] uppercase tracking-widest`}
@@ -86,7 +87,9 @@ export default async function PatchNotes() {
 					{shipped.map((feature, index) => {
 						const version = `v${shipped.length - index}.0`;
 						return (
-							<li
+							<Reveal
+								as="li"
+								index={index}
 								key={feature.name}
 								className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 border-b border-[var(--line)] py-6 sm:grid-cols-[5rem_1fr_auto] sm:items-center"
 							>
@@ -107,7 +110,7 @@ export default async function PatchNotes() {
 										<p className={label}>{feature.impact.label}</p>
 									</div>
 								)}
-							</li>
+							</Reveal>
 						);
 					})}
 				</ol>
@@ -117,8 +120,10 @@ export default async function PatchNotes() {
 			<section className="py-12">
 				<SectionHead title="Save history" tag={`${years}+ years`} />
 				<ol>
-					{roles.map((role) => (
-						<li
+					{roles.map((role, index) => (
+						<Reveal
+							as="li"
+							index={index}
 							key={role.company}
 							className="grid gap-x-8 gap-y-1 border-b border-[var(--line)] py-6 md:grid-cols-[7rem_19rem_1fr]"
 						>
@@ -133,13 +138,13 @@ export default async function PatchNotes() {
 								<p className={`${label} mt-1`}>{role.title}</p>
 							</div>
 							<p className="mt-2 leading-relaxed text-[var(--muted)] md:mt-0 md:pt-1">{role.summary}</p>
-						</li>
+						</Reveal>
 					))}
 				</ol>
 			</section>
 
 			{/* ─── Elsewhere on the site ─── */}
-			<section className="grid gap-4 py-12 md:grid-cols-2">
+			<Reveal as="section" className="grid gap-4 py-12 md:grid-cols-2">
 				{featured && (
 					<Link
 						href={`${base}/work`}
@@ -160,7 +165,7 @@ export default async function PatchNotes() {
 						<p className="mt-3 text-2xl font-bold tracking-tight">{latest.title} →</p>
 					</Link>
 				)}
-			</section>
+			</Reveal>
 		</>
 	);
 }

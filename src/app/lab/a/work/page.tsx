@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Reveal } from "@/components/lab/a/Reveal";
 import { ReticleZone } from "@/components/lab/a/Reticle";
 import { PageHead, SectionHead, label, mono } from "@/components/lab/a/ui";
 import { projects } from "@/content/profile";
@@ -21,7 +22,7 @@ export default function Work() {
 			</PageHead>
 
 			{featured && (
-				<ReticleZone>
+				<ReticleZone className="rise [--rise:3]">
 					<article className="grid border border-[var(--ink)] md:grid-cols-12">
 						<div className="p-6 md:col-span-8 md:p-8">
 							<p className={`${label} text-[var(--accent-ink)]`}>★ Featured quest · {featured.year}</p>
@@ -70,8 +71,10 @@ export default function Work() {
 			<section className="py-16">
 				<SectionHead title="Quest log" tag={`${quests.length} more`} />
 				<ol>
-					{quests.map((quest) => (
-						<li
+					{quests.map((quest, index) => (
+						<Reveal
+							as="li"
+							index={index}
 							key={quest.name}
 							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[5rem_1fr_14rem_auto] md:items-baseline"
 						>
@@ -93,7 +96,7 @@ export default function Work() {
 									</a>
 								)}
 							</div>
-						</li>
+						</Reveal>
 					))}
 				</ol>
 			</section>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { PageHead, PlaceholderTag, SectionHead, label, mono } from "@/components/lab/a/ui";
+import { Reveal } from "@/components/lab/a/Reveal";
+import { PageHead, PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/lab/a/ui";
 import { identity, interests } from "@/content/profile";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export default function About() {
 		<>
 			<PageHead kicker={`About · ${identity.location}`} title="Off the clock." />
 
-			<section className="grid gap-10 pb-12 md:grid-cols-12">
+			<section style={riseAt(2)} className="rise grid gap-10 pb-12 md:grid-cols-12">
 				<div className="space-y-5 text-xl leading-relaxed md:col-span-8">
 					{identity.about.map((paragraph) => (
 						<p key={paragraph}>{paragraph}</p>
@@ -33,8 +34,12 @@ export default function About() {
 			<section className="py-12">
 				<SectionHead title="AFK" tag="Interests" />
 				<div className="mt-6 grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-5">
-					{interests.map((interest) => (
-						<div key={interest.key} className="bg-[var(--bg)] p-5 last:col-span-2 md:last:col-span-1">
+					{interests.map((interest, index) => (
+						<Reveal
+							key={interest.key}
+							index={index}
+							className="bg-[var(--bg)] p-5 last:col-span-2 md:last:col-span-1"
+						>
 							<p className="text-3xl">{interest.emoji}</p>
 							<h3 className="mt-4 font-bold">{interest.label}</h3>
 							<p className="mt-1 text-sm leading-snug text-[var(--muted)]">{interest.line}</p>
@@ -43,7 +48,7 @@ export default function About() {
 									{pick.placeholder ? `[${pick.name}]` : pick.name}
 								</p>
 							))}
-						</div>
+						</Reveal>
 					))}
 				</div>
 			</section>

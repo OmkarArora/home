@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Reveal } from "@/components/lab/a/Reveal";
 import { PageHead, label, mono } from "@/components/lab/a/ui";
 import { allPosts, shortDate } from "@/components/lab/data";
 
@@ -20,7 +21,7 @@ export default async function Writing() {
 
 			<ol className="border-t border-[var(--ink)]">
 				{posts.map((post, index) => (
-					<li key={post.slug} className="border-b border-[var(--line)]">
+					<Reveal as="li" index={index} key={post.slug} className="border-b border-[var(--line)]">
 						<Link
 							href={`/blog/${post.slug}`}
 							className="group grid gap-x-8 gap-y-2 py-7 md:grid-cols-[5rem_9rem_1fr]"
@@ -38,7 +39,7 @@ export default async function Writing() {
 								)}
 							</div>
 						</Link>
-					</li>
+					</Reveal>
 				))}
 			</ol>
 		</>

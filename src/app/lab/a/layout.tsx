@@ -1,6 +1,7 @@
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
 import { Footer } from "@/components/lab/a/Footer";
+import { RevealConfig } from "@/components/lab/a/Reveal";
 import { TopBar } from "@/components/lab/a/TopBar";
 
 const display = Bricolage_Grotesque({
@@ -24,6 +25,16 @@ const palette = `
 	--bg: #0b0b0c; --ink: #ededE6; --muted: #8a8a84; --line: rgb(237 237 230 / 0.14);
 	--card: #121214; --accent: #c6f03a; --accent-ink: #c6f03a;
 }
+
+/* The opening of each page rises in on load: CSS, so it runs before any script. */
+@keyframes lab-a-rise { from { opacity: 0; transform: translateY(20px); } }
+[data-lab="a"] .rise {
+	animation: lab-a-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+	animation-delay: calc(var(--rise, 0) * 80ms + 60ms);
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-lab="a"] .rise { animation-name: none; }
+}
 `;
 
 export default function LabALayout({ children }: { children: React.ReactNode }) {
@@ -33,11 +44,17 @@ export default function LabALayout({ children }: { children: React.ReactNode }) 
 			className={`${display.variable} ${mono.variable} min-h-screen bg-[var(--bg)] text-[var(--ink)] [font-family:var(--lab-display)]`}
 		>
 			<style>{palette}</style>
-			<div className="mx-auto max-w-6xl px-5 sm:px-8">
-				<TopBar />
-				<main>{children}</main>
-				<Footer />
-			</div>
+			{/* Without scripts nothing would ever scroll into view, so show it all. */}
+			<noscript>
+				<style>{"[data-reveal] { opacity: 1 !important; transform: none !important; }"}</style>
+			</noscript>
+			<RevealConfig>
+				<div className="mx-auto max-w-6xl px-5 sm:px-8">
+					<TopBar />
+					<main>{children}</main>
+					<Footer />
+				</div>
+			</RevealConfig>
 		</div>
 	);
 }

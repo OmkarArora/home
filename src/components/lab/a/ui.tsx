@@ -1,5 +1,7 @@
 /** The pieces every version A page is built from. */
 
+import { Reveal } from "./Reveal";
+
 /** Where version A lives while it is in the lab. Becomes "" when it ships. */
 export const base = "/lab/a";
 
@@ -9,17 +11,20 @@ export const nav = [
 	{ href: `${base}/about`, label: "About" },
 ];
 
+/** For `.rise` elements: their place in the opening sequence. */
+export const riseAt = (step: number) => ({ "--rise": step }) as React.CSSProperties;
+
 export const mono = "[font-family:var(--lab-mono)]";
 export const label = `${mono} text-[11px] uppercase tracking-[0.18em] text-[var(--muted)]`;
 
 export function SectionHead({ tag, title }: { tag: string; title: string }) {
 	return (
-		<div className="flex items-baseline justify-between gap-4 border-b border-[var(--ink)] pb-3">
+		<Reveal className="flex items-baseline justify-between gap-4 border-b border-[var(--ink)] pb-3">
 			<h2 className={`${mono} text-sm font-bold uppercase tracking-[0.14em]`}>
 				<span className="text-[var(--accent-ink)]">//</span> {title}
 			</h2>
 			<span className={label}>{tag}</span>
-		</div>
+		</Reveal>
 	);
 }
 
@@ -35,12 +40,14 @@ export function PageHead({
 }) {
 	return (
 		<header className="py-14 md:py-20">
-			<p className={label}>{kicker}</p>
-			<h1 className="mt-5 text-[clamp(2.75rem,8vw,5.5rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
+			<p className={`${label} rise`} style={riseAt(0)}>
+				{kicker}
+			</p>
+			<h1 style={riseAt(1)} className="rise mt-5 text-[clamp(2.75rem,8vw,5.5rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
 				{title}
 			</h1>
 			{children && (
-				<p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--muted)]">{children}</p>
+				<p style={riseAt(2)} className="rise mt-6 max-w-xl text-lg leading-relaxed text-[var(--muted)]">{children}</p>
 			)}
 		</header>
 	);

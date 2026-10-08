@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * An aiming reticle in place of the cursor, inside this zone only.
@@ -13,6 +14,9 @@ import { useEffect, useRef, useState } from "react";
  * paper, on the lime panel and in dark mode without knowing which it is over.
  * Touch screens never see it, and with reduced motion it follows the pointer
  * exactly and does not spin.
+ *
+ * The reticle itself renders into <body>: `position: fixed` measures from the
+ * nearest transformed ancestor, and entrance animations transform things.
  */
 export function ReticleZone({
 	children,
@@ -97,7 +101,8 @@ export function ReticleZone({
 			className={`${className} ${enabled ? "cursor-none [&_*]:cursor-none" : ""}`}
 		>
 			{children}
-			{enabled && (
+			{enabled &&
+				createPortal(
 				<div
 					ref={reticle}
 					aria-hidden
@@ -120,8 +125,9 @@ export function ReticleZone({
 						<span className="absolute top-1/2 left-1/2 h-3 w-px -translate-x-1/2 -translate-y-1/2 bg-white/80" />
 						<span className="absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
 					</div>
-				</div>
-			)}
+				</div>,
+					document.body,
+				)}
 		</div>
 	);
 }
