@@ -1,5 +1,8 @@
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
+import { Footer } from "@/components/lab/a/Footer";
+import { TopBar } from "@/components/lab/a/TopBar";
+
 const display = Bricolage_Grotesque({
 	subsets: ["latin"],
 	variable: "--lab-display",
@@ -30,7 +33,11 @@ export default function LabALayout({ children }: { children: React.ReactNode }) 
 			className={`${display.variable} ${mono.variable} min-h-screen bg-[var(--bg)] text-[var(--ink)] [font-family:var(--lab-display)]`}
 		>
 			<style>{palette}</style>
-			{children}
+			<div className="mx-auto max-w-6xl px-5 sm:px-8">
+				<TopBar />
+				<main>{children}</main>
+				<Footer />
+			</div>
 		</div>
 	);
 }

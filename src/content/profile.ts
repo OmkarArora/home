@@ -21,6 +21,14 @@ export const identity = {
 	careerStart: new Date("2021-11-01"),
 	pitch:
 		"I build fast, careful interfaces — and the plumbing underneath that keeps them fast when real people show up.",
+	/**
+	 * The About page's longer introduction. DRAFT, assembled only from the facts
+	 * in this file, for Omkar to rewrite in his own voice.
+	 */
+	about: [
+		"I'm a frontend engineer at ixigo, in Gurugram. I started as an intern at Homerunn in 2020, spent three years at Sparklin building products end to end, and joined ixigo in 2024.",
+		"Outside work I build things for fun — lately Game Night, party games for a room full of phones — and write up what I learn along the way.",
+	],
 	email: "aroraomkar12@gmail.com",
 	links: {
 		github: "https://github.com/OmkarArora",

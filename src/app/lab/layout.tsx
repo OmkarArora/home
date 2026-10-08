@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 /**
- * The design lab: three candidate home pages, side by side.
+ * The design lab: version A of the redesign, before it replaces the live site.
  *
  * Kept out of search on purpose — these are drafts with placeholder content,
  * and the sitemap does not list them either.
