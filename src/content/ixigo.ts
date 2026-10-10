@@ -4,7 +4,8 @@
  *
  * Only work that reached production is here. Left out on purpose: anything
  * still in development or review, internal merge-request links, and internal
- * codenames. Per-feature file and commit counts are dropped too.
+ * codenames. Merge-request, commit and file counts are dropped too: they say
+ * how much was typed, not what it was worth.
  */
 
 export type Product = "flights" | "cabs";
@@ -227,13 +228,6 @@ export const wins: Win[] = [
 export const period = "May – Sep 2026";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** The headline numbers from his write-up. */
-export const totals = [
-	{ value: "14", label: "merge requests merged" },
-	{ value: "190+", label: "commits in production" },
-	{ value: "3", label: "codebases: flights mobile web, flights desktop, cabs" },
-];
 
 export type Month = { key: string; label: string; shipped: Shipped[]; wins: Win[] };
 

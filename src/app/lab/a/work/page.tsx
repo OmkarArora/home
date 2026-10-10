@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/lab/a/Reveal";
 import { Trace } from "@/components/lab/a/Trace";
-import { PageHead, label, mono, riseAt } from "@/components/lab/a/ui";
-import { type Shipped, period, productLabel, surfaceLabel, timeline, totals } from "@/content/ixigo";
+import { PageHead, label, mono } from "@/components/lab/a/ui";
+import { type Shipped, period, productLabel, surfaceLabel, timeline } from "@/content/ixigo";
 import { identity } from "@/content/profile";
 
 export const metadata: Metadata = {
@@ -100,19 +100,7 @@ export default function Work() {
 				{period}. Newest first.
 			</PageHead>
 
-			<dl
-				style={riseAt(3)}
-				className="rise grid gap-px border border-[var(--ink)] bg-[var(--ink)] sm:grid-cols-3"
-			>
-				{totals.map((total) => (
-					<div key={total.label} className="bg-[var(--bg)] p-5">
-						<dd className="text-4xl font-extrabold tracking-tight">{total.value}</dd>
-						<dt className={`${label} mt-2`}>{total.label}</dt>
-					</div>
-				))}
-			</dl>
-
-			<Trace className="mt-16">
+			<Trace className="mt-4">
 				<section className="pb-14">
 					<h2 data-trace-node className={stop}>
 						Now
