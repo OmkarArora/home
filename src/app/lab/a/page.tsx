@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Reveal } from "@/components/lab/a/Reveal";
 import { PlaceholderTag, SectionHead, base, label, mono, riseAt } from "@/components/lab/a/ui";
 import { latestPosts } from "@/components/lab/data";
-import { identity, projects, roles, shipped, yearsOfExperience } from "@/content/profile";
+import { productLabel, shipped, wins } from "@/content/ixigo";
+import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
 
 /**
  * Version A — Patch notes. The home page only answers "who is this, and what
@@ -13,6 +14,7 @@ export default async function PatchNotes() {
 	const [latest] = await latestPosts(1);
 	const years = yearsOfExperience();
 	const [featured] = projects;
+	const highlights = shipped.filter((item) => item.feature);
 
 	return (
 		<>
@@ -80,40 +82,36 @@ export default async function PatchNotes() {
 				</aside>
 			</section>
 
-			{/* ─── Patch notes: shipped at ixigo ─── */}
+			{/* ─── Patch notes: the biggest things shipped at ixigo ─── */}
 			<section id="patch-notes" className="py-12">
 				<SectionHead title="Patch notes" tag={`Shipped at ${identity.company}`} />
 				<ol>
-					{shipped.map((feature, index) => {
-						const version = `v${shipped.length - index}.0`;
-						return (
-							<Reveal
-								as="li"
-								index={index}
-								key={feature.name}
-								className="grid grid-cols-[4.5rem_1fr] gap-x-4 gap-y-2 border-b border-[var(--line)] py-6 sm:grid-cols-[5rem_1fr_auto] sm:items-center"
-							>
-								<span className={`${mono} text-sm font-bold text-[var(--accent-ink)]`}>{version}</span>
-								<div className="min-w-0">
-									<div className="flex flex-wrap items-center gap-2">
-										<h3 className="text-xl font-bold tracking-tight sm:text-2xl">{feature.name}</h3>
-										{feature.placeholder && <PlaceholderTag />}
-									</div>
-									<p className="mt-1 text-[var(--muted)]">{feature.summary}</p>
-									<p className={`${label} mt-2`}>
-										{feature.role} · {feature.shipped}
-									</p>
-								</div>
-								{feature.impact && (
-									<div className="col-start-2 sm:col-start-3 sm:text-right">
-										<p className={`${mono} text-3xl font-bold tracking-tight`}>{feature.impact.value}</p>
-										<p className={label}>{feature.impact.label}</p>
-									</div>
-								)}
-							</Reveal>
-						);
-					})}
+					{highlights.map((feature, index) => (
+						<Reveal
+							as="li"
+							index={index}
+							key={feature.title}
+							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[7rem_1fr]"
+						>
+							<span className={`${mono} text-sm font-bold text-[var(--accent-ink)] md:pt-1.5`}>
+								{feature.when}
+							</span>
+							<div className="min-w-0">
+								<h3 className="text-xl font-bold tracking-tight sm:text-2xl">{feature.title}</h3>
+								<p className="mt-2 max-w-3xl leading-relaxed text-[var(--muted)]">{feature.summary}</p>
+								<p className={`${label} mt-3`}>
+									{productLabel[feature.product]} · {feature.skills.join(" · ")}
+								</p>
+							</div>
+						</Reveal>
+					))}
 				</ol>
+				<Link
+					href={`${base}/work`}
+					className={`${mono} mt-6 inline-block text-xs font-bold uppercase tracking-wider hover:text-[var(--accent-ink)]`}
+				>
+					All {shipped.length + wins.length} patch notes →
+				</Link>
 			</section>
 
 			{/* ─── Save history ─── */}
@@ -147,7 +145,7 @@ export default async function PatchNotes() {
 			<Reveal as="section" className="grid gap-4 py-12 md:grid-cols-2">
 				{featured && (
 					<Link
-						href={`${base}/work`}
+						href={`${base}/projects`}
 						className="border border-[var(--ink)] p-6 transition-colors hover:bg-[var(--accent)] hover:text-[#0c0c0d]"
 					>
 						<p className={`${mono} text-[11px] uppercase tracking-[0.18em] opacity-70`}>Side quests</p>

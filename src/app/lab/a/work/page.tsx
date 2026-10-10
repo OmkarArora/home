@@ -1,105 +1,166 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/lab/a/Reveal";
-import { ReticleZone } from "@/components/lab/a/Reticle";
-import { PageHead, SectionHead, label, mono } from "@/components/lab/a/ui";
-import { projects } from "@/content/profile";
+import { Trace } from "@/components/lab/a/Trace";
+import { PageHead, label, mono, riseAt } from "@/components/lab/a/ui";
+import { type Shipped, period, productLabel, surfaceLabel, timeline, totals } from "@/content/ixigo";
+import { identity } from "@/content/profile";
 
 export const metadata: Metadata = {
-	title: "Side quests — Omkar Arora",
-	description: "Things Omkar Arora built for fun, starting with Game Night.",
+	title: "Patch notes — Omkar Arora",
+	description: "What Omkar Arora has shipped at ixigo, month by month: flights and cabs on the web.",
 };
 
-const button = `${mono} px-4 py-3 text-xs font-bold uppercase tracking-wider`;
+/** A stop on the line: the month, which lights up once the line reaches it. */
+const stop = `${mono} text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)] transition-colors duration-300 data-[on=true]:text-[var(--ink)]`;
+
+function Tags({ item }: { item: Shipped }) {
+	return (
+		<p className={`${label} flex flex-wrap items-center gap-x-3 gap-y-1`}>
+			<span className="bg-[var(--ink)] px-1.5 py-0.5 text-[var(--bg)]">{productLabel[item.product]}</span>
+			<span>{item.surfaces.map((surface) => surfaceLabel[surface]).join(" + ")}</span>
+			<span>{item.when}</span>
+		</p>
+	);
+}
+
+/** Where a screen recording goes: phone-shaped, since most of this is mobile web. */
+function Clip({ item }: { item: Shipped }) {
+	const frame = "aspect-[9/16] w-full max-w-[13rem] border border-[var(--ink)] bg-[var(--card)]";
+	if (!item.media) {
+		return (
+			<div
+				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--muted)] p-4 text-center text-[10px] uppercase tracking-widest text-[var(--muted)]`}
+			>
+				Clip to come
+			</div>
+		);
+	}
+	return item.media.type === "video" ? (
+		<video
+			className={`${frame} object-cover`}
+			src={item.media.src}
+			poster={item.media.poster}
+			aria-label={item.media.alt}
+			autoPlay
+			muted
+			loop
+			playsInline
+		/>
+	) : (
+		// eslint-disable-next-line @next/next/no-img-element -- GIFs must stay animated
+		<img className={`${frame} object-cover`} src={item.media.src} alt={item.media.alt} loading="lazy" />
+	);
+}
+
+function Entry({ item, index }: { item: Shipped; index: number }) {
+	return (
+		<Reveal
+			as="article"
+			index={index}
+			className={
+				item.feature
+					? "grid gap-8 border border-[var(--ink)] p-6 md:grid-cols-[1fr_13rem] md:p-8"
+					: "border-b border-[var(--line)] py-6"
+			}
+		>
+			<div className="min-w-0">
+				<Tags item={item} />
+				<h3
+					className={`mt-3 font-extrabold tracking-tight ${item.feature ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl"}`}
+				>
+					{item.title}
+				</h3>
+				{item.role && <p className={`${label} mt-2 text-[var(--accent-ink)]`}>{item.role}</p>}
+				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{item.summary}</p>
+				{item.points.length > 0 && (
+					<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
+						{item.points.map((point) => (
+							<li key={point} className="grid grid-cols-[1rem_1fr]">
+								<span className="text-[var(--accent-ink)]">+</span>
+								{point}
+							</li>
+						))}
+					</ul>
+				)}
+				<p className={`${label} mt-5`}>{item.skills.join(" · ")}</p>
+			</div>
+			{item.feature && <Clip item={item} />}
+		</Reveal>
+	);
+}
 
 export default function Work() {
-	const [featured, ...quests] = projects;
+	const months = timeline();
 
 	return (
 		<>
-			<PageHead kicker="Side quests · built for fun" title="Side quests.">
-				What I build when nobody asked: games, tools and this site.
+			<PageHead kicker={`Patch notes · shipped at ${identity.company}`} title="Patch notes.">
+				Features, cross-sell surfaces and analytics work across ixigo&apos;s flights and cabs web apps,{" "}
+				{period}. Newest first.
 			</PageHead>
 
-			{featured && (
-				<ReticleZone className="rise [--rise:3]">
-					<article className="grid border border-[var(--ink)] md:grid-cols-12">
-						<div className="p-6 md:col-span-8 md:p-8">
-							<p className={`${label} text-[var(--accent-ink)]`}>★ Featured quest · {featured.year}</p>
-							<h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{featured.name}</h2>
-							<p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--muted)]">{featured.summary}</p>
-							<p className={`${mono} mt-6 text-xs uppercase tracking-wider text-[var(--muted)]`}>
-								{featured.stack.join(" · ")}
-							</p>
-							<div className="mt-8 flex flex-wrap gap-3">
-								{featured.href && (
-									<a
-										href={featured.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										className={`${button} bg-[var(--ink)] text-[var(--bg)]`}
-									>
-										Play it ↗
-									</a>
-								)}
-								{featured.caseStudy && (
-									<a
-										href={featured.caseStudy.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										className={`${button} border border-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)]`}
-									>
-										{featured.caseStudy.label} ↗
-									</a>
-								)}
-							</div>
-						</div>
-						{featured.highlight && (
-							<div className="flex flex-col justify-end border-t border-[var(--ink)] bg-[var(--accent)] p-6 text-[#0c0c0d] md:col-span-4 md:border-t-0 md:border-l md:p-8">
-								<p className="text-[clamp(4rem,10vw,7rem)] leading-none font-extrabold tracking-tighter">
-									{featured.highlight.value}
-								</p>
-								<p className={`${mono} mt-2 text-xs font-bold uppercase tracking-widest`}>
-									{featured.highlight.label}
-								</p>
-							</div>
-						)}
-					</article>
-				</ReticleZone>
-			)}
+			<dl
+				style={riseAt(3)}
+				className="rise grid gap-px border border-[var(--ink)] bg-[var(--ink)] sm:grid-cols-3"
+			>
+				{totals.map((total) => (
+					<div key={total.label} className="bg-[var(--bg)] p-5">
+						<dd className="text-4xl font-extrabold tracking-tight">{total.value}</dd>
+						<dt className={`${label} mt-2`}>{total.label}</dt>
+					</div>
+				))}
+			</dl>
 
-			<section className="py-16">
-				<SectionHead title="Quest log" tag={`${quests.length} more`} />
-				<ol>
-					{quests.map((quest, index) => (
-						<Reveal
-							as="li"
-							index={index}
-							key={quest.name}
-							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[5rem_1fr_14rem_auto] md:items-baseline"
-						>
-							<span className={`${mono} text-xs text-[var(--muted)]`}>{quest.year}</span>
-							<div>
-								<h3 className="text-xl font-bold tracking-tight">{quest.name}</h3>
-								<p className="mt-1 leading-relaxed text-[var(--muted)]">{quest.summary}</p>
-							</div>
-							<p className={label}>{quest.stack.slice(0, 3).join(" · ")}</p>
-							<div className={`${mono} flex gap-4 text-xs font-bold uppercase tracking-wider`}>
-								{quest.href && (
-									<a href={quest.href} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-ink)]">
-										Site ↗
-									</a>
-								)}
-								{quest.repo && (
-									<a href={quest.repo} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-ink)]">
-										Code ↗
-									</a>
-								)}
-							</div>
-						</Reveal>
-					))}
-				</ol>
-			</section>
+			<Trace className="mt-16">
+				<section className="pb-14">
+					<h2 data-trace-node className={stop}>
+						Now
+					</h2>
+					<p className="mt-3 max-w-xl text-[var(--muted)]">
+						More is in review and in the works. It goes here once it ships.
+					</p>
+				</section>
+
+				{months.map((month) => (
+					<section key={month.key} className="pb-16">
+						<h2 data-trace-node className={stop}>
+							{month.label}
+							<span className="ml-3 font-normal">
+								{month.shipped.length + month.wins.length} shipped
+							</span>
+						</h2>
+
+						<div className="mt-6 space-y-4">
+							{month.shipped.map((item, index) => (
+								<Entry key={item.title} item={item} index={index} />
+							))}
+						</div>
+
+						{month.wins.length > 0 && (
+							<Reveal className="mt-8">
+								<p className={label}>Also shipped</p>
+								<ul className="mt-3">
+									{month.wins.map((win) => (
+										<li
+											key={win.what}
+											className="grid gap-x-4 border-b border-[var(--line)] py-3 sm:grid-cols-[4.5rem_1fr]"
+										>
+											<span className={`${label} sm:pt-1`}>{productLabel[win.product]}</span>
+											<span>
+												{win.what}
+												{win.note && (
+													<span className="block text-sm text-[var(--muted)]">{win.note}</span>
+												)}
+											</span>
+										</li>
+									))}
+								</ul>
+							</Reveal>
+						)}
+					</section>
+				))}
+			</Trace>
 		</>
 	);
 }

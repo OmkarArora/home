@@ -45,46 +45,6 @@ export function yearsOfExperience(now = new Date()): number {
 	return Math.floor(years);
 }
 
-export type ShippedFeature = Placeholder & {
-	name: string;
-	summary: string;
-	role: string;
-	/** One number, and only one cleared for publishing. */
-	impact?: { value: string; label: string };
-	href?: string;
-	shipped: string;
-};
-
-/**
- * Features shipped at ixigo. PLACEHOLDERS until Omkar supplies the real list —
- * only what is live and public, and only numbers he is allowed to share.
- */
-export const shipped: ShippedFeature[] = [
-	{
-		placeholder: true,
-		name: "Feature one",
-		summary: "What it does for a traveller, in one line.",
-		role: "Led frontend",
-		impact: { value: "+00%", label: "metric" },
-		shipped: "2026",
-	},
-	{
-		placeholder: true,
-		name: "Feature two",
-		summary: "What it does for a traveller, in one line.",
-		role: "Built end to end",
-		impact: { value: "−00%", label: "metric" },
-		shipped: "2025",
-	},
-	{
-		placeholder: true,
-		name: "Feature three",
-		summary: "What it does for a traveller, in one line.",
-		role: "Frontend",
-		shipped: "2025",
-	},
-];
-
 export type Project = {
 	name: string;
 	summary: string;
@@ -150,13 +110,13 @@ export type Role = Placeholder & {
 
 export const roles: Role[] = [
 	{
-		// PLACEHOLDER until Omkar sends his ixigo work.
-		placeholder: true,
+		// From his shipped-work write-up; the features themselves are in ixigo.ts.
 		company: "ixigo",
 		title: "Software Development Engineer 2",
 		from: "2024",
 		to: "Now",
-		summary: "What you own at ixigo, in a line.",
+		summary:
+			"Flights and cabs on the web: the search screen for Smart Lock, a flash-sale hero that runs itself, partial payment for cabs, and the analytics underneath.",
 	},
 	{
 		// Openvy, Recommendations.email and Jupitun were all Sparklin products

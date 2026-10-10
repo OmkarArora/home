@@ -7,6 +7,7 @@ export const base = "/lab/a";
 
 export const nav = [
 	{ href: `${base}/work`, label: "Work" },
+	{ href: `${base}/projects`, label: "Projects" },
 	{ href: `${base}/writing`, label: "Writing" },
 	{ href: `${base}/about`, label: "About" },
 ];
