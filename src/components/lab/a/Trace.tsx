@@ -168,7 +168,7 @@ export function Trace({ children, className = "" }: { children: React.ReactNode;
 							width={10}
 							height={10}
 							transform={`rotate(45 ${(NEAR + FAR) / 2} ${stop})`}
-							className="fill-[var(--bg)] stroke-[var(--muted)] transition-[fill,stroke] duration-300 data-[on=true]:fill-[var(--accent)] data-[on=true]:stroke-[var(--ink)]"
+							className="fill-[var(--bg)] stroke-[var(--dim)] transition-[fill,stroke] duration-300 data-[on=true]:fill-[var(--lime)] data-[on=true]:stroke-[var(--ink)]"
 							strokeWidth={1.5}
 						/>
 					))}

@@ -27,8 +27,8 @@ export default function Projects() {
 						<div className="p-6 md:col-span-8 md:p-8">
 							<p className={`${label} text-[var(--accent-ink)]`}>★ Featured quest · {featured.year}</p>
 							<h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{featured.name}</h2>
-							<p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--muted)]">{featured.summary}</p>
-							<p className={`${mono} mt-6 text-xs uppercase tracking-wider text-[var(--muted)]`}>
+							<p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--dim)]">{featured.summary}</p>
+							<p className={`${mono} mt-6 text-xs uppercase tracking-wider text-[var(--dim)]`}>
 								{featured.stack.join(" · ")}
 							</p>
 							<div className="mt-8 flex flex-wrap gap-3">
@@ -55,7 +55,7 @@ export default function Projects() {
 							</div>
 						</div>
 						{featured.highlight && (
-							<div className="flex flex-col justify-end border-t border-[var(--ink)] bg-[var(--accent)] p-6 text-[#0c0c0d] md:col-span-4 md:border-t-0 md:border-l md:p-8">
+							<div className="flex flex-col justify-end border-t border-[var(--ink)] bg-[var(--lime)] p-6 text-[#0c0c0d] md:col-span-4 md:border-t-0 md:border-l md:p-8">
 								<p className="text-[clamp(4rem,10vw,7rem)] leading-none font-extrabold tracking-tighter">
 									{featured.highlight.value}
 								</p>
@@ -78,10 +78,10 @@ export default function Projects() {
 							key={quest.name}
 							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[5rem_1fr_14rem_auto] md:items-baseline"
 						>
-							<span className={`${mono} text-xs text-[var(--muted)]`}>{quest.year}</span>
+							<span className={`${mono} text-xs text-[var(--dim)]`}>{quest.year}</span>
 							<div>
 								<h3 className="text-xl font-bold tracking-tight">{quest.name}</h3>
-								<p className="mt-1 leading-relaxed text-[var(--muted)]">{quest.summary}</p>
+								<p className="mt-1 leading-relaxed text-[var(--dim)]">{quest.summary}</p>
 							</div>
 							<p className={label}>{quest.stack.slice(0, 3).join(" · ")}</p>
 							<div className={`${mono} flex gap-4 text-xs font-bold uppercase tracking-wider`}>

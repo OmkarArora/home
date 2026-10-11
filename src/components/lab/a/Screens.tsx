@@ -18,7 +18,7 @@ export function Screens({ screens }: { screens: Screen[] }) {
 	if (screens.length === 0) return null;
 	const shown = screens[current];
 	const step = (by: number) => setCurrent((index) => (index + by + screens.length) % screens.length);
-	const control = `${mono} border border-[var(--ink)] bg-[var(--bg)] px-3 py-2 text-xs font-bold uppercase tracking-wider text-[var(--ink)] hover:bg-[var(--accent)] hover:text-[#0c0c0d]`;
+	const control = `${mono} border border-[var(--ink)] bg-[var(--bg)] px-3 py-2 text-xs font-bold uppercase tracking-wider text-[var(--ink)] hover:bg-[var(--lime)] hover:text-[#0c0c0d]`;
 
 	return (
 		<>

@@ -17,11 +17,11 @@ export function TopBar() {
 			className={`${mono} flex flex-wrap items-center justify-between gap-x-4 border-b border-[var(--line)] py-4 text-xs`}
 		>
 			<Link href={base} className="flex items-center gap-2 font-bold uppercase tracking-wider">
-				<span className="size-2 bg-[var(--accent)]" />
+				<span className="size-2 bg-[var(--lime)]" />
 				{identity.name}
 			</Link>
 			{/* On a phone the links get a row of their own, under the name. */}
-			<nav className="order-last flex w-full gap-6 pt-3 uppercase tracking-wider text-[var(--muted)] md:order-none md:w-auto md:pt-0">
+			<nav className="order-last flex w-full gap-6 pt-3 uppercase tracking-wider text-[var(--dim)] md:order-none md:w-auto md:pt-0">
 				{nav.map((item) => {
 					const active = pathname.startsWith(item.href);
 					return (
@@ -31,7 +31,7 @@ export function TopBar() {
 							aria-current={active ? "page" : undefined}
 							className={
 								active
-									? "text-[var(--ink)] underline decoration-[var(--accent)] decoration-2 underline-offset-[6px]"
+									? "text-[var(--ink)] underline decoration-[var(--lime)] decoration-2 underline-offset-[6px]"
 									: "hover:text-[var(--ink)]"
 							}
 						>
@@ -41,7 +41,7 @@ export function TopBar() {
 				})}
 			</nav>
 			<div className="flex items-center gap-3">
-				<LocalTime className="hidden text-[var(--muted)] sm:inline" />
+				<LocalTime className="hidden text-[var(--dim)] sm:inline" />
 				<ModeToggle />
 			</div>
 		</header>

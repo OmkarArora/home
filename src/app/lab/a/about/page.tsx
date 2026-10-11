@@ -42,7 +42,7 @@ export default function About() {
 						>
 							<p className="text-3xl">{interest.emoji}</p>
 							<h3 className="mt-4 font-bold">{interest.label}</h3>
-							<p className="mt-1 text-sm leading-snug text-[var(--muted)]">{interest.line}</p>
+							<p className="mt-1 text-sm leading-snug text-[var(--dim)]">{interest.line}</p>
 							{interest.picks.map((pick) => (
 								<p key={pick.name} className={`${label} mt-3`}>
 									{pick.placeholder ? `[${pick.name}]` : pick.name}

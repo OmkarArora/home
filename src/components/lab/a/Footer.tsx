@@ -13,7 +13,7 @@ export function Footer() {
 				{identity.email}
 			</a>
 			<div
-				className={`${mono} mt-10 flex flex-wrap justify-between gap-4 text-xs uppercase tracking-wider text-[var(--muted)]`}
+				className={`${mono} mt-10 flex flex-wrap justify-between gap-4 text-xs uppercase tracking-wider text-[var(--dim)]`}
 			>
 				<div className="flex gap-6">
 					<a href={identity.links.github} className="hover:text-[var(--ink)]">

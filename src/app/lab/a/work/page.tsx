@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 };
 
 /** A stop on the line, which lights up once the line reaches it. */
-const stop = `${mono} text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)] transition-colors duration-300 data-[on=true]:text-[var(--ink)]`;
+const stop = `${mono} text-sm font-bold uppercase tracking-[0.14em] text-[var(--dim)] transition-colors duration-300 data-[on=true]:text-[var(--ink)]`;
 /** A company's name: the stop that opens its chapter. */
 const chapter =
-	"scroll-mt-8 text-4xl font-extrabold tracking-tight text-[var(--muted)] transition-colors duration-300 data-[on=true]:text-[var(--ink)] sm:text-5xl";
+	"scroll-mt-8 text-4xl font-extrabold tracking-tight text-[var(--dim)] transition-colors duration-300 data-[on=true]:text-[var(--ink)] sm:text-5xl";
 const plus = "grid grid-cols-[1rem_1fr] before:text-[var(--accent-ink)] before:content-['+']";
 
 function Tags({ item }: { item: Shipped }) {
@@ -36,7 +36,7 @@ function Clip({ item }: { item: Shipped }) {
 	if (!item.media) {
 		return (
 			<div
-				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--muted)] p-4 text-center text-[10px] uppercase tracking-widest text-[var(--muted)]`}
+				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--dim)] p-4 text-center text-[10px] uppercase tracking-widest text-[var(--dim)]`}
 			>
 				Clip to come
 			</div>
@@ -71,7 +71,7 @@ function Major({ item }: { item: Shipped }) {
 					<Tags item={item} />
 					<h4 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{item.title}</h4>
 					{item.role && <p className={`${label} mt-2 text-[var(--accent-ink)]`}>{item.role}</p>}
-					<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{item.summary}</p>
+					<p className="mt-3 max-w-2xl leading-relaxed text-[var(--dim)]">{item.summary}</p>
 					<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
 						{item.points.map((point) => (
 							<li key={point} className={plus}>
@@ -100,7 +100,7 @@ function Minor({ item }: { item: Shipped }) {
 					</span>
 				</summary>
 				<div className="pb-5 sm:pl-[5.25rem]">
-					<p className="max-w-2xl text-sm leading-relaxed text-[var(--muted)]">{item.summary}</p>
+					<p className="max-w-2xl text-sm leading-relaxed text-[var(--dim)]">{item.summary}</p>
 					{item.points.length > 0 && (
 						<ul className="mt-3 max-w-2xl space-y-1 text-sm leading-relaxed">
 							{item.points.map((point) => (
@@ -122,16 +122,16 @@ function Minor({ item }: { item: Shipped }) {
 function SparklinProduct({ product }: { product: Product }) {
 	return (
 		<section className="pb-12">
-			<h3 data-trace-node className={stop}>
+			<h3 data-trace-node className={`${stop} flex flex-wrap gap-x-3`}>
 				{product.name}
-				{product.status && <span className="ml-3 font-normal">{product.status}</span>}
+				{product.status && <span className="font-normal">{product.status}</span>}
 			</h3>
 			<Reveal as="article" className="mt-4">
 				<p className="flex max-w-2xl flex-wrap items-center gap-2 text-xl leading-snug font-bold tracking-tight sm:text-2xl">
 					{product.what}
 					{product.draft && <PlaceholderTag />}
 				</p>
-				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{product.part}</p>
+				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--dim)]">{product.part}</p>
 				<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
 					{product.points.map((point) => (
 						<li key={point} className={plus}>
@@ -167,7 +167,7 @@ export default function Work() {
 					<a
 						key={href}
 						href={href}
-						className="border border-[var(--ink)] px-3 py-2 transition-colors hover:bg-[var(--accent)] hover:text-[#0c0c0d]"
+						className="border border-[var(--ink)] px-3 py-2 transition-colors hover:bg-[var(--lime)] hover:text-[#0c0c0d]"
 					>
 						{name} ↓
 					</a>
@@ -181,7 +181,7 @@ export default function Work() {
 						ixigo
 					</h2>
 					<p className={`${label} mt-3`}>{since} – now · Senior Software Engineer 1</p>
-					<p className="mt-3 max-w-xl text-[var(--muted)]">
+					<p className="mt-3 max-w-xl text-[var(--dim)]">
 						The three biggest things first. More is in review and in the works, and goes here once it
 						ships.
 					</p>
@@ -209,7 +209,7 @@ export default function Work() {
 								{month.wins.map((win) => (
 									<li
 										key={win.what}
-										className="grid grid-cols-[4.5rem_1fr] items-baseline gap-x-3 border-b border-[var(--line)] py-2 text-sm text-[var(--muted)]"
+										className="grid grid-cols-[4.5rem_1fr] items-baseline gap-x-3 border-b border-[var(--line)] py-2 text-sm text-[var(--dim)]"
 									>
 										<span className={label}>{productLabel[win.product]}</span>
 										{win.what}
@@ -228,7 +228,7 @@ export default function Work() {
 					<p className={`${label} mt-3`}>
 						{company.when} · {company.titles}
 					</p>
-					<p className="mt-3 max-w-xl text-[var(--muted)]">{company.summary}</p>
+					<p className="mt-3 max-w-xl text-[var(--dim)]">{company.summary}</p>
 					<Reveal className="mt-8 grid max-w-3xl border border-[var(--ink)] sm:grid-cols-3">
 						{outcomes.map((outcome) => (
 							<div
@@ -237,7 +237,7 @@ export default function Work() {
 							>
 								<p className="text-4xl font-extrabold tracking-tight">{outcome.value}</p>
 								<p className="mt-1 font-bold">{outcome.label}</p>
-								<p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{outcome.how}</p>
+								<p className="mt-2 text-sm leading-relaxed text-[var(--dim)]">{outcome.how}</p>
 							</div>
 						))}
 					</Reveal>
