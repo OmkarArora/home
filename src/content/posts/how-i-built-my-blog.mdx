@@ -1,15 +1,16 @@
 ---
-title: "How I built my Blog with MDX, Next.js, and Tailwind CSS"
+title: "How I built my blog with MDX, Next.js and Tailwind CSS"
 publishedAt: "2025-11-30"
-summary: "A comprehensive guide on setting up an MDX blog in Next.js with custom components and Tailwind Typography."
+updatedAt: "2026-10-11"
+summary: "The whole setup behind this blog: reading MDX files, parsing frontmatter, custom components and Tailwind Typography, on the Next.js App Router."
 keywords: "mdx, nextjs, tailwind css, blog, tutorial, react, markdown, web development"
 ---
 
-MDX (Markdown + JSX) is a powerful way to write blog posts that combine the simplicity of Markdown with the flexibility of React components. In this guide, I'll walk you through setting up a complete MDX blog system in your Next.js application, including custom components and beautiful typography.
+MDX is Markdown that can render React components. That makes it a good fit for a blog where a post sometimes needs a live example and not just a code sample. This is the setup behind this site, start to finish: reading the files, parsing frontmatter, custom components and typography.
 
 ## Prerequisites
 
-Before we begin, make sure you have a Next.js project set up with the App Router (I used Next.js 16 for my blog).
+You need a Next.js project on the App Router. I used Next.js 16.
 
 ## Step 1: Install Required Dependencies
 
@@ -292,6 +293,8 @@ This component provides:
 
 Note: Typography styling is handled by `@tailwindcss/typography` (see Step 10).
 
+> **A gotcha I hit later.** `next-mdx-remote` 6 strips JavaScript expressions out of MDX by default. Text props such as `title="Hello"` still work, but a prop like `code={...}` or `steps={[...]}` arrives empty, with no error. If the posts are your own files, pass `blockJS: false` in the `options` object above.
+
 ## Step 6: Create the Blog Listing Page
 
 Create `src/app/blog/page.tsx`:
@@ -439,7 +442,7 @@ const MyComponent = () => {
 
 ## Step 10: Configure Tailwind Typography
 
-To enable beautiful typography styles for your blog content, you need to configure `@tailwindcss/typography` in your Tailwind CSS setup.
+The typography plugin has to be switched on in your Tailwind CSS setup.
 
 ### For Tailwind CSS v4
 
@@ -463,21 +466,15 @@ module.exports = {
 };
 ```
 
-The `prose` class is automatically applied to your article element (as shown in Step 8), which will style all the markdown elements including code blocks, headings, lists, and more. The typography plugin provides beautiful default styles that work great for blog content.
+The `prose` class on the article element (Step 8) then styles everything Markdown produces: headings, lists, quotes, tables and code blocks.
 
 ## Conclusion
 
-You now have a fully functional MDX blog in your Next.js application! The setup includes:
+That is the whole blog: MDX files with frontmatter, a small library that reads them, custom components, Tailwind Typography, and pages generated at build time.
 
-- ✅ MDX file parsing with frontmatter
-- ✅ Custom React components for enhanced content
-- ✅ Beautiful typography with Tailwind Typography
-- ✅ Static site generation for fast performance
-- ✅ Responsive design
+A new post is one new `.mdx` file in `src/content/posts/`.
 
-You can now create new blog posts by simply adding `.mdx` files to your `src/content/posts/` directory with the proper frontmatter format.
-
-Happy blogging! 🎉
+Two follow-ups build on this: [SEO for the blog](/blog/seo-optimization-for-nextjs-blog) and [better code blocks](/blog/improving-syntax-highlighting).
 
 <hr />
 
