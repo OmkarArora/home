@@ -177,6 +177,21 @@ pre {
 	@apply relative overflow-x-auto rounded-lg border border-border bg-muted p-4;
 }
 
+/* A highlighted block: a header bar (language, copy button), then the code. */
+.code-block {
+	@apply my-6 overflow-hidden rounded-lg border border-border bg-muted;
+}
+
+.code-head {
+	@apply flex items-center justify-between border-b border-border px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground;
+}
+
+.code-block pre {
+	@apply m-0 rounded-none border-0 bg-transparent;
+	/* Tabs at their default width of 8 push code off a phone screen. */
+	tab-size: 2;
+}
+
 pre code {
 	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
 	counter-reset: line;

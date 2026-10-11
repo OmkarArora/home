@@ -1,4 +1,4 @@
-import { getBlogPosts } from "@/lib/posts";
+import { getBlogPosts, readingTime } from "@/lib/posts";
 
 /** The newest posts first — the same ordering the current home page uses. */
 export async function latestPosts(count: number) {
@@ -18,6 +18,7 @@ export async function allPosts() {
 			title: post.metadata.title,
 			summary: post.metadata.summary,
 			publishedAt: post.metadata.publishedAt,
+			minutes: readingTime(post.content),
 		}));
 }
 

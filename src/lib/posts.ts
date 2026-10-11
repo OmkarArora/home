@@ -1,9 +1,13 @@
 import fs from "fs/promises";
 import path from "path";
 
+import { slugify } from "./slugify";
+
 type Metadata = {
 	title: string;
 	publishedAt: string;
+	/** Set when a post is revised after it was published. */
+	updatedAt?: string;
 	summary: string;
 	image?: string;
 	keywords?: string;
@@ -61,6 +65,43 @@ export async function getBlogPosts() {
 export async function getPostBySlug(slug: string) {
 	const posts = await getBlogPosts();
 	return posts.find((post) => post.slug === slug);
+}
+
+/** The prose only: no code samples, no demo components. */
+function proseOf(content: string) {
+	return content
+		.replace(/```[\s\S]*?```/g, " ")
+		.replace(/<[A-Z][\s\S]*?\/>/g, " ")
+		.replace(/<[^>]+>/g, " ");
+}
+
+/** Minutes to read a post, at an unhurried 220 words a minute. */
+export function readingTime(content: string) {
+	const words = proseOf(content).split(/\s+/).filter(Boolean).length;
+	return Math.max(1, Math.round(words / 220));
+}
+
+export type Heading = { text: string; id: string };
+
+/**
+ * The post's sections (its `##` headings), in order, for its outline. The
+ * sub-headings are left out: a long post has dozens, which is no outline at all.
+ */
+export function headings(content: string): Heading[] {
+	const found: Heading[] = [];
+	let inCode = false;
+	for (const line of content.split("\n")) {
+		if (line.trimStart().startsWith("```")) {
+			inCode = !inCode;
+			continue;
+		}
+		const match = !inCode && /^##\s+(.+?)\s*$/.exec(line);
+		if (!match) continue;
+		// Drop inline markup, as the rendered heading's own text does.
+		const text = match[1].replace(/[`*_]/g, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+		found.push({ text, id: slugify(text) });
+	}
+	return found;
 }
 
 export function formatDate(date: string, includeRelative = false) {

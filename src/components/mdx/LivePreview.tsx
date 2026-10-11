@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { ReactNode } from "react";
 import { CopyButton } from "./copy-button";
+import { DemoFrame, paneLabel } from "./DemoFrame";
 
 interface LivePreviewProps {
 	code: string;
@@ -19,46 +20,25 @@ export function LivePreview({
 	showCode = true,
 }: LivePreviewProps) {
 	return (
-		<div className="my-8 border border-border rounded-lg overflow-hidden">
-			{(title || description) && (
-				<div className="px-4 py-3 border-b border-border bg-muted/50">
-					{title && (
-						<h4 className="text-sm font-semibold text-foreground mb-1">
-							{title}
-						</h4>
-					)}
-					{description && (
-						<p className="text-sm text-muted-foreground">{description}</p>
-					)}
-				</div>
-			)}
-
+		<DemoFrame tag="Live" title={title} description={description}>
 			{showCode && (
-				<div className="relative border-b border-border bg-muted/30">
-					<div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted/50">
-						<span className="text-xs font-medium text-muted-foreground">
-							Code
-						</span>
+				<div className="group relative border-b border-foreground bg-muted/40">
+					<div className="flex items-center justify-between border-b border-border px-4 py-1.5">
+						<span className={paneLabel}>Code</span>
+						<CopyButton code={code} inline />
 					</div>
-					<div className="relative">
-						<pre className="relative overflow-x-auto p-4 bg-transparent">
-							<code className="text-sm font-mono">{code}</code>
-							<CopyButton code={code} />
-						</pre>
-					</div>
+					<pre className="overflow-x-auto rounded-none border-0 bg-transparent p-4">
+						<code className="bg-transparent p-0 font-mono text-sm">{code}</code>
+					</pre>
 				</div>
 			)}
 
 			<div className="p-6 bg-background">
-				<div className="flex items-center justify-between mb-3">
-					<span className="text-xs font-medium text-muted-foreground">
-						Preview
-					</span>
-				</div>
+				<p className={`${paneLabel} mb-3`}>Preview</p>
 				<div className="min-h-[100px] flex items-center justify-center">
 					{preview}
 				</div>
 			</div>
-		</div>
+		</DemoFrame>
 	);
 }

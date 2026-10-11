@@ -33,14 +33,18 @@ export function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
 		}
 	}
 
-	// Extract children and className from props to avoid conflicts
-	const { children, className: propsClassName, ...restProps } = props;
-	const className = propsClassName ? `${propsClassName} group` : "group";
+	const { children, ...restProps } = props;
+	const language = (props as { "data-language"?: string })["data-language"];
 
 	return (
-		<pre {...restProps} ref={extractCode} className={className}>
-			{code && <CopyButton code={code} />}
-			{children}
-		</pre>
+		<div className="code-block not-prose">
+			<div className="code-head">
+				<span>{language && language !== "plaintext" ? language : "code"}</span>
+				<CopyButton code={code} inline />
+			</div>
+			<pre {...restProps} ref={extractCode}>
+				{children}
+			</pre>
+		</div>
 	);
 }

@@ -1,5 +1,7 @@
-import { baseUrl } from "@/app/sitemap";
+import { notFound } from "next/navigation";
+
 import { CustomMDX } from "@/components/mdx/mdx";
+import { jsonLdScript, postMetadata } from "@/lib/post-seo";
 import { formatDate, getBlogPosts, getPostBySlug } from "@/lib/posts";
 
 export async function generateStaticParams() {
@@ -15,47 +17,8 @@ export async function generateMetadata({
 }: {
 	params: Promise<{ slug: string }>;
 }) {
-	const slug = (await params).slug;
-
-	const post = await getPostBySlug(slug);
-	if (!post) {
-		return;
-	}
-
-	let {
-		title,
-		publishedAt: publishedTime,
-		summary: description,
-		image,
-		keywords,
-	} = post.metadata;
-	let ogImage = image
-		? image
-		: `${baseUrl}/og?slug=${encodeURIComponent(slug)}`;
-
-	return {
-		title,
-		description,
-		keywords: keywords || undefined,
-		openGraph: {
-			title,
-			description,
-			type: "article",
-			publishedTime,
-			url: `${baseUrl}/blog/${post.slug}`,
-			images: [
-				{
-					url: ogImage,
-				},
-			],
-		},
-		twitter: {
-			card: "summary_large_image",
-			title,
-			description,
-			images: [ogImage],
-		},
-	};
+	const post = await getPostBySlug((await params).slug);
+	return post ? postMetadata(post) : undefined;
 }
 
 export default async function Page({
@@ -63,41 +26,15 @@ export default async function Page({
 }: {
 	params: Promise<{ slug: string }>;
 }) {
-	const slug = (await params).slug;
-	const posts = await getBlogPosts();
-	const post = posts.find((post) => post.slug === slug);
-
-	if (!post) {
-		return (
-			<section className="max-w-4xl mx-auto px-6 py-16">
-				<div>Post not found</div>
-			</section>
-		);
-	}
+	const post = await getPostBySlug((await params).slug);
+	if (!post) notFound();
 
 	return (
 		<section className="max-w-4xl mx-auto px-6 py-16">
 			<script
 				type="application/ld+json"
 				suppressHydrationWarning
-				dangerouslySetInnerHTML={{
-					__html: JSON.stringify({
-						"@context": "https://schema.org",
-						"@type": "BlogPosting",
-						headline: post.metadata.title,
-						datePublished: post.metadata.publishedAt,
-						dateModified: post.metadata.publishedAt,
-						description: post.metadata.summary,
-						image: post.metadata.image
-							? `${baseUrl}${post.metadata.image}`
-							: `/og?slug=${encodeURIComponent(slug)}`,
-						url: `${baseUrl}/blog/${post.slug}`,
-						author: {
-							"@type": "Person",
-							name: "My Portfolio",
-						},
-					}),
-				}}
+				dangerouslySetInnerHTML={{ __html: jsonLdScript(post) }}
 			/>
 
 			<article className="prose prose-theme dark:prose-invert max-w-none">

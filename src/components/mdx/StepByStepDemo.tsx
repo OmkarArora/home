@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ReactNode } from "react";
+import { DemoFrame } from "./DemoFrame";
 
 interface Step {
 	title: string;
@@ -44,20 +45,7 @@ export function StepByStepDemo({
 	};
 
 	return (
-		<div className="my-8 border border-border rounded-lg overflow-hidden">
-			{(title || description) && (
-				<div className="px-4 py-3 border-b border-border bg-muted/50">
-					{title && (
-						<h4 className="text-sm font-semibold text-foreground mb-1">
-							{title}
-						</h4>
-					)}
-					{description && (
-						<p className="text-sm text-muted-foreground">{description}</p>
-					)}
-				</div>
-			)}
-
+		<DemoFrame tag="Steps" title={title} description={description}>
 			<div className="p-6 bg-background">
 				{/* Step indicators */}
 				<div className="flex items-center justify-between mb-6">
@@ -65,7 +53,7 @@ export function StepByStepDemo({
 						<div key={index} className="flex items-center flex-1">
 							<button
 								onClick={() => goToStep(index)}
-								className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+								className={`flex items-center justify-center w-8 h-8 rounded-full font-mono text-sm font-bold transition-colors ${
 									index === currentStep
 										? "bg-primary text-primary-foreground"
 										: index < currentStep
@@ -118,6 +106,6 @@ export function StepByStepDemo({
 					</button>
 				</div>
 			</div>
-		</div>
+		</DemoFrame>
 	);
 }

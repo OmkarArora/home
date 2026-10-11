@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoFrame, tabClass } from "./DemoFrame";
 import { useState, ReactNode } from "react";
 
 interface ComparisonDemoProps {
@@ -28,42 +29,15 @@ export function ComparisonDemo({
 	const [activeTab, setActiveTab] = useState<"left" | "right" | "both">("both");
 
 	return (
-		<div className="my-8 border border-border rounded-lg overflow-hidden">
-			{description && (
-				<div className="px-4 py-3 border-b border-border bg-muted/50">
-					<p className="text-sm text-muted-foreground">{description}</p>
-				</div>
-			)}
-
-			<div className="flex border-b border-border bg-muted/30">
-				<button
-					onClick={() => setActiveTab("both")}
-					className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-						activeTab === "both"
-							? "bg-background text-foreground border-b-2 border-primary"
-							: "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-					}`}
-				>
+		<DemoFrame tag="Compare" description={description}>
+			<div className="flex border-b border-border bg-muted/40">
+				<button onClick={() => setActiveTab("both")} className={tabClass(activeTab === "both")}>
 					Both
 				</button>
-				<button
-					onClick={() => setActiveTab("left")}
-					className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-						activeTab === "left"
-							? "bg-background text-foreground border-b-2 border-primary"
-							: "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-					}`}
-				>
+				<button onClick={() => setActiveTab("left")} className={tabClass(activeTab === "left")}>
 					{left.title}
 				</button>
-				<button
-					onClick={() => setActiveTab("right")}
-					className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-						activeTab === "right"
-							? "bg-background text-foreground border-b-2 border-primary"
-							: "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-					}`}
-				>
+				<button onClick={() => setActiveTab("right")} className={tabClass(activeTab === "right")}>
 					{right.title}
 				</button>
 			</div>
@@ -144,6 +118,6 @@ export function ComparisonDemo({
 					</div>
 				)}
 			</div>
-		</div>
+		</DemoFrame>
 	);
 }

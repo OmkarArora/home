@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Reveal } from "@/components/lab/a/Reveal";
-import { PageHead, label, mono } from "@/components/lab/a/ui";
+import { PageHead, base, label, mono } from "@/components/lab/a/ui";
 import { allPosts, shortDate } from "@/components/lab/data";
 
 export const metadata: Metadata = {
@@ -23,19 +23,22 @@ export default async function Writing() {
 				{posts.map((post, index) => (
 					<Reveal as="li" index={index} key={post.slug} className="border-b border-[var(--line)]">
 						<Link
-							href={`/blog/${post.slug}`}
+							href={`${base}/writing/${post.slug}`}
 							className="group grid gap-x-8 gap-y-2 py-7 md:grid-cols-[5rem_9rem_1fr]"
 						>
 							<span className={`${mono} hidden text-sm font-bold text-[var(--accent-ink)] md:block`}>
 								#{String(posts.length - index).padStart(2, "0")}
 							</span>
-							<span className={`${label} md:pt-1.5`}>{shortDate(post.publishedAt)}</span>
+							<span className={`${label} md:pt-1.5`}>
+								{shortDate(post.publishedAt)}
+								<span className="ml-3 md:ml-0 md:mt-1 md:block">{post.minutes} min read</span>
+							</span>
 							<div>
-								<h2 className="text-2xl leading-snug font-bold tracking-tight group-hover:underline group-hover:decoration-[var(--accent)] group-hover:decoration-4 group-hover:underline-offset-4">
+								<h2 className="text-2xl leading-snug font-bold tracking-tight group-hover:underline group-hover:decoration-[var(--lime)] group-hover:decoration-4 group-hover:underline-offset-4">
 									{post.title}
 								</h2>
 								{post.summary && (
-									<p className="mt-2 max-w-2xl leading-relaxed text-[var(--muted)]">{post.summary}</p>
+									<p className="mt-2 max-w-2xl leading-relaxed text-[var(--dim)]">{post.summary}</p>
 								)}
 							</div>
 						</Link>
