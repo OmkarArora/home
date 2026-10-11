@@ -224,8 +224,8 @@ export const wins: Win[] = [
 	{ month: "2026-06", product: "cabs", what: "Coupon state clears when the user switches cab" },
 ];
 
-/** The span the write-up covers. Some features began a month before they shipped. */
-export const period = "May – Sep 2026";
+/** He joined in April 2026; the first of this shipped in May. */
+export const since = "Apr 2026";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -240,4 +240,14 @@ export function timeline(): Month[] {
 		shipped: shipped.filter((item) => item.month === key),
 		wins: wins.filter((item) => item.month === key),
 	}));
+}
+
+/** The features big enough to get a stop of their own. */
+export const majors = (): Shipped[] => shipped.filter((item) => item.feature);
+
+/** Everything else, by month: smaller features and fixes, for the compact list. */
+export function alsoShipped(): Month[] {
+	return timeline()
+		.map((month) => ({ ...month, shipped: month.shipped.filter((item) => !item.feature) }))
+		.filter((month) => month.shipped.length + month.wins.length > 0);
 }

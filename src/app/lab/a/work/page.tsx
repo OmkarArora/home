@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/lab/a/Reveal";
+import { Screens } from "@/components/lab/a/Screens";
 import { Trace } from "@/components/lab/a/Trace";
-import { PageHead, label, mono } from "@/components/lab/a/ui";
-import { type Shipped, period, productLabel, surfaceLabel, timeline } from "@/content/ixigo";
-import { identity } from "@/content/profile";
+import { PageHead, PlaceholderTag, label, mono } from "@/components/lab/a/ui";
+import { type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
+import { type Product, also, company, outcomes, products } from "@/content/sparklin";
 
 export const metadata: Metadata = {
 	title: "Patch notes — Omkar Arora",
-	description: "What Omkar Arora has shipped at ixigo, month by month: flights and cabs on the web.",
+	description:
+		"What Omkar Arora has shipped: flights and cabs on the web at ixigo, and three products at Sparklin before that.",
 };
 
-/** A stop on the line: the month, which lights up once the line reaches it. */
+/** A stop on the line, which lights up once the line reaches it. */
 const stop = `${mono} text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)] transition-colors duration-300 data-[on=true]:text-[var(--ink)]`;
+/** A company's name: the stop that opens its chapter. */
+const chapter =
+	"scroll-mt-8 text-4xl font-extrabold tracking-tight text-[var(--muted)] transition-colors duration-300 data-[on=true]:text-[var(--ink)] sm:text-5xl";
+const plus = "grid grid-cols-[1rem_1fr] before:text-[var(--accent-ink)] before:content-['+']";
 
 function Tags({ item }: { item: Shipped }) {
 	return (
@@ -53,101 +59,208 @@ function Clip({ item }: { item: Shipped }) {
 	);
 }
 
-function Entry({ item, index }: { item: Shipped; index: number }) {
+/** One of the big features: a stop of its own, and a card with room for a clip. */
+function Major({ item }: { item: Shipped }) {
 	return (
-		<Reveal
-			as="article"
-			index={index}
-			className={
-				item.feature
-					? "grid gap-8 border border-[var(--ink)] p-6 md:grid-cols-[1fr_13rem] md:p-8"
-					: "border-b border-[var(--line)] py-6"
-			}
-		>
-			<div className="min-w-0">
-				<Tags item={item} />
-				<h3
-					className={`mt-3 font-extrabold tracking-tight ${item.feature ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl"}`}
-				>
-					{item.title}
-				</h3>
-				{item.role && <p className={`${label} mt-2 text-[var(--accent-ink)]`}>{item.role}</p>}
-				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{item.summary}</p>
-				{item.points.length > 0 && (
+		<section className="pb-12">
+			<h3 data-trace-node className={stop}>
+				{item.when}
+			</h3>
+			<Reveal as="article" className="mt-5 grid gap-8 border border-[var(--ink)] p-6 md:grid-cols-[1fr_13rem] md:p-8">
+				<div className="min-w-0">
+					<Tags item={item} />
+					<h4 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{item.title}</h4>
+					{item.role && <p className={`${label} mt-2 text-[var(--accent-ink)]`}>{item.role}</p>}
+					<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{item.summary}</p>
 					<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
 						{item.points.map((point) => (
-							<li key={point} className="grid grid-cols-[1rem_1fr]">
-								<span className="text-[var(--accent-ink)]">+</span>
+							<li key={point} className={plus}>
 								{point}
 							</li>
 						))}
 					</ul>
-				)}
-				<p className={`${label} mt-5`}>{item.skills.join(" · ")}</p>
-			</div>
-			{item.feature && <Clip item={item} />}
-		</Reveal>
+					<p className={`${label} mt-5`}>{item.skills.join(" · ")}</p>
+				</div>
+				<Clip item={item} />
+			</Reveal>
+		</section>
+	);
+}
+
+/** A smaller feature: one line that opens to the detail. */
+function Minor({ item }: { item: Shipped }) {
+	return (
+		<li className="border-b border-[var(--line)]">
+			<details className="group">
+				<summary className="grid cursor-pointer list-none grid-cols-[4.5rem_1fr_1rem] items-baseline gap-x-3 py-3 [&::-webkit-details-marker]:hidden">
+					<span className={label}>{productLabel[item.product]}</span>
+					<span className="font-bold tracking-tight">{item.title}</span>
+					<span aria-hidden className={`${mono} text-[var(--accent-ink)] group-open:rotate-45 motion-safe:transition-transform`}>
+						+
+					</span>
+				</summary>
+				<div className="pb-5 sm:pl-[5.25rem]">
+					<p className="max-w-2xl text-sm leading-relaxed text-[var(--muted)]">{item.summary}</p>
+					{item.points.length > 0 && (
+						<ul className="mt-3 max-w-2xl space-y-1 text-sm leading-relaxed">
+							{item.points.map((point) => (
+								<li key={point} className={plus}>
+									{point}
+								</li>
+							))}
+						</ul>
+					)}
+					<p className={`${label} mt-3`}>
+						{item.surfaces.map((surface) => surfaceLabel[surface]).join(" + ")} · {item.skills.join(" · ")}
+					</p>
+				</div>
+			</details>
+		</li>
+	);
+}
+
+function SparklinProduct({ product }: { product: Product }) {
+	return (
+		<section className="pb-12">
+			<h3 data-trace-node className={stop}>
+				{product.name}
+				{product.status && <span className="ml-3 font-normal">{product.status}</span>}
+			</h3>
+			<Reveal as="article" className="mt-4">
+				<p className="flex max-w-2xl flex-wrap items-center gap-2 text-xl leading-snug font-bold tracking-tight sm:text-2xl">
+					{product.what}
+					{product.draft && <PlaceholderTag />}
+				</p>
+				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--muted)]">{product.part}</p>
+				<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
+					{product.points.map((point) => (
+						<li key={point} className={plus}>
+							{point}
+						</li>
+					))}
+				</ul>
+				<p className={`${label} mt-4`}>
+					{product.years ?? "Years to come"} · {product.skills.join(" · ")}
+				</p>
+				<Screens screens={product.screens} />
+			</Reveal>
+		</section>
 	);
 }
 
 export default function Work() {
-	const months = timeline();
+	const rest = alsoShipped();
+	const restCount = rest.reduce((sum, month) => sum + month.shipped.length + month.wins.length, 0);
 
 	return (
 		<>
-			<PageHead kicker={`Patch notes · shipped at ${identity.company}`} title="Patch notes.">
-				Features, cross-sell surfaces and analytics work across ixigo&apos;s flights and cabs web apps,{" "}
-				{period}. Newest first.
+			<PageHead kicker="Patch notes · newest first" title="Patch notes.">
+				What I&apos;ve shipped: flights and cabs on the web at ixigo, and three products at Sparklin
+				before that.
 			</PageHead>
 
-			<Trace className="mt-4">
-				<section className="pb-14">
-					<h2 data-trace-node className={stop}>
-						Now
+			<nav aria-label="Companies" className={`${mono} -mt-6 flex gap-3 pb-10 text-xs font-bold uppercase tracking-wider`}>
+				{[
+					["#ixigo", "ixigo"],
+					["#sparklin", "Sparklin"],
+				].map(([href, name]) => (
+					<a
+						key={href}
+						href={href}
+						className="border border-[var(--ink)] px-3 py-2 transition-colors hover:bg-[var(--accent)] hover:text-[#0c0c0d]"
+					>
+						{name} ↓
+					</a>
+				))}
+			</nav>
+
+			<Trace>
+				{/* ─── ixigo ─── */}
+				<section className="pb-12">
+					<h2 id="ixigo" data-trace-node className={chapter}>
+						ixigo
 					</h2>
+					<p className={`${label} mt-3`}>{since} – now · Senior Software Engineer 1</p>
 					<p className="mt-3 max-w-xl text-[var(--muted)]">
-						More is in review and in the works. It goes here once it ships.
+						The three biggest things first. More is in review and in the works, and goes here once it
+						ships.
 					</p>
 				</section>
 
-				{months.map((month) => (
-					<section key={month.key} className="pb-16">
-						<h2 data-trace-node className={stop}>
-							{month.label}
-							<span className="ml-3 font-normal">
-								{month.shipped.length + month.wins.length} shipped
-							</span>
-						</h2>
-
-						<div className="mt-6 space-y-4">
-							{month.shipped.map((item, index) => (
-								<Entry key={item.title} item={item} index={index} />
-							))}
-						</div>
-
-						{month.wins.length > 0 && (
-							<Reveal className="mt-8">
-								<p className={label}>Also shipped</p>
-								<ul className="mt-3">
-									{month.wins.map((win) => (
-										<li
-											key={win.what}
-											className="grid gap-x-4 border-b border-[var(--line)] py-3 sm:grid-cols-[4.5rem_1fr]"
-										>
-											<span className={`${label} sm:pt-1`}>{productLabel[win.product]}</span>
-											<span>
-												{win.what}
-												{win.note && (
-													<span className="block text-sm text-[var(--muted)]">{win.note}</span>
-												)}
-											</span>
-										</li>
-									))}
-								</ul>
-							</Reveal>
-						)}
-					</section>
+				{majors().map((item) => (
+					<Major key={item.title} item={item} />
 				))}
+
+				<section className="pb-20">
+					<h3 data-trace-node className={stop}>
+						Also shipped
+						<span className="ml-3 font-normal">{restCount} more</span>
+					</h3>
+					<p className={`${label} mt-2`}>Tap a title for the detail</p>
+					{rest.map((month) => (
+						<Reveal key={month.key} className="mt-6 grid gap-x-8 gap-y-1 md:grid-cols-[6rem_1fr]">
+							<p className={`${mono} pt-3 text-xs font-bold uppercase tracking-wider text-[var(--accent-ink)]`}>
+								{month.label}
+							</p>
+							<ul className="min-w-0 border-t border-[var(--line)]">
+								{month.shipped.map((item) => (
+									<Minor key={item.title} item={item} />
+								))}
+								{month.wins.map((win) => (
+									<li
+										key={win.what}
+										className="grid grid-cols-[4.5rem_1fr] items-baseline gap-x-3 border-b border-[var(--line)] py-2 text-sm text-[var(--muted)]"
+									>
+										<span className={label}>{productLabel[win.product]}</span>
+										{win.what}
+									</li>
+								))}
+							</ul>
+						</Reveal>
+					))}
+				</section>
+
+				{/* ─── Sparklin ─── */}
+				<section className="pb-12">
+					<h2 id="sparklin" data-trace-node className={chapter}>
+						{company.name}
+					</h2>
+					<p className={`${label} mt-3`}>
+						{company.when} · {company.titles}
+					</p>
+					<p className="mt-3 max-w-xl text-[var(--muted)]">{company.summary}</p>
+					<Reveal className="mt-8 grid max-w-3xl border border-[var(--ink)] sm:grid-cols-3">
+						{outcomes.map((outcome) => (
+							<div
+								key={outcome.label}
+								className="border-b border-[var(--line)] p-5 last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0"
+							>
+								<p className="text-4xl font-extrabold tracking-tight">{outcome.value}</p>
+								<p className="mt-1 font-bold">{outcome.label}</p>
+								<p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{outcome.how}</p>
+							</div>
+						))}
+					</Reveal>
+				</section>
+
+				{products.map((product) => (
+					<SparklinProduct key={product.name} product={product} />
+				))}
+
+				<section className="pb-16">
+					<h3 data-trace-node className={stop}>
+						Also at Sparklin
+					</h3>
+					<Reveal>
+						<ul className="mt-4 max-w-2xl border-t border-[var(--line)]">
+							{also.map((line) => (
+								<li key={line} className="border-b border-[var(--line)] py-3">
+									{line}
+								</li>
+							))}
+						</ul>
+					</Reveal>
+				</section>
 			</Trace>
 		</>
 	);

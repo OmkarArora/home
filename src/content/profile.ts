@@ -26,7 +26,7 @@ export const identity = {
 	 * in this file, for Omkar to rewrite in his own voice.
 	 */
 	about: [
-		"I'm a frontend engineer at ixigo, in Gurugram. I started as an intern at Homerunn in 2020, spent three years at Sparklin building products end to end, and joined ixigo in 2024.",
+		"I'm a frontend engineer at ixigo, in Gurugram. I started as an intern at Homerunn in 2020, spent four and a half years at Sparklin building products end to end, and joined ixigo in 2026.",
 		"Outside work I build things for fun — lately Game Night, party games for a room full of phones — and write up what I learn along the way.",
 	],
 	email: "aroraomkar12@gmail.com",
@@ -110,22 +110,20 @@ export type Role = Placeholder & {
 
 export const roles: Role[] = [
 	{
-		// From his shipped-work write-up; the features themselves are in ixigo.ts.
+		// Titles and dates are from his resume. The features are in ixigo.ts.
 		company: "ixigo",
-		title: "Software Development Engineer 2",
-		from: "2024",
+		title: "Senior Software Engineer 1",
+		from: "2026",
 		to: "Now",
 		summary:
 			"Flights and cabs on the web: the search screen for Smart Lock, a flash-sale hero that runs itself, partial payment for cabs, and the analytics underneath.",
 	},
 	{
-		// Openvy, Recommendations.email and Jupitun were all Sparklin products
-		// (confirmed by Omkar). The 30% / 20% caching and SEO numbers sat beside
-		// them on the old site, so they move here too. QUESTION: confirm.
+		// The products themselves are in sparklin.ts.
 		company: "Sparklin Innovations",
-		title: "Software Development Engineer",
+		title: "Software Development Engineer → SDE 2",
 		from: "2021",
-		to: "2024",
+		to: "2026",
 		summary:
 			"Frontend for Openvy, Recommendations.email and Jupitun. Caching and SEO work cut data-fetching time 30% and lifted organic traffic 20%; React Native prototypes lifted mobile engagement 15%.",
 		products: ["Openvy", "Recommendations.email", "Jupitun"],

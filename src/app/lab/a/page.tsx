@@ -110,7 +110,7 @@ export default async function PatchNotes() {
 					href={`${base}/work`}
 					className={`${mono} mt-6 inline-block text-xs font-bold uppercase tracking-wider hover:text-[var(--accent-ink)]`}
 				>
-					All {shipped.length + wins.length} patch notes →
+					All {shipped.length + wins.length} from ixigo, and Sparklin before it →
 				</Link>
 			</section>
 
