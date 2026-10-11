@@ -1,7 +1,8 @@
 ---
 title: "Optimistic Updates: Building Instant, Responsive UIs"
 publishedAt: "2025-12-20"
-summary: "Learn how optimistic updates can transform your user experience by making UIs feel instant and responsive. Discover implementation patterns, error handling strategies, and best practices for React applications."
+updatedAt: "2026-10-11"
+summary: "What optimistic updates are, when they are safe, and how to build them in React with plain state, TanStack Query and React 19's useOptimistic, including what to do when the request fails."
 keywords: "optimistic updates, react, ux, user experience, state management, react query, tanstack query, performance, ui patterns, frontend development"
 ---
 
@@ -9,7 +10,7 @@ When you tap "Like" on a post and it turns blue instantly, you just experienced 
 
 Instead of waiting for the server to confirm that your action succeeded, the UI **assumes success**, updates immediately, and quietly fixes things in the background if something goes wrong. Done well, this makes your app feel instant and delightful—even on slow networks.
 
-In this post, we'll explore what optimistic updates are, when to use them, how to implement them in React (including React Query and React 19's `useOptimistic`), and how to avoid the most common pitfalls.
+This post covers what optimistic updates are, when to use them, how to build them in React (with plain state, React Query and React 19's `useOptimistic`), and the bugs they tend to cause.
 
 ## What Are Optimistic Updates?
 
@@ -522,23 +523,6 @@ Start small: pick a low-risk interaction like a like button or todo toggle, add 
 - **[TanStack Query Optimistic Updates](https://tanstack.com/query/latest/docs/react/guides/optimistic-updates)** - Comprehensive guide to optimistic updates with React Query
 - **[React Server Actions](https://react.dev/reference/rsc/server-actions)** - Learn how to combine `useOptimistic` with Server Actions
 
-### Further Reading
-
-- **UX Patterns**: Research on perceived performance and user experience patterns
-- **Performance Optimization**: Techniques for measuring and improving perceived performance
-- **State Management**: Best practices for managing complex state in React applications
-
 ### Related Blog Posts
 
-If you're interested in building more interactive content, check out my other posts on [building an MDX blog](/blog/how-i-built-my-blog) and [adding interactive demos to MDX](/blog/interactive-demos-in-mdx).
-
-### Practice
-
-Try implementing optimistic updates in your own projects:
-
-1. Start with a simple toggle (like/favorite button)
-2. Move to list operations (add/remove items)
-3. Experiment with React Query or `useOptimistic` for more complex scenarios
-4. Test failure scenarios to ensure your rollback logic works correctly
-
-Remember: the goal is to make your UI feel instant and responsive, not to hide errors. Always provide clear feedback when things go wrong.
+The demos on this page are built the way I describe in [Building interactive demos in MDX](/blog/interactive-demos-in-mdx).
