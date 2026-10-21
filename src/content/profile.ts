@@ -138,7 +138,7 @@ export const roles: Role[] = [
 ];
 
 export type Interest = {
-	key: "gaming" | "badminton" | "anime" | "heroes" | "movies";
+	key: "gaming" | "badminton" | "fitness" | "anime" | "heroes" | "movies";
 	label: string;
 	emoji: string;
 	/** Draft copy, for Omkar to replace in his own voice. */
@@ -161,6 +161,13 @@ export const interests: Interest[] = [
 		emoji: "🏸",
 		line: "Draft line — how often you play, and with whom.",
 		picks: [{ name: "Racquet / club", placeholder: true }],
+	},
+	{
+		key: "fitness",
+		label: "Fitness",
+		emoji: "🏋️",
+		line: "Draft line — what training looks like for you, and how often.",
+		picks: [{ name: "Go-to workout", placeholder: true }],
 	},
 	{
 		key: "anime",

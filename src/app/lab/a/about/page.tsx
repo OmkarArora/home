@@ -33,7 +33,7 @@ export default function About() {
 
 			<section className="py-12">
 				<SectionHead title="AFK" tag="Interests" />
-				<div className="mt-6 grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-5">
+				<div className="mt-6 grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
 					{interests.map((interest, index) => (
 						<Reveal
 							key={interest.key}
