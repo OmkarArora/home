@@ -1,6 +1,9 @@
-import { identity } from "@/content/profile";
+import Link from "next/link";
 
-import { label, mono } from "./ui";
+import { identity } from "@/content/profile";
+import { versions } from "@/content/site-history";
+
+import { base, label, mono } from "./ui";
 
 export function Footer() {
 	return (
@@ -26,7 +29,17 @@ export function Footer() {
 						Resume
 					</a>
 				</div>
-				<span>© {new Date().getFullYear()} · Press start</span>
+				<span>
+					© {new Date().getFullYear()} ·{" "}
+					<Link
+						href={`${base}/history`}
+						title="Version history of this site"
+						className="underline decoration-[var(--lime)] decoration-2 underline-offset-4 hover:text-[var(--ink)]"
+					>
+						{versions[0].label}
+					</Link>{" "}
+					· Press start
+				</span>
 			</div>
 		</footer>
 	);
