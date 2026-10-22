@@ -89,7 +89,7 @@ export default async function Post({ params }: Props) {
 							href={`${base}/writing/${other.slug}`}
 							className="border border-[var(--ink)] p-6 transition-colors hover:bg-[var(--lime)] hover:text-[#0c0c0d] md:last:text-right"
 						>
-							<p className={`${mono} text-[11px] uppercase tracking-[0.18em] opacity-70`}>{kicker}</p>
+							<p className={`${mono} text-xs uppercase tracking-[0.18em] opacity-70`}>{kicker}</p>
 							<p className="mt-3 text-xl leading-snug font-bold tracking-tight">{other.title}</p>
 						</Link>
 					) : (

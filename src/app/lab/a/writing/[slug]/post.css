@@ -96,7 +96,7 @@
 
 .post-body :where(th) {
 	font-family: var(--lab-mono);
-	font-size: 0.6875rem;
+	font-size: 0.75rem;
 	text-transform: uppercase;
 	letter-spacing: 0.14em;
 }

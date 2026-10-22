@@ -42,7 +42,7 @@ export function CopyButton({ code, inline = false }: { code: string; inline?: bo
 			onClick={copyToClipboard}
 			className={
 				inline
-					? "-my-1 -mr-2 flex items-center gap-1.5 p-2 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+					? "-my-1 -mr-2 flex items-center gap-1.5 p-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
 					: "absolute top-2 right-2 p-2 rounded-md bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
 			}
 			aria-label={copied ? "Copied!" : "Copy code"}

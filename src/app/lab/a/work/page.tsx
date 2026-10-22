@@ -36,7 +36,7 @@ function Clip({ item }: { item: Shipped }) {
 	if (!item.media) {
 		return (
 			<div
-				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--dim)] p-4 text-center text-[10px] uppercase tracking-widest text-[var(--dim)]`}
+				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--dim)] p-4 text-center text-xs uppercase tracking-widest text-[var(--dim)]`}
 			>
 				Clip to come
 			</div>

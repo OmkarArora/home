@@ -22,7 +22,7 @@ export default function About() {
 					<PlaceholderTag />
 				</div>
 				<dl className={`${mono} self-start border border-[var(--ink)] text-xs md:col-span-4`}>
-					<div className="border-b border-[var(--ink)] px-4 py-2 text-[11px] uppercase tracking-widest">Loadout</div>
+					<div className="border-b border-[var(--ink)] px-4 py-2 text-xs uppercase tracking-widest">Loadout</div>
 					{identity.stack.map((tool) => (
 						<div key={tool} className="border-b border-[var(--line)] px-4 py-2 uppercase last:border-b-0">
 							{tool}

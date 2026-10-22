@@ -71,7 +71,7 @@ export function UseOptimisticThreadDemo() {
 					>
 						{message.text}
 						{message.sending && (
-							<span className="ml-1 text-[10px] text-muted-foreground">
+							<span className="ml-1 text-xs text-muted-foreground">
 								(Sending…)
 							</span>
 						)}

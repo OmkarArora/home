@@ -183,7 +183,7 @@ pre {
 }
 
 .code-head {
-	@apply flex items-center justify-between border-b border-border px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground;
+	@apply flex items-center justify-between border-b border-border px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground;
 }
 
 .code-block pre {

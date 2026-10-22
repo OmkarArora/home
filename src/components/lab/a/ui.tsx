@@ -16,7 +16,7 @@ export const nav = [
 export const riseAt = (step: number) => ({ "--rise": step }) as React.CSSProperties;
 
 export const mono = "[font-family:var(--lab-mono)]";
-export const label = `${mono} text-[11px] uppercase tracking-[0.18em] text-[var(--dim)]`;
+export const label = `${mono} text-xs uppercase tracking-[0.18em] text-[var(--dim)]`;
 
 export function SectionHead({ tag, title }: { tag: string; title: string }) {
 	return (
@@ -57,7 +57,7 @@ export function PageHead({
 export function PlaceholderTag() {
 	return (
 		<span
-			className={`${mono} border border-dashed border-[var(--dim)] px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-[var(--dim)]`}
+			className={`${mono} border border-dashed border-[var(--dim)] px-1.5 py-0.5 text-xs uppercase tracking-widest text-[var(--dim)]`}
 		>
 			placeholder
 		</span>

@@ -53,7 +53,7 @@ export default async function PatchNotes() {
 				<aside style={riseAt(4)} className="rise self-end md:col-span-5">
 					<div className="border border-[var(--ink)] bg-[var(--card)]">
 						<div
-							className={`${mono} border-b border-[var(--ink)] px-4 py-2 text-[11px] uppercase tracking-widest`}
+							className={`${mono} border-b border-[var(--ink)] px-4 py-2 text-xs uppercase tracking-widest`}
 						>
 							Player card
 						</div>
@@ -148,7 +148,7 @@ export default async function PatchNotes() {
 						href={`${base}/projects`}
 						className="border border-[var(--ink)] p-6 transition-colors hover:bg-[var(--lime)] hover:text-[#0c0c0d]"
 					>
-						<p className={`${mono} text-[11px] uppercase tracking-[0.18em] opacity-70`}>Side quests</p>
+						<p className={`${mono} text-xs uppercase tracking-[0.18em] opacity-70`}>Side quests</p>
 						<p className="mt-3 text-2xl font-bold tracking-tight">
 							{featured.name} and {projects.length - 1} more →
 						</p>
@@ -159,7 +159,7 @@ export default async function PatchNotes() {
 						href={`${base}/writing`}
 						className="border border-[var(--ink)] p-6 transition-colors hover:bg-[var(--lime)] hover:text-[#0c0c0d]"
 					>
-						<p className={`${mono} text-[11px] uppercase tracking-[0.18em] opacity-70`}>Latest in the dev log</p>
+						<p className={`${mono} text-xs uppercase tracking-[0.18em] opacity-70`}>Latest in the dev log</p>
 						<p className="mt-3 text-2xl font-bold tracking-tight">{latest.title} →</p>
 					</Link>
 				)}
