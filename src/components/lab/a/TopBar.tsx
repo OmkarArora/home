@@ -21,7 +21,7 @@ export function TopBar() {
 				{identity.name}
 			</Link>
 			{/* On a phone the links get a row of their own, under the name. */}
-			<nav className="order-last flex w-full gap-6 pt-3 uppercase tracking-wider text-[var(--dim)] md:order-none md:w-auto md:pt-0">
+			<nav className="order-last flex w-full justify-between gap-4 pt-3 md:justify-start md:gap-6 uppercase tracking-wider text-[var(--dim)] md:order-none md:w-auto md:pt-0">
 				{nav.map((item) => {
 					const active = pathname.startsWith(item.href);
 					return (
