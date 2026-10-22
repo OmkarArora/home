@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Reveal } from "@/components/lab/a/Reveal";
-import { PageHead, PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/lab/a/ui";
+import { PageHead, PlaceholderTag, SectionHead, base, label, mono, riseAt } from "@/components/lab/a/ui";
 import { identity, interests } from "@/content/profile";
 import { canonical } from "@/lib/site-seo";
 
@@ -22,6 +23,12 @@ export default function About() {
 						<p key={paragraph}>{paragraph}</p>
 					))}
 					<PlaceholderTag />
+					<Link
+						href={`${base}/history`}
+						className={`${mono} block pt-2 text-xs font-bold uppercase tracking-wider hover:text-[var(--accent-ink)]`}
+					>
+						How this site got here: version history →
+					</Link>
 				</div>
 				<dl className={`${mono} self-start border border-[var(--ink)] text-xs md:col-span-4`}>
 					<div className="border-b border-[var(--ink)] px-4 py-2 text-xs uppercase tracking-widest">Loadout</div>
