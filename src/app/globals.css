@@ -192,6 +192,29 @@ pre {
 	tab-size: 2;
 }
 
+/* A long block, collapsed: its first lines, fading out above a "Show all" button. */
+.code-block[data-collapsed] pre {
+	max-height: 20rem;
+	overflow-y: hidden;
+	mask-image: linear-gradient(to bottom, black 65%, transparent);
+}
+
+.code-more {
+	@apply w-full border-t border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground;
+}
+
+/* Without scripts the button can't work, so show every block in full. */
+@media (scripting: none) {
+	.code-block[data-collapsed] pre {
+		max-height: none;
+		mask-image: none;
+	}
+
+	.code-more {
+		display: none;
+	}
+}
+
 pre code {
 	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
 	counter-reset: line;

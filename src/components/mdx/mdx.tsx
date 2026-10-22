@@ -137,6 +137,18 @@ let components = {
 	OptimisticComparisonDemo,
 };
 
+/**
+ * A code fence can opt out of collapsing: ```tsx expanded. rehype-pretty-code
+ * hands the fence's text to Shiki, so a Shiki transformer reads the flag and
+ * marks the block for `CodeBlock`.
+ */
+const expandedFlag = {
+	name: "expanded-flag",
+	pre(this: { options: { meta?: { __raw?: string } } }, node: { properties: Record<string, unknown> }) {
+		if (/(^|\s)expanded(\s|$)/.test(this.options.meta?.__raw ?? "")) node.properties["data-expanded"] = "";
+	},
+};
+
 export function CustomMDX(props: MDXRemoteProps) {
 	return (
 		<MDXRemote
@@ -158,6 +170,7 @@ export function CustomMDX(props: MDXRemoteProps) {
 									dark: "github-dark",
 								},
 								keepBackground: false,
+								transformers: [expandedFlag],
 							},
 						],
 					],
