@@ -13,8 +13,8 @@ function Tabs({ dark, icon }: { dark: boolean; icon: string }) {
 	const text = dark ? "#e8eaed" : "#202124";
 	const others = ["GitHub", "Gmail", "YouTube"];
 	return (
-		<div style={{ background: strip, colorScheme: dark ? "dark" : "light" }} className="flex gap-1 rounded-t-lg px-2 pt-2">
-			<div style={{ background: tab, color: text }} className="flex w-52 items-center gap-2 rounded-t-lg px-3 py-2 text-[13px]">
+		<div style={{ background: strip, colorScheme: dark ? "dark" : "light" }} className="flex gap-1 overflow-hidden rounded-t-lg px-2 pt-2">
+			<div style={{ background: tab, color: text }} className="flex w-52 shrink-0 items-center gap-2 rounded-t-lg px-3 py-2 text-[13px]">
 				{/* The real size: 16 CSS pixels. */}
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img src={icon} width={16} height={16} alt="" />
@@ -36,7 +36,7 @@ function Tabs({ dark, icon }: { dark: boolean; icon: string }) {
  */
 export default function FaviconLab() {
 	return (
-		<main className="mx-auto max-w-5xl space-y-16 px-5 py-14 font-sans">
+		<main className="mx-auto w-full max-w-5xl space-y-16 px-5 py-14 font-sans">
 			<header>
 				<p className="font-mono text-xs uppercase tracking-widest opacity-60">Lab · favicon</p>
 				<h1 className="mt-3 text-4xl font-bold tracking-tight">Pick a favicon</h1>
