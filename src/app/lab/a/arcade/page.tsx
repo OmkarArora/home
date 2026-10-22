@@ -1,91 +1,56 @@
 import type { Metadata } from "next";
 
-import { FruitMenu } from "@/components/arcade/FruitMenu";
-import { StackCard } from "@/components/arcade/StackCard";
-import { TiltButton } from "@/components/arcade/TiltButton";
-import { Reveal } from "@/components/lab/a/Reveal";
-import { ReticleZone } from "@/components/lab/a/Reticle";
 import { PageHead, label, mono } from "@/components/lab/a/ui";
 import { canonical } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	title: "Arcade — Omkar Arora",
-	description: "Small interface experiments by Omkar Arora, all of them playable: motion, focus states and orchestration.",
+	description: "Playable interface experiments by Omkar Arora. Under construction.",
 	...canonical("/arcade"),
 };
 
-const cabinets = [
-	{
-		id: "tilt-button",
-		name: "Tilt button",
-		tags: ["Motion", "3D transforms"],
-		note: "Tips back in 3D and lights up when aimed at.",
-		howTo: "Hover it, or tab to it",
-		ref: "https://youtu.be/FMA79Lnzefc",
-		Play: TiltButton,
-	},
-	{
-		id: "clerk-card",
-		name: "Clerk card",
-		tags: ["AnimatePresence", "Blur"],
-		note: "Dissolves away when dismissed; the panel inside sharpens when you point at it.",
-		howTo: "Point at the grey panel, then dismiss the chip",
-		ref: undefined,
-		Play: StackCard,
-	},
-	{
-		id: "fruit-menu",
-		name: "Fruit menu",
-		tags: ["Variants", "Stagger"],
-		note: "A dropdown whose options arrive one after another, and leave in reverse.",
-		howTo: "Open it; Esc closes",
-		ref: "https://www.youtube.com/watch?v=XtOJlF9UuiU",
-		Play: FruitMenu,
-	},
-];
+/** Caution stripes in A's two colours. */
+const stripes = "repeating-linear-gradient(-45deg, var(--lime) 0 22px, #0c0c0d 22px 44px)";
+
+/** A strip of tape across the page, the words repeated along it. */
+function Tape({ tilt, className = "" }: { tilt: string; className?: string }) {
+	return (
+		<div
+			aria-hidden
+			style={{ rotate: tilt }}
+			className={`${mono} -mx-[10%] flex justify-center gap-8 overflow-hidden border-y-4 border-[#0c0c0d] bg-[var(--lime)] py-3 text-sm font-bold whitespace-nowrap uppercase tracking-[0.3em] text-[#0c0c0d] sm:text-base ${className}`}
+		>
+			{Array.from({ length: 8 }, (_, index) => (
+				<span key={index}>Under construction ▲</span>
+			))}
+		</div>
+	);
+}
 
 export default function Arcade() {
 	return (
-		<ReticleZone>
-			<PageHead kicker={`Arcade · ${cabinets.length} cabinets`} title="Arcade.">
-				Small interface experiments, all playable. Point at things.
+		<>
+			<PageHead kicker="Arcade · closed for building" title="Arcade.">
+				Playable interface experiments will live here.
 			</PageHead>
 
-			<div className="grid gap-4 pb-12 lg:grid-cols-3">
-				{cabinets.map(({ id, name, tags, note, howTo, ref, Play }, index) => (
-					<Reveal as="article" index={index} key={id} className="flex flex-col border border-[var(--ink)]">
-						<header id={id} className="scroll-mt-8 border-b border-[var(--ink)] px-4 py-3">
-							<h2 className={`${mono} text-sm font-bold uppercase tracking-[0.14em]`}>
-								<span className="text-[var(--accent-ink)]">{String(index + 1).padStart(2, "0")}</span> {name}
+			<section className="overflow-hidden pb-16">
+				<div className="border-4 border-[#0c0c0d] p-3 dark:border-[var(--lime)]" style={{ background: stripes }}>
+					<div className="relative overflow-hidden bg-[var(--bg)] px-6 py-16 sm:py-24">
+						<Tape tilt="-4deg" className="absolute inset-x-0 top-8" />
+						<div className="relative mx-auto max-w-xl py-16 text-center">
+							<p className={`${label} text-[var(--accent-ink)]`}>Status · building</p>
+							<h2 className="mt-4 text-[clamp(2.5rem,8vw,5rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
+								Under construction.
 							</h2>
-							<p className={`${label} mt-1`}>{tags.join(" · ")}</p>
-						</header>
-
-						{/* The stage: dotted, like a cutting mat. */}
-						<div
-							className="flex min-h-[24rem] flex-1 items-center justify-center p-6"
-							style={{
-								backgroundImage: "radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0)",
-								backgroundSize: "12px 12px",
-							}}
-						>
-							<Play />
-						</div>
-
-						<footer className="border-t border-[var(--line)] px-4 py-3">
-							<p className="text-sm leading-relaxed">{note}</p>
-							<p className={`${label} mt-2 flex flex-wrap justify-between gap-2`}>
-								<span>▶ {howTo}</span>
-								{ref && (
-									<a href={ref} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--ink)]">
-										Learned from ↗
-									</a>
-								)}
+							<p className="mt-5 text-lg leading-relaxed text-[var(--dim)]">
+								Nothing to play yet. Check back soon.
 							</p>
-						</footer>
-					</Reveal>
-				))}
-			</div>
-		</ReticleZone>
+						</div>
+						<Tape tilt="3deg" className="absolute inset-x-0 bottom-8" />
+					</div>
+				</div>
+			</section>
+		</>
 	);
 }
