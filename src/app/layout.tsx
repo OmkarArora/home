@@ -32,29 +32,6 @@ export const metadata: Metadata = {
 	],
 	authors: [{ name: "Omkar Arora" }],
 	creator: "Omkar Arora",
-	icons: {
-		icon: [
-			{ url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-			{ url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-		],
-		apple: [
-			{
-				url: "/images/apple-touch-icon.png",
-				sizes: "180x180",
-				type: "image/png",
-			},
-		],
-		other: [
-			{
-				rel: "android-chrome-192x192",
-				url: "/images/android-chrome-192x192.png",
-			},
-			{
-				rel: "android-chrome-512x512",
-				url: "/images/android-chrome-512x512.png",
-			},
-		],
-	},
 	manifest: "/site.webmanifest",
 };
 
@@ -65,38 +42,6 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			{/* <head>
-				<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="16x16"
-					href="/images/favicon-16x16.png"
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="32x32"
-					href="/images/favicon-32x32.png"
-				/>
-				<link
-					rel="apple-touch-icon"
-					sizes="180x180"
-					href="/images/apple-touch-icon.png"
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="192x192"
-					href="/images/android-chrome-192x192.png"
-				/>
-				<link
-					rel="icon"
-					type="image/png"
-					sizes="512x512"
-					href="/images/android-chrome-512x512.png"
-				/>
-			</head> */}
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
