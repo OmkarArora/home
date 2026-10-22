@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/lab/a/Reveal";
 import { PageHead, PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/lab/a/ui";
 import { identity, interests } from "@/content/profile";
+import { canonical } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	title: "About — Omkar Arora",
-	description: "Who Omkar Arora is when he isn't shipping: games, badminton, anime, heroes and films.",
+	description: "Who Omkar Arora is when he isn't shipping: games, badminton, fitness, anime, heroes and films.",
+	...canonical("/about"),
 };
 
 export default function About() {

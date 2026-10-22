@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SiteChrome } from "@/components/site-chrome";
+import { baseUrl } from "@/app/sitemap";
+import { yearsOfExperience } from "@/content/profile";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -17,9 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+	metadataBase: new URL(baseUrl),
 	title: "Omkar Arora - Frontend Engineer",
-	description:
-		"Frontend Engineer specializing in React.js, Next.js, and TypeScript. Building scalable, high-performance web applications with 4+ years of experience.",
+	description: `Frontend Engineer specializing in React.js, Next.js, and TypeScript. Building scalable, high-performance web applications with ${yearsOfExperience()}+ years of experience.`,
 	keywords: [
 		"Frontend Engineer",
 		"React.js",

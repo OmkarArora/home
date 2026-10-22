@@ -18,6 +18,7 @@ export async function allPosts() {
 			title: post.metadata.title,
 			summary: post.metadata.summary,
 			publishedAt: post.metadata.publishedAt,
+			updatedAt: post.metadata.updatedAt,
 			minutes: readingTime(post.content),
 		}));
 }

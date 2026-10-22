@@ -4,10 +4,15 @@ import { ProjectCard } from "@/components/home/ProjectCard";
 import WorkExperienceCard from "@/components/home/WorkExperienceCard";
 import { BlogPreview } from "@/components/home/BlogPreview";
 import { ProjectGallery } from "@/components/home/ProjectGallery";
+import { JsonLd } from "@/components/json-ld";
+import { canonical, graph, person, website } from "@/lib/site-seo";
+
+export const metadata = canonical("/");
 
 export default function Home() {
 	return (
 		<>
+			<JsonLd json={graph(person(), website())} />
 			{/* Hero Section */}
 			<section className="max-w-4xl mx-auto px-6 py-20">
 				<div className="space-y-6">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { baseUrl } from "@/app/sitemap";
 import { identity } from "@/content/profile";
+import { ids } from "./site-seo";
 
 import type { getBlogPosts } from "./posts";
 
@@ -41,7 +42,7 @@ export function postMetadata(post: Post): Metadata {
 /** Structured data: the post itself, and where it sits in the site. */
 export function postJsonLd(post: Post) {
 	const { title, summary, publishedAt, updatedAt } = post.metadata;
-	const author = { "@type": "Person", name: identity.name, url: baseUrl };
+	const author = { "@type": "Person", "@id": ids.person, name: identity.name, url: baseUrl };
 
 	return [
 		{

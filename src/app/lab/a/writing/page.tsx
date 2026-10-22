@@ -4,10 +4,13 @@ import Link from "next/link";
 import { Reveal } from "@/components/lab/a/Reveal";
 import { PageHead, base, label, mono } from "@/components/lab/a/ui";
 import { allPosts, shortDate } from "@/components/lab/data";
+import { JsonLd } from "@/components/json-ld";
+import { blog, canonical, graph } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	title: "Dev log — Omkar Arora",
-	description: "Notes on frontend engineering, most with live demos.",
+	description: "Notes on frontend engineering by Omkar Arora, most with live demos you can play with.",
+	...canonical("/blog"),
 };
 
 export default async function Writing() {
@@ -15,6 +18,7 @@ export default async function Writing() {
 
 	return (
 		<>
+			<JsonLd json={graph(blog(posts))} />
 			<PageHead kicker={`Dev log · ${posts.length} entries`} title="Dev log.">
 				Notes on building for the web — most of them with demos you can play with.
 			</PageHead>

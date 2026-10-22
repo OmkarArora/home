@@ -1,10 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { JsonLd } from "@/components/json-ld";
 
 import { Reveal } from "@/components/lab/a/Reveal";
 import { PlaceholderTag, SectionHead, base, label, mono, riseAt } from "@/components/lab/a/ui";
 import { latestPosts } from "@/components/lab/data";
 import { productLabel, shipped, wins } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
+import { canonical, graph, person, website } from "@/lib/site-seo";
+
+export const metadata: Metadata = {
+	title: `${identity.name} — ${identity.title}`,
+	description: `${identity.name} is a ${identity.title.toLowerCase()} at ${identity.company}, building fast, careful interfaces for flights and cabs on the web. ${yearsOfExperience()}+ years, from Sparklin to ixigo.`,
+	...canonical("/"),
+};
 
 /**
  * Version A — Patch notes. The home page only answers "who is this, and what
@@ -18,6 +28,7 @@ export default async function PatchNotes() {
 
 	return (
 		<>
+			<JsonLd json={graph(person(), website())} />
 			{/* ─── Hero: headline + player card ─── */}
 			<section className="grid gap-10 py-14 md:grid-cols-12 md:py-24">
 				<div className="md:col-span-7">
