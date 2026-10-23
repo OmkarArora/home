@@ -79,15 +79,23 @@ export default function Projects() {
 							as="li"
 							index={index}
 							key={quest.name}
-							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[5rem_1fr_14rem_auto] md:items-baseline"
+							className="grid gap-x-8 gap-y-2 border-b border-[var(--line)] py-6 md:grid-cols-[5rem_1fr_15rem_9rem] md:items-baseline"
 						>
 							<span className={`${mono} text-xs text-[var(--dim)]`}>{quest.year}</span>
 							<div>
 								<h3 className="text-xl font-bold tracking-tight">{quest.name}</h3>
 								<p className="mt-1 leading-relaxed text-[var(--dim)]">{quest.summary}</p>
 							</div>
-							<p className={label}>{quest.stack.slice(0, 3).join(" · ")}</p>
-							<div className={`${mono} flex gap-4 text-xs font-bold uppercase tracking-wider`}>
+							{/* Wraps only between whole tags, never after a stray dot. */}
+							<ul className={`${label} flex flex-wrap gap-x-2 gap-y-1`}>
+								{quest.stack.slice(0, 3).map((tool, i, all) => (
+									<li key={tool} className="whitespace-nowrap">
+										{tool}
+										{i < all.length - 1 && " ·"}
+									</li>
+								))}
+							</ul>
+							<div className={`${mono} flex gap-4 text-xs font-bold uppercase tracking-wider md:justify-end`}>
 								{quest.href && (
 									<a href={quest.href} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-ink)]">
 										Site ↗
