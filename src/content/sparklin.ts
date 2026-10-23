@@ -52,8 +52,8 @@ const screens = (folder: string, name: string, sizes: Array<[number, number]>): 
 export const products: Product[] = [
 	{
 		name: "Jupitun",
-		what: "What Jupitun was, in a sentence.",
-		draft: true,
+		status: "Sunsetted",
+		what: "A work OS: calendar, chat and the rest of a team's day in one app.",
 		part: "Built the frontend architecture around a local-first approach, so the interface answers at once and syncs behind the scenes.",
 		points: ["Optimistic updates throughout", "Tuned for performance and for how it feels to use"],
 		skills: ["Next.js", "React", "Tailwind CSS", "Local-first"],
