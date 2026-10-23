@@ -13,22 +13,19 @@ import { mono, nav } from "./ui";
 /**
  * The navigation on phones: a button in the top bar that opens the links.
  *
- * Two versions, compared with `?menu=pause`: a panel that drops down from the
- * top bar, or a full-screen "pause menu". Either way it closes on Escape, on a
- * link, on the button, or (the panel) on a tap outside; focus stays inside
- * while it's open and goes back to the button after. Reduced motion turns the
- * animation into a plain fade (see `RevealConfig`).
+ * A panel drops down from the top bar. It closes on Escape, on a link, on the
+ * button or on a tap outside; focus stays inside while it's open and goes back
+ * to the button after. Reduced motion turns the animation into a plain fade
+ * (see `RevealConfig`). A full-screen take on it is saved as
+ * `components/arcade/PauseMenu`.
  */
 export function MobileMenu() {
 	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
-	const [pause, setPause] = useState(false);
 	const button = useRef<HTMLButtonElement>(null);
 	const sheet = useRef<HTMLDivElement>(null);
 	// The panel hangs from the top bar's bottom edge, wherever the page is scrolled to.
 	const [top, setTop] = useState(0);
-
-	useEffect(() => setPause(new URLSearchParams(window.location.search).get("menu") === "pause"), []);
 
 	// A link was followed: close.
 	useEffect(() => setOpen(false), [pathname]);
@@ -124,7 +121,7 @@ export function MobileMenu() {
 			</button>
 
 			<AnimatePresence>
-				{open && !pause && (
+				{open && (
 					<>
 						{/* Tapping the page below closes the panel. */}
 						<motion.div
@@ -157,41 +154,6 @@ export function MobileMenu() {
 							<div className="mt-6 border-t border-[var(--line)] pt-4">{extras}</div>
 						</motion.div>
 					</>
-				)}
-
-				{open && pause && (
-					<motion.div
-						key="pause"
-						id="mobile-menu"
-						ref={sheet}
-						role="dialog"
-						aria-modal="true"
-						aria-label="Menu"
-						initial={{ opacity: 0, scale: 1.04 }}
-						animate={{ opacity: 1, scale: 1 }}
-						exit={{ opacity: 0, scale: 1.04 }}
-						transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-						className="fixed inset-0 z-50 flex flex-col bg-[var(--bg)] px-5 pt-24 pb-8 sm:px-8 md:hidden"
-					>
-						<p className={`${mono} flex items-center gap-2 text-xs font-bold uppercase tracking-[0.3em]`}>
-							<span className="bg-[var(--lime)] px-1.5 py-0.5 text-[#0c0c0d]">❚❚</span>
-							<span className="animate-pulse motion-reduce:animate-none">Paused</span>
-						</p>
-						<nav aria-label="Main" className="mt-8 flex-1">
-							<ul className="space-y-2">{links}</ul>
-						</nav>
-						<button
-							type="button"
-							onClick={() => {
-								setOpen(false);
-								button.current?.focus();
-							}}
-							className={`${mono} mb-6 w-full bg-[var(--ink)] py-3 text-xs font-bold uppercase tracking-widest text-[var(--bg)]`}
-						>
-							▶ Continue
-						</button>
-						{extras}
-					</motion.div>
 				)}
 			</AnimatePresence>
 		</>
