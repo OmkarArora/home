@@ -32,7 +32,7 @@ export default function SwitchLab() {
 					</article>
 				))}
 			</div>
-			<p className={`${label} pb-16`}>The top bar uses option 1 for now.</p>
+			<p className={`${label} pb-16`}>The top bar uses option 2 for now.</p>
 		</>
 	);
 }

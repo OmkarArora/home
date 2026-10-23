@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { LocalTime } from "@/components/lab/LocalTime";
 import { identity } from "@/content/profile";
 
-import { SlideSwitch } from "./ThemeSwitch";
+import { EclipseSwitch } from "./ThemeSwitch";
 import { base, mono, nav } from "./ui";
 
 export function TopBar() {
@@ -42,7 +42,7 @@ export function TopBar() {
 			</nav>
 			<div className="flex items-center gap-3">
 				<LocalTime className="hidden text-[var(--dim)] sm:inline" />
-				<SlideSwitch />
+				<EclipseSwitch />
 			</div>
 		</header>
 	);
