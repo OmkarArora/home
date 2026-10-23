@@ -26,7 +26,8 @@ export const surfaceLabel: Record<Surface, string> = {
 /**
  * A clip of the feature in use. `poster` only matters for video. `credit`
  * names the source when the clip isn't Omkar's own, such as one of ixigo's
- * launch videos, which is played from ixigo's server rather than copied.
+ * launch videos, which is played from ixigo's server rather than copied. The
+ * credit links to the feature's own page, where the video comes from.
  */
 export type Media = {
 	type: "video" | "image";
@@ -55,8 +56,6 @@ export type Shipped = {
 	points: string[];
 	skills: string[];
 	media?: Media;
-	/** Where the feature lives on ixigo's own site, when it has a page of its own. */
-	link?: { label: string; href: string };
 };
 
 export const shipped: Shipped[] = [
@@ -83,9 +82,8 @@ export const shipped: Shipped[] = [
 			width: 1124,
 			height: 2444,
 			alt: "ixigo's Smart Lock launch video: choosing a route, dates and preferences, setting a budget, and the flight it finds",
-			credit: { label: "ixigo's launch video", href: "https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4" },
+			credit: { label: "ixigo's launch video", href: "https://www.ixigo.com/smart-lock" },
 		},
-		link: { label: "Smart Lock on ixigo.com", href: "https://www.ixigo.com/smart-lock" },
 	},
 	{
 		month: "2026-08",
