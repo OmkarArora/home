@@ -1,10 +1,9 @@
 /**
  * What Omkar built at Sparklin Innovations, November 2021 – April 2026.
  *
- * Assembled from his resume and the blurbs on the old home page, which is not
- * much: his own notes are still to come. Until then, anything marked
- * `draft: true` is a guess from the screenshots or simply unknown, and the
- * Work page shows it as a placeholder rather than passing it off as fact.
+ * From his resume, the blurbs on the old home page, and his own notes
+ * (October 2026). Mark a guess with `draft: true` and the Work page shows it
+ * as a placeholder instead of passing it off as fact.
  */
 
 export const company = {
@@ -56,8 +55,12 @@ export const products: Product[] = [
 		years: "2025",
 		status: "Sunsetted",
 		what: "A productivity OS: calendar, chat and the rest of a team's day in one app.",
-		part: "Built the frontend architecture around a local-first approach, so the interface answers at once and syncs behind the scenes.",
-		points: ["Optimistic updates throughout", "Tuned for performance and for how it feels to use"],
+		part: "I led it: the whole frontend, from the calendar and chat to the sync underneath.",
+		points: [
+			"Calendar, chat and the rest built as one app",
+			"Local-first: the UI answers at once and syncs in the background",
+			"Optimistic updates throughout",
+		],
 		skills: ["Next.js", "React", "Tailwind CSS", "Local-first"],
 		screens: [],
 	},
@@ -82,8 +85,7 @@ export const products: Product[] = [
 		name: "Openvy",
 		years: "2021 – 2026",
 		status: "Sunsetted",
-		what: "A social app for the films, shows, music and places people are into, with group chats around them.",
-		draft: true,
+		what: "An app for sharing the shows, films and music you love, where every post is its own public chat.",
 		part: "I worked on it through four stacks, and led the last one, the Next.js web app, end to end.",
 		journey: ["Angular", "React Native app", "Native iOS (Swift)", "Next.js web"],
 		points: [
