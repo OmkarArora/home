@@ -192,7 +192,7 @@ function SparklinProduct({ product }: { product: Product }) {
 					))}
 				</ul>
 				<p className={`${label} mt-4`}>
-					{product.years ?? "Years to come"} · {product.skills.join(" · ")}
+					{[product.years, ...product.skills].filter(Boolean).join(" · ")}
 				</p>
 				<Screens screens={product.screens} />
 			</Reveal>
