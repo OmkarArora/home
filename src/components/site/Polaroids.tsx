@@ -15,7 +15,8 @@ import { mono } from "./ui";
  * straightens, slides out to the side, and springs back in at the other end.
  *
  * It also flicks through on its own every few seconds, except under reduced
- * motion, in a hidden tab, while the pointer or focus is on it, or once paused.
+ * motion, in a hidden tab (restarting when it's back), while the pointer or
+ * focus is on it, or once paused.
  * Screen readers only hear about the changes a visitor makes.
  */
 
@@ -61,13 +62,22 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 		go(way);
 	};
 
+	// Whether the tab is out of sight. Coming back starts a fresh wait.
+	const [hidden, setHidden] = useState(false);
+	useEffect(() => {
+		const update = () => setHidden(document.hidden);
+		update();
+		document.addEventListener("visibilitychange", update);
+		return () => document.removeEventListener("visibilitychange", update);
+	}, []);
+
 	// One timer per card shown, so a manual change restarts the wait.
 	useEffect(() => {
-		if (reduced || paused || holding) return;
-		const timer = setTimeout(() => !document.hidden && go("next"), every);
+		if (reduced || paused || holding || hidden) return;
+		const timer = setTimeout(() => go("next"), every);
 		return () => clearTimeout(timer);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- `go` only reads state this already keys on
-	}, [order, reduced, paused, holding]);
+	}, [order, reduced, paused, holding, hidden]);
 
 	return (
 		<div
