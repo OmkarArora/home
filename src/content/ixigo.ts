@@ -50,8 +50,8 @@ export type Shipped = {
 	/** The big ones: they lead the home page and get a media slot. */
 	feature?: true;
 	title: string;
-	/** Set when the launch was a team's and his part needs saying. */
-	role?: string;
+	/** Set when the launch was a team's: the piece that was his. */
+	part?: string;
 	summary: string;
 	points: string[];
 	skills: string[];
@@ -65,15 +65,14 @@ export const shipped: Shipped[] = [
 		product: "flights",
 		surfaces: ["mweb"],
 		feature: true,
-		title: "Smart Lock: where every fare-watching agent starts",
-		role: "Team launch · I built the search screen",
-		summary:
-			"Smart Lock is a paid agent that scans fares around the clock and price-locks the first flight within the user's budget, refunding the fee if nothing matches. I built the screen every Smart Lock starts from: route, flexible dates, travellers and cabin class in one compact form.",
+		title: "Smart Lock",
+		part: "The search screen every Smart Lock starts from",
+		summary: "A paid agent that watches fares and locks the first flight within your budget.",
 		points: [
-			"Flexible-date calendar that highlights the ± window around the chosen date",
-			"Moved the calendar sheet and traveller/class picker into shared components, now used by both flight search and Smart Lock",
-			"Lockable cabin-class options, so Smart Lock limits choices without forking the picker",
-			"Hero, live ticker animation, benefits and footer, with dark mode support",
+			"Flexible dates with a ± window",
+			"Calendar and traveller pickers, shared with flight search",
+			"Cabin classes Smart Lock can lock",
+			"Hero, live ticker and dark mode",
 		],
 		skills: ["Product launch", "Forms", "Shared components", "Motion"],
 		media: {
@@ -127,14 +126,13 @@ export const shipped: Shipped[] = [
 		product: "flights",
 		surfaces: ["mweb"],
 		feature: true,
-		title: "Flash sale hero: timed slides and a live countdown",
-		summary:
-			"The home hero now runs a whole flash sale from backend JSON. Slides show and hide on their own as the sale moves from pre-sale to live to extended, with no page reload.",
+		title: "Flash sale hero",
+		summary: "The home hero runs a whole flash sale on its own schedule, with no reloads.",
 		points: [
-			"Countdown header capsule with a scroll-driven title reveal and shrinking digits",
-			"A scheduler that sleeps until the next window boundary instead of polling",
-			"Keeps correct time when the tab is hidden, throttled or brought back",
-			"Synced the capsule to the hero's dock animation using a shared docked signal",
+			"Live countdown capsule",
+			"Sleeps until the next change, never polls",
+			"Keeps time in hidden and throttled tabs",
+			"Synced to the hero's dock animation",
 		],
 		skills: ["React", "Scheduling", "Motion", "Vitest"],
 	},
@@ -145,13 +143,12 @@ export const shipped: Shipped[] = [
 		surfaces: ["cabs"],
 		feature: true,
 		title: "Partial payment for cabs",
-		summary:
-			"Riders can book an eligible cab by paying part of the fare upfront and the rest to the driver at the end of the trip. Built end to end across booking, the trip page and rescheduling.",
+		summary: "Pay part of the fare to book, and the rest to the driver. Built end to end.",
 		points: [
-			'Plan picker footer on review, plus a per-cab "Partial payment available" note',
-			"Ride Confirmed pill and fare summary rows that stay correct after the trip ends",
-			"Reschedule flow on the new contract, with a per-cab note",
-			"11 analytics events; fixed 4 bugs found along the way, including an infinite loop on the trip page",
+			"Plan picker on the review page",
+			"Trip page and fare summary",
+			"Rescheduling on the new contract",
+			"11 analytics events, 4 bugs fixed",
 		],
 		skills: ["React", "Zustand", "Payments", "Analytics"],
 	},

@@ -80,17 +80,22 @@ function Major({ item }: { item: Shipped }) {
 			<Reveal as="article" className="mt-5 grid gap-8 border border-[var(--ink)] p-6 md:grid-cols-[1fr_13rem] md:p-8">
 				<div className="min-w-0">
 					<Tags item={item} />
-					<h4 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{item.title}</h4>
-					{item.role && <p className={`${label} mt-2 text-[var(--accent-ink)]`}>{item.role}</p>}
-					<p className="mt-3 max-w-2xl leading-relaxed text-[var(--dim)]">{item.summary}</p>
-					<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
+					<h4 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{item.title}</h4>
+					<p className="mt-3 max-w-xl text-lg leading-snug">{item.summary}</p>
+					{item.part && (
+						<p className="mt-4 inline-flex max-w-full flex-wrap items-baseline gap-x-2 border-l-4 border-[var(--lime)] bg-[var(--soft)] px-3 py-2">
+							<span className={`${label} text-[var(--accent-ink)]`}>Team launch · My part</span>
+							<span className="font-bold">{item.part}</span>
+						</p>
+					)}
+					<ul className="mt-5 grid max-w-2xl gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
 						{item.points.map((point) => (
 							<li key={point} className={plus}>
 								{point}
 							</li>
 						))}
 					</ul>
-					<p className={`${label} mt-5`}>{item.skills.join(" · ")}</p>
+					<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
 				</div>
 				<Clip item={item} />
 			</Reveal>
