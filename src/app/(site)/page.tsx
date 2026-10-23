@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Polaroids } from "@/components/site/Polaroids";
 import { Reveal } from "@/components/site/Reveal";
 import { RotatingWord } from "@/components/site/RotatingWord";
+import { HeroActions } from "@/components/site/HeroActions";
 import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { allPosts } from "@/components/site/data";
 import { productLabel, shipped } from "@/content/ixigo";
@@ -58,19 +59,8 @@ export default async function PatchNotes() {
 						<RotatingWord words={feels} />
 					</h1>
 					<p style={riseAt(2)} className="rise mt-8 max-w-lg text-lg leading-relaxed text-[var(--dim)]">{identity.pitch}</p>
-					<div style={riseAt(3)} className={`${mono} rise mt-10 flex flex-wrap gap-3 text-xs uppercase tracking-wider`}>
-						<a
-							href={identity.links.resume}
-							className="bg-[var(--ink)] px-4 py-3 font-bold text-[var(--bg)] transition-transform hover:-translate-y-0.5"
-						>
-							▶ Resume
-						</a>
-						<a
-							href={`mailto:${identity.email}`}
-							className="border border-[var(--ink)] px-4 py-3 font-bold transition-colors hover:bg-[var(--ink)] hover:text-[var(--bg)]"
-						>
-							Say hi
-						</a>
+					<div style={riseAt(3)} className="rise mt-10">
+						<HeroActions resume={identity.links.resume} />
 					</div>
 				</div>
 
