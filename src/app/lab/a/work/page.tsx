@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { InViewVideo } from "@/components/lab/a/InViewVideo";
 import { Reveal } from "@/components/lab/a/Reveal";
 import { Screens } from "@/components/lab/a/Screens";
 import { Trace } from "@/components/lab/a/Trace";
@@ -44,20 +45,29 @@ function Clip({ item }: { item: Shipped }) {
 			</div>
 		);
 	}
-	return item.media.type === "video" ? (
-		<video
-			className={`${frame} object-cover`}
-			src={item.media.src}
-			poster={item.media.poster}
-			aria-label={item.media.alt}
-			autoPlay
-			muted
-			loop
-			playsInline
-		/>
-	) : (
-		// eslint-disable-next-line @next/next/no-img-element -- GIFs must stay animated
-		<img className={`${frame} object-cover`} src={item.media.src} alt={item.media.alt} loading="lazy" />
+	const { media } = item;
+	return (
+		<figure className="w-full max-w-[13rem]">
+			{media.type === "video" ? (
+				<InViewVideo
+					src={media.src}
+					label={media.alt}
+					className={`${frame} object-cover`}
+					style={media.width && media.height ? { aspectRatio: `${media.width} / ${media.height}` } : undefined}
+				/>
+			) : (
+				// eslint-disable-next-line @next/next/no-img-element -- GIFs must stay animated
+				<img className={`${frame} object-cover`} src={media.src} alt={media.alt} loading="lazy" />
+			)}
+			{media.credit && (
+				<figcaption className={`${label} mt-2`}>
+					From{" "}
+					<a href={media.credit.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--ink)]">
+						{media.credit.label} ↗
+					</a>
+				</figcaption>
+			)}
+		</figure>
 	);
 }
 

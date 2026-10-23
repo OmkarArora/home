@@ -23,8 +23,21 @@ export const surfaceLabel: Record<Surface, string> = {
 	cabs: "Cabs web",
 };
 
-/** A clip of the feature in use. `poster` only matters for video. */
-export type Media = { type: "video" | "image"; src: string; alt: string; poster?: string };
+/**
+ * A clip of the feature in use. `poster` only matters for video. `credit`
+ * names the source when the clip isn't Omkar's own, such as one of ixigo's
+ * launch videos, which is played from ixigo's server rather than copied.
+ */
+export type Media = {
+	type: "video" | "image";
+	src: string;
+	alt: string;
+	poster?: string;
+	/** Its real size, so the slot takes its shape instead of cropping it. */
+	width?: number;
+	height?: number;
+	credit?: { label: string; href: string };
+};
 
 export type Shipped = {
 	/** The month it finished shipping, as YYYY-MM. Orders the timeline. */
@@ -62,6 +75,14 @@ export const shipped: Shipped[] = [
 			"Hero, live ticker animation, benefits and footer, with dark mode support",
 		],
 		skills: ["Product launch", "Forms", "Shared components", "Motion"],
+		media: {
+			type: "video",
+			src: "https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4",
+			width: 1124,
+			height: 2444,
+			alt: "ixigo's Smart Lock launch video: choosing a route, dates and preferences, setting a budget, and the flight it finds",
+			credit: { label: "ixigo's launch video", href: "https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4" },
+		},
 	},
 	{
 		month: "2026-08",
