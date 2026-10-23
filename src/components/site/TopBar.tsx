@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LocalTime } from "@/components/site/LocalTime";
 import { identity } from "@/content/profile";
 
+import { MobileMenu } from "./MobileMenu";
 import { EclipseSwitch } from "./ThemeSwitch";
 import { mono, nav } from "./ui";
 
@@ -20,8 +21,8 @@ export function TopBar() {
 				<span className="size-2 bg-[var(--lime)]" />
 				{identity.name}
 			</Link>
-			{/* On a phone the links get a row of their own, under the name. */}
-			<nav className="order-last flex w-full justify-between gap-4 pt-3 md:justify-start md:gap-6 uppercase tracking-wider text-[var(--dim)] md:order-none md:w-auto md:pt-0">
+			{/* On a phone the links live in the menu instead. */}
+			<nav className="hidden gap-6 uppercase tracking-wider text-[var(--dim)] md:flex">
 				{nav.map((item) => {
 					const active = pathname.startsWith(item.href);
 					return (
@@ -43,6 +44,7 @@ export function TopBar() {
 			<div className="flex items-center gap-3">
 				<LocalTime className="hidden text-[var(--dim)] sm:inline" />
 				<EclipseSwitch />
+				<MobileMenu />
 			</div>
 		</header>
 	);
