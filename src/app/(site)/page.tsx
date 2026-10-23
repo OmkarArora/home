@@ -64,7 +64,7 @@ export default async function PatchNotes() {
 					</div>
 				</div>
 
-				<aside style={riseAt(4)} className="rise min-w-0 self-end md:col-span-5">
+				<aside className="rise order-first min-w-0 self-end [--rise:0] md:order-none md:col-span-5 md:[--rise:4]">
 					<Polaroids
 						snaps={[
 							{ kind: "post", title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` },
