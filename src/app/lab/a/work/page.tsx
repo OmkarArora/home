@@ -61,7 +61,6 @@ function Clip({ item }: { item: Shipped }) {
 			)}
 			{media.credit && (
 				<figcaption className={`${label} mt-2`}>
-					Video: {media.credit.by} ·{" "}
 					<a href={media.credit.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--ink)]">
 						{media.credit.label} ↗
 					</a>
