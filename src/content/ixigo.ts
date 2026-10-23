@@ -37,7 +37,8 @@ export type Media = {
 	/** Its real size, so the slot takes its shape instead of cropping it. */
 	width?: number;
 	height?: number;
-	credit?: { label: string; href: string };
+	/** Who made the clip, and a link to read more where it came from. */
+	credit?: { by: string; label: string; href: string };
 };
 
 export type Shipped = {
@@ -82,7 +83,7 @@ export const shipped: Shipped[] = [
 			width: 1124,
 			height: 2444,
 			alt: "ixigo's Smart Lock launch video: choosing a route, dates and preferences, setting a budget, and the flight it finds",
-			credit: { label: "ixigo's launch video", href: "https://www.ixigo.com/smart-lock" },
+			credit: { by: "ixigo", label: "Smart Lock on ixigo.com", href: "https://www.ixigo.com/smart-lock" },
 		},
 	},
 	{
