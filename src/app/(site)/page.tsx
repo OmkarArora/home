@@ -40,11 +40,13 @@ export default async function PatchNotes() {
 					<p className={`${label} rise`} style={riseAt(0)}>
 						{identity.title} · {identity.company}
 					</p>
-					<h1 style={riseAt(1)} className="rise mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
-						Web that feels
+					<h1
+						aria-label={`Web that feels ${feels[0]}`}
+						style={riseAt(1)}
+						className="rise mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
+						Web that feels{" "}
 						<br />
-						<span className="sr-only">{feels[0]}</span>
-						<RotatingWord words={feels} />.
+						<RotatingWord words={feels} />
 					</h1>
 					<p style={riseAt(2)} className="rise mt-8 max-w-lg text-lg leading-relaxed text-[var(--dim)]">{identity.pitch}</p>
 					<div style={riseAt(3)} className={`${mono} rise mt-10 flex flex-wrap gap-3 text-xs uppercase tracking-wider`}>

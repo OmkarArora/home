@@ -15,7 +15,7 @@ type Card = { kicker: string; title: string; mark?: string; sub?: string };
 
 /** Each page's card says what its own heading says. */
 const pages: Record<string, Card> = {
-	home: { kicker: `${identity.title} · ${identity.company}`, title: "Web that feels magical.", mark: "magical", sub: identity.name },
+	home: { kicker: `${identity.title} · ${identity.company}`, title: "Web that feels magical", mark: "magical", sub: identity.name },
 	work: { kicker: "Work · newest first", title: "Patch notes.", sub: "What I've shipped at ixigo and Sparklin." },
 	projects: { kicker: "Projects · built for fun", title: "Side quests.", sub: "Games, tools and this site." },
 	blog: { kicker: "Writing", title: "Dev log.", sub: "Notes on building for the web, with demos." },

@@ -13,7 +13,7 @@ export type Placeholder = { placeholder?: true };
 export const identity = {
 	name: "Omkar Arora",
 	firstName: "Omkar",
-	title: "Senior Frontend Engineer",
+	title: "Senior Software Engineer",
 	company: "ixigo",
 	location: "Gurugram, India",
 	/** First full-time role: Sparklin, November 2021. */
@@ -115,7 +115,7 @@ export const roles: Role[] = [
 	{
 		// Titles and dates are from his resume. The features are in ixigo.ts.
 		company: "ixigo",
-		title: "Senior Software Engineer 1",
+		title: "Senior Software Engineer",
 		from: "2026",
 		to: "Now",
 		summary:

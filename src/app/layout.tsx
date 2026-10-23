@@ -7,8 +7,8 @@ import { yearsOfExperience } from "@/content/profile";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(baseUrl),
-	title: "Omkar Arora - Frontend Engineer",
-	description: `Frontend Engineer specializing in React.js, Next.js, and TypeScript. Building scalable, high-performance web applications with ${yearsOfExperience()}+ years of experience.`,
+	title: "Omkar Arora — Senior Software Engineer",
+	description: `Senior Software Engineer at ixigo, building for the web with React, Next.js and TypeScript. ${yearsOfExperience()}+ years of experience.`,
 	keywords: [
 		"Frontend Engineer",
 		"React.js",

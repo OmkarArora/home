@@ -6,6 +6,7 @@ import { Screens } from "@/components/site/Screens";
 import { Trace } from "@/components/site/Trace";
 import { PageHead, PlaceholderTag, label, mono } from "@/components/site/ui";
 import { type Media, type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
+import { identity } from "@/content/profile";
 import { type Product, also, company, outcomes, products } from "@/content/sparklin";
 import { pageMetadata } from "@/lib/site-seo";
 
@@ -253,7 +254,7 @@ export default function Work() {
 					<h2 id="ixigo" data-trace-node className={chapter}>
 						ixigo
 					</h2>
-					<p className={`${label} mt-3`}>{since} – now · Senior Software Engineer 1</p>
+					<p className={`${label} mt-3`}>{since} – now · {identity.title}</p>
 					<p className="mt-3 max-w-xl text-[var(--dim)]">
 						The three biggest things first. More is in review and in the works, and goes here once it
 						ships.
