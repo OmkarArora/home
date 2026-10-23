@@ -28,14 +28,13 @@ function Tags({ item }: { item: Shipped }) {
 		<p className={`${label} flex flex-wrap items-center gap-x-3 gap-y-1`}>
 			<span className="bg-[var(--ink)] px-1.5 py-0.5 text-[var(--bg)]">{productLabel[item.product]}</span>
 			<span>{item.surfaces.map((surface) => surfaceLabel[surface]).join(" + ")}</span>
-			<span>{item.when}</span>
 		</p>
 	);
 }
 
 /** Where a screen recording goes: phone-shaped, since most of this is mobile web. */
 function Clip({ item }: { item: Shipped }) {
-	const frame = "aspect-[9/16] w-full max-w-[13rem] border border-[var(--ink)] bg-[var(--card)]";
+	const frame = "aspect-[9/16] w-full border border-[var(--ink)] bg-[var(--card)]";
 	if (!item.media) {
 		return (
 			<div
@@ -47,7 +46,7 @@ function Clip({ item }: { item: Shipped }) {
 	}
 	const { media } = item;
 	return (
-		<figure className="w-full max-w-[13rem]">
+		<figure className="mx-auto w-full max-w-[11rem]">
 			{media.type === "video" ? (
 				<InViewVideo
 					src={media.src}
@@ -70,25 +69,34 @@ function Clip({ item }: { item: Shipped }) {
 	);
 }
 
-/** One of the big features: a stop of its own, and a card with room for a clip. */
-function Major({ item }: { item: Shipped }) {
+/**
+ * One of the big features: a stop of its own, and a card with room for a clip.
+ * The text sits centred against the phone so neither side is left half empty.
+ * `left` puts the phone first, one of two layouts being compared (?card=left).
+ */
+function Major({ item, left }: { item: Shipped; left: boolean }) {
 	return (
 		<section className="pb-12">
 			<h3 data-trace-node className={stop}>
 				{item.when}
 			</h3>
-			<Reveal as="article" className="mt-5 grid gap-8 border border-[var(--ink)] p-6 md:grid-cols-[1fr_13rem] md:p-8">
-				<div className="min-w-0">
+			<Reveal
+				as="article"
+				className={`mt-5 grid gap-8 border border-[var(--ink)] p-6 md:items-center md:gap-12 md:p-10 ${
+					left ? "md:grid-cols-[11rem_1fr]" : "md:grid-cols-[1fr_11rem]"
+				}`}
+			>
+				<div className={`min-w-0 ${left ? "md:order-2" : ""}`}>
 					<Tags item={item} />
 					<h4 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{item.title}</h4>
 					<p className="mt-3 max-w-xl text-lg leading-snug">{item.summary}</p>
 					{item.part && (
-						<p className="mt-4 inline-flex max-w-full flex-wrap items-baseline gap-x-2 border-l-4 border-[var(--lime)] bg-[var(--soft)] px-3 py-2">
-							<span className={`${label} text-[var(--accent-ink)]`}>Team launch · My part</span>
-							<span className="font-bold">{item.part}</span>
-						</p>
+						<div className="mt-5 max-w-xl border-l-4 border-[var(--lime)] bg-[var(--soft)] px-4 py-3">
+							<p className={`${label} text-[var(--accent-ink)]`}>Team launch · My part</p>
+							<p className="mt-1 font-bold">{item.part}</p>
+						</div>
 					)}
-					<ul className="mt-5 grid max-w-2xl gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+					<ul className="mt-5 max-w-xl space-y-2">
 						{item.points.map((point) => (
 							<li key={point} className={plus}>
 								{point}
@@ -97,7 +105,9 @@ function Major({ item }: { item: Shipped }) {
 					</ul>
 					<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
 				</div>
-				<Clip item={item} />
+				<div className={left ? "md:order-1" : ""}>
+					<Clip item={item} />
+				</div>
 			</Reveal>
 		</section>
 	);
@@ -164,7 +174,8 @@ function SparklinProduct({ product }: { product: Product }) {
 	);
 }
 
-export default function Work() {
+export default async function Work({ searchParams }: { searchParams: Promise<{ card?: string }> }) {
+	const left = (await searchParams).card === "left";
 	const rest = alsoShipped();
 	const restCount = rest.reduce((sum, month) => sum + month.shipped.length + month.wins.length, 0);
 
@@ -204,7 +215,7 @@ export default function Work() {
 				</section>
 
 				{majors().map((item) => (
-					<Major key={item.title} item={item} />
+					<Major key={item.title} item={item} left={left} />
 				))}
 
 				<section className="pb-20">
