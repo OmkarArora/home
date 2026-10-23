@@ -25,7 +25,7 @@ export type Snap =
 	| { kind: "work"; title: string; meta: string; caption: string; href: string };
 
 const tilt = [-4, 3, -2, 5, -3, 2];
-const every = 4000;
+const every = 3000;
 
 /** Where a card goes when it's pulled aside, like the end of a drag. */
 const aside = { x: 190, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } } as const;
