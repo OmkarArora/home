@@ -99,17 +99,6 @@ export const shipped: Shipped[] = [
 		skills: ["Cross-sell", "Hooks", "Layout"],
 	},
 	{
-		month: "2026-08",
-		when: "Aug 2026",
-		product: "flights",
-		surfaces: ["mweb"],
-		title: "Partial payment slot in the flights hero",
-		summary:
-			"Added support for the partial-payment hero slot that the backend sends, reusing the existing summary-card layout with no new UI.",
-		points: [],
-		skills: ["Backend contract"],
-	},
-	{
 		month: "2026-07",
 		when: "Jul 2026",
 		product: "flights",
@@ -125,7 +114,6 @@ export const shipped: Shipped[] = [
 		when: "May – Jun 2026",
 		product: "flights",
 		surfaces: ["mweb"],
-		feature: true,
 		title: "Flash sale hero",
 		summary: "The home hero runs a whole flash sale on its own schedule, with no reloads.",
 		points: [
@@ -186,20 +174,6 @@ export const shipped: Shipped[] = [
 		when: "Jun 2026",
 		product: "flights",
 		surfaces: ["mweb"],
-		title: 'Timed "Search similar flights" button',
-		summary:
-			"When a chosen flight sells out, the sheet's main button fills up and then searches for alternatives on its own. Tapping it goes straight away.",
-		points: [
-			"Reusable TimedButton component, animated on the compositor",
-			"Respects reduced motion and uses design-system tokens",
-		],
-		skills: ["Component design", "Motion"],
-	},
-	{
-		month: "2026-06",
-		when: "Jun 2026",
-		product: "flights",
-		surfaces: ["mweb"],
 		title: "Co-branded home for partner apps",
 		summary:
 			'Partner apps see "Book Flights with ixigo" with our logo. ixigo\'s own apps keep the default title, and partners no longer see the login banner.',
@@ -208,65 +182,29 @@ export const shipped: Shipped[] = [
 	},
 ];
 
-export type Win = { month: string; product: Product; what: string; note?: string };
-
-/** Fixes and improvements that reached production. */
-export const wins: Win[] = [
-	{
-		month: "2026-09",
-		product: "flights",
-		what: "Upcoming trips card handles partial flight data",
-		note: "No more broken cards when the backend leaves fields out",
-	},
-	{
-		month: "2026-07",
-		product: "flights",
-		what: "Review page opens the contact or billing sheet on a validation error",
-		note: "Falls back to the city when the address is missing",
-	},
-	{
-		month: "2026-07",
-		product: "flights",
-		what: "Booking-source tracking on confirmation",
-		note: "Helps find bookings that land on the wrong app",
-	},
-	{ month: "2026-07", product: "flights", what: "Booking loader stays visible until the payment redirect" },
-	{ month: "2026-07", product: "flights", what: "Attribution token set on flight init and payment success" },
-	{ month: "2026-06", product: "flights", what: "Recent searches can't crash the home page anymore" },
-	{
-		month: "2026-06",
-		product: "flights",
-		what: "Fixed a search-form hydration mismatch from a server-side default date",
-	},
-	{ month: "2026-06", product: "flights", what: "Deals filter row hidden when it has only one option" },
-	{ month: "2026-06", product: "cabs", what: "Fare summary animates its discount rows in and out" },
-	{ month: "2026-06", product: "cabs", what: "Coupon state clears when the user switches cab" },
-];
-
 /** He joined in April 2026; the first of this shipped in May. */
 export const since = "Apr 2026";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export type Month = { key: string; label: string; shipped: Shipped[]; wins: Win[] };
+export type Month = { key: string; label: string; shipped: Shipped[] };
 
 /** Everything grouped by month, newest first — the shape the timeline draws. */
 export function timeline(): Month[] {
-	const keys = [...new Set([...shipped, ...wins].map((item) => item.month))].sort().reverse();
+	const keys = [...new Set(shipped.map((item) => item.month))].sort().reverse();
 	return keys.map((key) => ({
 		key,
 		label: `${MONTHS[Number(key.slice(5)) - 1]} ${key.slice(0, 4)}`,
 		shipped: shipped.filter((item) => item.month === key),
-		wins: wins.filter((item) => item.month === key),
 	}));
 }
 
 /** The features big enough to get a stop of their own. */
 export const majors = (): Shipped[] => shipped.filter((item) => item.feature);
 
-/** Everything else, by month: smaller features and fixes, for the compact list. */
+/** Everything else, by month, for the compact list. Fixes are left out: shipping them is the job. */
 export function alsoShipped(): Month[] {
 	return timeline()
 		.map((month) => ({ ...month, shipped: month.shipped.filter((item) => !item.feature) }))
-		.filter((month) => month.shipped.length + month.wins.length > 0);
+		.filter((month) => month.shipped.length > 0);
 }

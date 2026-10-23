@@ -177,7 +177,6 @@ function SparklinProduct({ product }: { product: Product }) {
 export default async function Work({ searchParams }: { searchParams: Promise<{ card?: string }> }) {
 	const left = (await searchParams).card === "left";
 	const rest = alsoShipped();
-	const restCount = rest.reduce((sum, month) => sum + month.shipped.length + month.wins.length, 0);
 
 	return (
 		<>
@@ -221,7 +220,6 @@ export default async function Work({ searchParams }: { searchParams: Promise<{ c
 				<section className="pb-20">
 					<h3 data-trace-node className={stop}>
 						Also shipped
-						<span className="ml-3 font-normal">{restCount} more</span>
 					</h3>
 					<p className={`${label} mt-2`}>Tap a title for the detail</p>
 					{rest.map((month) => (
@@ -232,15 +230,6 @@ export default async function Work({ searchParams }: { searchParams: Promise<{ c
 							<ul className="min-w-0 border-t border-[var(--line)]">
 								{month.shipped.map((item) => (
 									<Minor key={item.title} item={item} />
-								))}
-								{month.wins.map((win) => (
-									<li
-										key={win.what}
-										className="grid grid-cols-[4.5rem_1fr] items-baseline gap-x-3 border-b border-[var(--line)] py-2 text-sm text-[var(--dim)]"
-									>
-										<span className={label}>{productLabel[win.product]}</span>
-										{win.what}
-									</li>
 								))}
 							</ul>
 						</Reveal>

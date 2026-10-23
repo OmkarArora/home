@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Reveal } from "@/components/lab/a/Reveal";
 import { PlaceholderTag, SectionHead, base, label, mono, riseAt } from "@/components/lab/a/ui";
 import { latestPosts } from "@/components/lab/data";
-import { productLabel, shipped, wins } from "@/content/ixigo";
+import { productLabel, shipped } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
 import { canonical, graph, person, website } from "@/lib/site-seo";
 
@@ -121,7 +121,7 @@ export default async function PatchNotes() {
 					href={`${base}/work`}
 					className={`${mono} mt-6 inline-block text-xs font-bold uppercase tracking-wider hover:text-[var(--accent-ink)]`}
 				>
-					All {shipped.length + wins.length} from ixigo, and Sparklin before it →
+					Everything shipped, at ixigo and Sparklin →
 				</Link>
 			</section>
 
