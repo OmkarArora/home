@@ -4,12 +4,15 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-import { PlaceholderTag, mono } from "./ui";
+import { mono } from "./ui";
 
 /**
  * The stack beside the home page headline: photos, art, the newest post and the
  * latest work, each a polaroid that opens what it shows. Drag the top one aside,
  * or press the arrows, to move through it. Links off the site open in a new tab.
+ *
+ * The arrows and the slideshow move a card along the same path a drag does: it
+ * straightens, slides out to the side, and springs back in at the other end.
  *
  * It also flicks through on its own every few seconds, except under reduced
  * motion, in a hidden tab, while the pointer or focus is on it, or once paused.
@@ -17,12 +20,18 @@ import { PlaceholderTag, mono } from "./ui";
  */
 
 export type Snap =
-	| { kind: "photo" | "art"; src?: string; alt: string; caption: string; href?: string; contain?: boolean }
+	| { kind: "photo" | "art"; src?: string; alt: string; caption: string; href: string; contain?: boolean }
 	| { kind: "post"; title: string; meta: string; caption: string; href: string }
 	| { kind: "work"; title: string; meta: string; caption: string; href: string };
 
 const tilt = [-4, 3, -2, 5, -3, 2];
 const every = 4000;
+
+/** Where a card goes when it's pulled aside, like the end of a drag. */
+const aside = { x: 190, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } } as const;
+
+/** The "Open ↗" tag on each card. Hidden for now: the picture itself is the link. */
+const showOpen = false;
 
 export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
@@ -34,18 +43,26 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const reduced = useReducedMotion();
 	const [paused, setPaused] = useState(false);
 	const [holding, setHolding] = useState(false);
-	const [flinging, setFlinging] = useState(false);
+	// The card on its way out (the top one) or in (the bottom one), before the stack reorders.
+	const [moving, setMoving] = useState<"next" | "back" | null>(null);
 	const [touched, setTouched] = useState(false);
-	const manual = (move: () => void) => {
+	const [dragging, setDragging] = useState(false);
+	const go = (way: "next" | "back") => {
+		if (moving) return;
+		if (reduced) (way === "next" ? next : back)();
+		else setMoving(way);
+	};
+	const manual = (way: "next" | "back") => {
 		setTouched(true);
-		move();
+		go(way);
 	};
 
 	// One timer per card shown, so a manual change restarts the wait.
 	useEffect(() => {
 		if (reduced || paused || holding) return;
-		const timer = setTimeout(() => !document.hidden && setFlinging(true), every);
+		const timer = setTimeout(() => !document.hidden && go("next"), every);
 		return () => clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `go` only reads state this already keys on
 	}, [order, reduced, paused, holding]);
 
 	return (
@@ -56,67 +73,84 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 			onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setHolding(false)}
 		>
 			<div className="relative mx-auto h-[23rem] w-[17rem]">
-				{order
-					.slice()
-					.reverse()
-					.map((index, depth, all) => {
-						const snap = snaps[index];
-						const isTop = depth === all.length - 1;
-						return (
+				{/* Rendered in a fixed order and stacked by z-index: moving an element in the DOM would cancel its animation. */}
+				{snaps.map((snap, index) => {
+					const depth = snaps.length - 1 - order.indexOf(index);
+					const isTop = depth === snaps.length - 1;
+					const pulled = (isTop && moving === "next") || (depth === 0 && moving === "back");
+					return (
+						// The outer layer moves the card around the stack; the inner one is what a hand drags.
+						<motion.div
+							key={index}
+							initial={false}
+							animate={
+								pulled
+									? aside
+									: isTop && dragging
+										? { x: 0, y: 0, rotate: 0, scale: 1.04 }
+										: { x: 0, rotate: tilt[index % tilt.length], scale: isTop ? 1 : 0.97, y: isTop ? 0 : 4 }
+							}
+							onAnimationComplete={() => {
+								if (!pulled) return;
+								(moving === "next" ? next : back)();
+								setMoving(null);
+							}}
+							transition={{ type: "spring", stiffness: 300, damping: 24 }}
+							className="absolute inset-0"
+							style={{ zIndex: depth }}
+						>
 							<motion.figure
-								key={index}
-								drag={isTop ? "x" : false}
+								drag={isTop && !moving ? "x" : false}
 								dragSnapToOrigin
-								onDragStart={() => (dragged.current = true)}
-								onDragEnd={(_, info) => Math.abs(info.offset.x) > 80 && manual(next)}
-								onPointerDown={() => (dragged.current = false)}
-								initial={false}
-								animate={
-									isTop && flinging
-										? { x: 300, rotate: 14, opacity: 0, transition: { duration: 0.45, ease: [0.4, 0, 1, 1] } }
-										: { x: 0, opacity: 1, rotate: tilt[index % tilt.length], scale: isTop ? 1 : 0.97, y: isTop ? 0 : 4 }
-								}
-								onAnimationComplete={() => {
-									if (isTop && flinging) {
-										setFlinging(false);
+								onDragStart={() => {
+									dragged.current = true;
+									setDragging(true);
+								}}
+								onDragEnd={(_, info) => {
+									setDragging(false);
+									if (Math.abs(info.offset.x) > 80) {
+										setTouched(true);
 										next();
 									}
 								}}
-								whileDrag={{ rotate: 0, scale: 1.04 }}
-								transition={{ type: "spring", stiffness: 300, damping: 24 }}
+								onPointerDown={() => (dragged.current = false)}
 								aria-hidden={!isTop}
-								className={`absolute inset-0 flex flex-col border border-[var(--line)] bg-[#fafaf5] p-3 shadow-[0_10px_30px_rgb(0_0_0/0.18)] ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
-								style={{ zIndex: depth }}
+								className={`flex size-full flex-col border border-[var(--line)] bg-[#fafaf5] p-3 shadow-[0_10px_30px_rgb(0_0_0/0.18)] ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
 							>
-								<Face snap={snap} />
+								{/* The picture is the link. */}
+								<a
+									href={snap.href}
+									{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+									tabIndex={isTop ? 0 : -1}
+									onClick={(event) => dragged.current && event.preventDefault()}
+									draggable={false}
+									aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+									className="flex min-h-0 flex-1 flex-col"
+								>
+									<Face snap={snap} />
+								</a>
 								<figcaption className={`${mono} flex h-11 items-center justify-between gap-2 pt-1 text-sm text-[#0c0c0d]`}>
 									<span className="truncate">{snap.caption}</span>
-									{snap.href ? (
-										<a
-											href={snap.href}
-											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-											tabIndex={isTop ? 0 : -1}
-											onClick={(event) => dragged.current && event.preventDefault()}
-											draggable={false}
-											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
-											aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+									{showOpen && (
+										<span
+											aria-hidden
+											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee]"
 										>
 											Open ↗
-										</a>
-									) : (
-										<PlaceholderTag />
+										</span>
 									)}
 								</figcaption>
 							</motion.figure>
-						);
-					})}
+						</motion.div>
+					);
+				})}
 			</div>
 			{/* What's on top, for screen readers, once a visitor has moved the stack. */}
 			<p className="sr-only" aria-live={touched ? "polite" : "off"}>
 				{snaps[order[0]].caption}, {order[0] + 1} of {snaps.length}
 			</p>
 			<div className={`${mono} mx-auto mt-6 flex w-fit border border-[var(--ink)] text-sm font-bold`}>
-				<button type="button" onClick={() => manual(back)} aria-label="Previous" className="px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)]">
+				<button type="button" onClick={() => manual("back")} aria-label="Previous" className="px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)]">
 					←
 				</button>
 				{!reduced && (
@@ -131,7 +165,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 				)}
 				<button
 					type="button"
-					onClick={() => manual(next)}
+					onClick={() => manual("next")}
 					aria-label="Next"
 					className={`px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)] ${reduced ? "border-l border-[var(--ink)]" : ""}`}
 				>
