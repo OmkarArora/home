@@ -27,8 +27,9 @@ export type Snap =
 const tilt = [-4, 3, -2, 5, -3, 2];
 const every = 3000;
 
-/** Where a card goes when it's pulled aside, like the end of a drag. */
-const aside = { x: 190, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } } as const;
+/** Where a card goes when it's pulled aside, like the end of a drag: to the right (1) or the left (-1). */
+const aside = (side: 1 | -1) =>
+	({ x: 190 * side, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } }) as const;
 
 /** The back, pause and forward buttons under the stack, and the Open button on each card. Hidden for now. */
 const showControls = false;
@@ -46,6 +47,8 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const [holding, setHolding] = useState(false);
 	// The card on its way out (the top one) or in (the bottom one), before the stack reorders.
 	const [moving, setMoving] = useState<"next" | "back" | null>(null);
+	// Each move goes out the other side from the last: right, left, right…
+	const [side, setSide] = useState<1 | -1>(1);
 	const [touched, setTouched] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const go = (way: "next" | "back") => {
@@ -86,7 +89,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 							initial={false}
 							animate={
 								pulled
-									? aside
+									? aside(side)
 									: isTop && dragging
 										? { x: 0, y: 0, rotate: 0, scale: 1.04 }
 										: { x: 0, rotate: tilt[index % tilt.length], scale: isTop ? 1 : 0.97, y: isTop ? 0 : 4 }
@@ -95,6 +98,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								if (!pulled) return;
 								(moving === "next" ? next : back)();
 								setMoving(null);
+								setSide((s) => (s === 1 ? -1 : 1));
 							}}
 							transition={{ type: "spring", stiffness: 300, damping: 24 }}
 							className="absolute inset-0"
