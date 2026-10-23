@@ -84,14 +84,6 @@ export const projects: Project[] = [
 		year: "2025",
 	},
 	{
-		name: "Highlight Saver",
-		summary:
-			"A Chrome extension that saves highlights from any page, with exclusions, a full-page view and optional AI summaries.",
-		stack: ["TypeScript", "React", "Manifest V3"],
-		repo: "https://github.com/OmkarArora/highlight-extension",
-		year: "2025",
-	},
-	{
 		name: "This site",
 		summary:
 			"Next.js App Router, an MDX blog with live interactive demos, and generated OG images.",
