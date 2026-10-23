@@ -1,6 +1,5 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useId, useState } from "react";
@@ -8,15 +7,15 @@ import { useEffect, useId, useState } from "react";
 import { mono } from "./ui";
 
 /**
- * Light/dark switches for version A, three ways. They share one behaviour:
+ * The light/dark switch in version A's top bar:
  *
  * - A first visit follows the system theme; flipping the switch saves a choice.
  * - Once a choice is saved, a small "Auto" button appears to hand control back
  *   to the system.
- * - Each is a real `role="switch"`, checked when dark.
+ * - It is a real `role="switch"`, checked when dark.
  *
  * The theme is known on the server only as a class on <html>, so until the
- * page hydrates each switch is positioned by CSS (`dark:`) and cannot be wrong.
+ * page hydrates the switch is drawn by CSS (`dark:`) and cannot be wrong.
  * After that Motion animates it: next-themes switches CSS transitions off
  * during a theme change, which would make a CSS-animated switch jump.
  */
@@ -52,41 +51,7 @@ function Auto({ show, onClick }: { show: boolean; onClick: () => void }) {
 	);
 }
 
-/** 1. A square knob that slides along a track, sun on one side, moon on the other. */
-export function SlideSwitch() {
-	const { mounted, dark, following, flip, follow } = useThemeSwitch();
-	const knob = "absolute top-[3px] left-[3px] flex size-5 items-center justify-center bg-[var(--ink)] text-[var(--bg)]";
-	const icons = (
-		<>
-			<Sun className="size-3.5 dark:hidden" strokeWidth={2.5} />
-			<Moon className="hidden size-3.5 dark:block" strokeWidth={2.5} />
-		</>
-	);
-
-	return (
-		<span className="flex items-center gap-3">
-			<Auto show={!following} onClick={follow} />
-			<button
-				type="button"
-				role="switch"
-				aria-checked={dark}
-				aria-label="Dark mode"
-				onClick={flip}
-				className="relative h-7 w-[52px] border border-[var(--ink)] bg-[var(--bg)]"
-			>
-				{mounted ? (
-					<motion.span initial={false} animate={{ x: dark ? 24 : 0 }} transition={spring} className={knob}>
-						{icons}
-					</motion.span>
-				) : (
-					<span className={`${knob} dark:translate-x-6`}>{icons}</span>
-				)}
-			</button>
-		</span>
-	);
-}
-
-/** 2. A sun; going dark, a second disc slides across it to leave a crescent, and the rays draw in. */
+/** A sun; going dark, a second disc slides across it to leave a crescent, and the rays draw in. */
 export function EclipseSwitch() {
 	const { mounted, dark, following, flip, follow } = useThemeSwitch();
 	const rays = [0, 45, 90, 135, 180, 225, 270, 315];
@@ -151,35 +116,6 @@ export function EclipseSwitch() {
 						))}
 					</g>
 				</svg>
-			</button>
-		</span>
-	);
-}
-
-/** 3. The two words, with a lime block that slides under whichever is on. */
-export function WordSwitch() {
-	const { mounted, dark, following, flip, follow } = useThemeSwitch();
-	const block = "absolute inset-y-0 left-0 w-1/2 bg-[var(--lime)]";
-
-	return (
-		<span className="flex items-center gap-3">
-			<Auto show={!following} onClick={follow} />
-			<button
-				type="button"
-				role="switch"
-				aria-checked={dark}
-				aria-label="Dark mode"
-				onClick={flip}
-				className={`${mono} relative grid w-[7.5rem] grid-cols-2 border border-[var(--ink)] text-xs font-bold uppercase tracking-wider`}
-			>
-				{mounted ? (
-					<motion.span initial={false} animate={{ x: dark ? "100%" : "0%" }} transition={spring} className={block} />
-				) : (
-					<span className={`${block} dark:translate-x-full`} />
-				)}
-				{/* The word on the lime block is always dark ink, in either theme. */}
-				<span className="relative py-1.5 text-[#0c0c0d] dark:text-[var(--dim)]">Light</span>
-				<span className="relative py-1.5 text-[var(--dim)] dark:text-[#0c0c0d]">Dark</span>
 			</button>
 		</span>
 	);
