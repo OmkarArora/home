@@ -26,10 +26,10 @@ export const versions: Version[] = [
 			"The one you're reading. Bricolage Grotesque and JetBrains Mono, one lime accent, and a line that draws itself down the Work page as you scroll.",
 		notes: [
 			"Chosen over two other candidates, Editorial and Panels, built side by side in a lab",
-			"Work, Projects, an Arcade of playable experiments, and the dev log, each a page of its own",
+			"Work, Projects, About and the blog, each a page of its own",
 			"The blog restyled to match, with an outline, reading times and collapsible code",
 		],
-		status: "In the lab, about to ship",
+		status: "Live",
 	},
 	{
 		key: "v2",
@@ -57,6 +57,6 @@ export const versions: Version[] = [
 			"Ten projects, February 2020 to January 2021, in plain JavaScript, React and Node",
 			'One post: "The HTML <meta> tag", 24 Nov 2020',
 		],
-		status: "Still online, to be redirected here",
+		status: "Redirects here since Oct 2026",
 	},
 ];

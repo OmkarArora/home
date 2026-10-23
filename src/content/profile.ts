@@ -1,11 +1,10 @@
 /**
  * Everything the home page says, apart from blog posts (those stay MDX).
  *
- * Kept apart from any layout so the design lab's versions all render the same
- * facts, and whichever wins inherits finished content.
+ * Kept apart from any layout, so a redesign only ever changes the look.
  *
  * Anything marked `placeholder: true` is a stand-in for something only Omkar
- * can supply. The versions render it visibly as a placeholder rather than
+ * can supply. The site renders it visibly as a placeholder rather than
  * passing it off as real.
  */
 
