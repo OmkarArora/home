@@ -26,13 +26,14 @@ export type Screen = { src: string; alt: string; width: number; height: number }
 
 export type Product = {
 	name: string;
-	/** Unknown for all three until his notes arrive. */
 	years?: string;
 	status?: string;
 	/** What the product was, for someone who never saw it. */
 	what: string;
 	/** His part in it. */
 	part: string;
+	/** The stacks the product went through while he worked on it, in order. */
+	journey?: string[];
 	points: string[];
 	skills: string[];
 	screens: Screen[];
@@ -48,12 +49,13 @@ const screens = (folder: string, name: string, sizes: Array<[number, number]>): 
 		height,
 	}));
 
-/** Newest first. DRAFT ORDER: the real sequence is one of the things to confirm. */
+/** Newest first. Years confirmed by Omkar, matching the Wayback Machine's captures. */
 export const products: Product[] = [
 	{
 		name: "Jupitun",
+		years: "2025",
 		status: "Sunsetted",
-		what: "A work OS: calendar, chat and the rest of a team's day in one app.",
+		what: "A productivity OS: calendar, chat and the rest of a team's day in one app.",
 		part: "Built the frontend architecture around a local-first approach, so the interface answers at once and syncs behind the scenes.",
 		points: ["Optimistic updates throughout", "Tuned for performance and for how it feels to use"],
 		skills: ["Next.js", "React", "Tailwind CSS", "Local-first"],
@@ -61,6 +63,7 @@ export const products: Product[] = [
 	},
 	{
 		name: "Recommendations.email",
+		years: "2024 – 2025",
 		status: "Sunsetted",
 		what: "One movie recommendation in your inbox every day, from the team behind Openvy.",
 		part: "Built the email templates and a word-guessing game that sat alongside them.",
@@ -77,17 +80,19 @@ export const products: Product[] = [
 	},
 	{
 		name: "Openvy",
+		years: "2021 – 2026",
 		status: "Sunsetted",
 		what: "A social app for the films, shows, music and places people are into, with group chats around them.",
 		draft: true,
-		part: "Designed and owned the frontend architecture.",
+		part: "I worked on it through four stacks, and led the last one, the Next.js web app, end to end.",
+		journey: ["Angular", "React Native app", "Native iOS (Swift)", "Next.js web"],
 		points: [
-			"Modular features and predictable routing, documented so new engineers got going quickly",
+			"Led the web app's architecture, routing and docs for new engineers",
 			"Browser, query and CDN caching with optimistic UI",
-			"An SEO and performance pipeline: dynamic metadata, schema markup, route prefetching",
-			"Reusable UI primitives and custom hooks shared across the products",
+			"SEO pipeline: dynamic metadata, schema markup, prefetching",
+			"React Native prototypes that lifted mobile engagement 15%",
 		],
-		skills: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Motion", "Caching", "SEO"],
+		skills: ["Next.js", "React", "TypeScript", "Tailwind CSS", "React Native", "Swift", "Angular"],
 		screens: screens("openvy", "Openvy", [
 			[3456, 1776],
 			[3456, 1776],

@@ -184,6 +184,28 @@ function SparklinProduct({ product }: { product: Product }) {
 					{product.draft && <PlaceholderTag />}
 				</p>
 				<p className="mt-3 max-w-2xl leading-relaxed text-[var(--dim)]">{product.part}</p>
+				{product.journey && (
+					<ol aria-label="Stacks, in order" className={`${mono} mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs font-bold uppercase tracking-wider`}>
+						{product.journey.map((step, index) => {
+							const last = index === product.journey!.length - 1;
+							return (
+								<li key={step} className="flex items-center gap-2">
+									<span
+										className={
+											last
+												? "bg-[var(--lime)] px-2 py-1 text-[#0c0c0d]"
+												: "border border-[var(--line)] px-2 py-1 text-[var(--dim)]"
+										}
+									>
+										{step}
+										{last && " · led"}
+									</span>
+									{!last && <span aria-hidden className="text-[var(--accent-ink)]">→</span>}
+								</li>
+							);
+						})}
+					</ol>
+				)}
 				<ul className="mt-4 max-w-2xl space-y-1.5 text-sm leading-relaxed">
 					{product.points.map((point) => (
 						<li key={point} className={plus}>
