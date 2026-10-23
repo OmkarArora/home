@@ -38,11 +38,15 @@ export const identity = {
 	stack: ["React", "Next.js", "TypeScript", "Motion", "Convex"],
 };
 
+/**
+ * Full-time years, to the nearest year: shown as "N+ years". Rounded rather
+ * than floored, so ten days short of five years reads as five, not four.
+ */
 export function yearsOfExperience(now = new Date()): number {
 	const years =
 		(now.getTime() - identity.careerStart.getTime()) /
 		(365.25 * 24 * 60 * 60 * 1000);
-	return Math.floor(years);
+	return Math.round(years);
 }
 
 export type Project = {
