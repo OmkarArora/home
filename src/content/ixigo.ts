@@ -136,7 +136,7 @@ export const shipped: Shipped[] = [
 			"Plan picker on the review page",
 			"Trip page and fare summary",
 			"Rescheduling on the new contract",
-			"11 analytics events, 4 bugs fixed",
+			"11 analytics events",
 		],
 		skills: ["React", "Zustand", "Payments", "Analytics"],
 	},

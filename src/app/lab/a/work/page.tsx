@@ -5,7 +5,7 @@ import { Reveal } from "@/components/lab/a/Reveal";
 import { Screens } from "@/components/lab/a/Screens";
 import { Trace } from "@/components/lab/a/Trace";
 import { PageHead, PlaceholderTag, label, mono } from "@/components/lab/a/ui";
-import { type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
+import { type Media, type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
 import { type Product, also, company, outcomes, products } from "@/content/sparklin";
 import { canonical } from "@/lib/site-seo";
 
@@ -32,19 +32,9 @@ function Tags({ item }: { item: Shipped }) {
 	);
 }
 
-/** Where a screen recording goes: phone-shaped, since most of this is mobile web. */
-function Clip({ item }: { item: Shipped }) {
+/** A screen recording of the feature: phone-shaped, since most of this is mobile web. */
+function Clip({ media }: { media: Media }) {
 	const frame = "aspect-[9/16] w-full border border-[var(--ink)] bg-[var(--card)]";
-	if (!item.media) {
-		return (
-			<div
-				className={`${frame} ${mono} flex items-center justify-center border-dashed border-[var(--dim)] p-4 text-center text-xs uppercase tracking-widest text-[var(--dim)]`}
-			>
-				Clip to come
-			</div>
-		);
-	}
-	const { media } = item;
 	return (
 		<figure className="mx-auto w-full max-w-[11rem]">
 			{media.type === "video" ? (
@@ -69,46 +59,82 @@ function Clip({ item }: { item: Shipped }) {
 	);
 }
 
+/** The name, the one-line summary and the tags: the part of a big feature you read first. */
+function Headline({ item }: { item: Shipped }) {
+	return (
+		<>
+			<Tags item={item} />
+			<h4 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{item.title}</h4>
+			<p className="mt-3 max-w-xl text-lg leading-snug">{item.summary}</p>
+		</>
+	);
+}
+
+/** What was built: his part, if it was a team launch, then the points. */
+function Built({ item }: { item: Shipped }) {
+	return (
+		<>
+			{item.part && (
+				<div className="mb-5 max-w-xl border-l-4 border-[var(--lime)] bg-[var(--soft)] px-4 py-3">
+					<p className={`${label} text-[var(--accent-ink)]`}>Team launch · My part</p>
+					<p className="mt-1 font-bold">{item.part}</p>
+				</div>
+			)}
+			<ul className="max-w-xl space-y-2">
+				{item.points.map((point) => (
+					<li key={point} className={plus}>
+						{point}
+					</li>
+				))}
+			</ul>
+		</>
+	);
+}
+
 /**
- * One of the big features: a stop of its own, and a card with room for a clip.
- * The text sits centred against the phone so neither side is left half empty.
- * `left` puts the phone first, one of two layouts being compared (?card=left).
+ * One of the big features: a stop of its own, and a card.
+ *
+ * With a clip, the text sits centred against the phone so neither side is left
+ * half empty (`left` puts the phone first: one of two layouts being compared,
+ * ?card=left). Without one, the card splits in two: what it is on the left,
+ * what was built on the right.
  */
 function Major({ item, left }: { item: Shipped; left: boolean }) {
+	const card = "mt-5 grid gap-8 border border-[var(--ink)] p-6 md:gap-12 md:p-10";
+
 	return (
 		<section className="pb-12">
 			<h3 data-trace-node className={stop}>
 				{item.when}
 			</h3>
-			<Reveal
-				as="article"
-				className={`mt-5 grid gap-8 border border-[var(--ink)] p-6 md:items-center md:gap-12 md:p-10 ${
-					left ? "md:grid-cols-[11rem_1fr]" : "md:grid-cols-[1fr_11rem]"
-				}`}
-			>
-				<div className={`min-w-0 ${left ? "md:order-2" : ""}`}>
-					<Tags item={item} />
-					<h4 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{item.title}</h4>
-					<p className="mt-3 max-w-xl text-lg leading-snug">{item.summary}</p>
-					{item.part && (
-						<div className="mt-5 max-w-xl border-l-4 border-[var(--lime)] bg-[var(--soft)] px-4 py-3">
-							<p className={`${label} text-[var(--accent-ink)]`}>Team launch · My part</p>
-							<p className="mt-1 font-bold">{item.part}</p>
+			{item.media ? (
+				<Reveal
+					as="article"
+					className={`${card} md:items-center ${left ? "md:grid-cols-[11rem_1fr]" : "md:grid-cols-[1fr_11rem]"}`}
+				>
+					<div className={`min-w-0 ${left ? "md:order-2" : ""}`}>
+						<Headline item={item} />
+						<div className="mt-5">
+							<Built item={item} />
 						</div>
-					)}
-					<ul className="mt-5 max-w-xl space-y-2">
-						{item.points.map((point) => (
-							<li key={point} className={plus}>
-								{point}
-							</li>
-						))}
-					</ul>
-					<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
-				</div>
-				<div className={left ? "md:order-1" : ""}>
-					<Clip item={item} />
-				</div>
-			</Reveal>
+						<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
+					</div>
+					<div className={left ? "md:order-1" : ""}>
+						<Clip media={item.media} />
+					</div>
+				</Reveal>
+			) : (
+				<Reveal as="article" className={`${card} md:grid-cols-2`}>
+					<div className="min-w-0">
+						<Headline item={item} />
+						<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
+					</div>
+					<div className="min-w-0 md:border-l md:border-[var(--line)] md:pl-12">
+						<p className={`${label} mb-4`}>What I built</p>
+						<Built item={item} />
+					</div>
+				</Reveal>
+			)}
 		</section>
 	);
 }
