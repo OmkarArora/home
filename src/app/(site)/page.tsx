@@ -3,12 +3,14 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 
+import { PlayerCard } from "@/components/site/PlayerCard";
 import { Reveal } from "@/components/site/Reveal";
 import { RotatingWord } from "@/components/site/RotatingWord";
 import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
-import { latestPosts } from "@/components/site/data";
-import { productLabel, shipped } from "@/content/ixigo";
+import { allPosts } from "@/components/site/data";
+import { productLabel, shipped, timeline } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
+import { products } from "@/content/sparklin";
 import { graph, pageMetadata, person, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
@@ -26,7 +28,8 @@ const feels = ["magical", "instant", "effortless", "solid", "alive"];
  * has he shipped": the rest has a page of its own.
  */
 export default async function PatchNotes() {
-	const [latest] = await latestPosts(1);
+	const posts = await allPosts();
+	const [latest] = posts;
 	const years = yearsOfExperience();
 	const [featured] = projects;
 	const highlights = shipped.filter((item) => item.feature);
@@ -66,34 +69,20 @@ export default async function PatchNotes() {
 				</div>
 
 				<aside style={riseAt(4)} className="rise self-end md:col-span-5">
-					<div className="border border-[var(--ink)] bg-[var(--card)]">
-						<div
-							className={`${mono} border-b border-[var(--ink)] px-4 py-2 text-xs uppercase tracking-widest`}
-						>
-							Player card
-						</div>
-						<div className="p-4 sm:p-5">
-							<p className="text-3xl leading-tight font-bold tracking-tight">{identity.name}</p>
-							<p className="mt-1 text-sm text-[var(--dim)]">{identity.title}</p>
-						</div>
-						<dl className={`${mono} border-t border-[var(--line)] text-xs`}>
-							{[
-								["Class", "Frontend"],
-								["Guild", identity.company],
-								["Based", identity.location],
-								["Main", identity.stack.slice(0, 3).join(" / ")],
-								["XP", `${years}+ yrs`],
-							].map(([k, v]) => (
-								<div
-									key={k}
-									className="flex justify-between gap-4 border-b border-[var(--line)] px-4 py-2 last:border-b-0"
-								>
-									<dt className="uppercase tracking-widest text-[var(--dim)]">{k}</dt>
-									<dd className="truncate text-right font-medium uppercase">{v}</dd>
-								</div>
-							))}
-						</dl>
-					</div>
+					<PlayerCard
+						player={{
+							name: identity.name,
+							title: identity.title,
+							company: identity.company,
+							location: identity.location,
+							stack: identity.stack,
+							careerStart: identity.careerStart.toISOString(),
+							shipped: timeline().flatMap((month) => month.shipped).length + products.length,
+							posts: posts.length,
+							sideQuests: projects.length,
+							photo: "/images/omkar-fuji.jpg",
+						}}
+					/>
 				</aside>
 			</section>
 
