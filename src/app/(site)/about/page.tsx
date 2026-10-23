@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHead, PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { identity, interests } from "@/content/profile";
-import { canonical } from "@/lib/site-seo";
+import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "About — Omkar Arora",
-	description: "Who Omkar Arora is when he isn't shipping: games, badminton, fitness, anime, heroes and films.",
-	...canonical("/about"),
+	...pageMetadata("/about", {
+		title: "About — Omkar Arora",
+		description: "Who Omkar Arora is when he isn't shipping: games, badminton, fitness, anime, heroes and films.",
+	}),
 };
 
 export default function About() {

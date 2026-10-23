@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
 import { PageHead, label, mono } from "@/components/site/ui";
-import { canonical } from "@/lib/site-seo";
+import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "Arcade — Omkar Arora",
-	description: "Playable interface experiments by Omkar Arora. Under construction.",
-	...canonical("/arcade"),
+	...pageMetadata("/arcade", {
+		title: "Arcade — Omkar Arora",
+		description: "Playable interface experiments by Omkar Arora. Under construction.",
+	}),
 	// Out of search until it has something in it. Add it to the sitemap then too.
 	robots: { index: false, follow: true },
 };

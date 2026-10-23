@@ -4,12 +4,13 @@ import { Reveal } from "@/components/site/Reveal";
 import { ReticleZone } from "@/components/site/Reticle";
 import { PageHead, SectionHead, label, mono } from "@/components/site/ui";
 import { projects } from "@/content/profile";
-import { canonical } from "@/lib/site-seo";
+import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "Side quests — Omkar Arora",
-	description: "Things Omkar Arora built for fun, starting with Game Night.",
-	...canonical("/projects"),
+	...pageMetadata("/projects", {
+		title: "Side quests — Omkar Arora",
+		description: "Things Omkar Arora built for fun, starting with Game Night.",
+	}),
 };
 
 const button = `${mono} px-4 py-3 text-xs font-bold uppercase tracking-wider`;

@@ -4,17 +4,22 @@ import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
 
 import { Reveal } from "@/components/site/Reveal";
+import { RotatingWord } from "@/components/site/RotatingWord";
 import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { latestPosts } from "@/components/site/data";
 import { productLabel, shipped } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
-import { canonical, graph, person, website } from "@/lib/site-seo";
+import { graph, pageMetadata, person, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: `${identity.name} — ${identity.title}`,
-	description: `${identity.name} is a ${identity.title.toLowerCase()} at ${identity.company}, building fast, careful interfaces for flights and cabs on the web. ${yearsOfExperience()}+ years, from Sparklin to ixigo.`,
-	...canonical("/"),
+	...pageMetadata("/", {
+		title: `${identity.name} — ${identity.title}`,
+		description: `${identity.name} is a ${identity.title.toLowerCase()} at ${identity.company}, building fast, careful interfaces for flights and cabs on the web. ${yearsOfExperience()}+ years, from Sparklin to ixigo.`,
+	}),
 };
+
+/** What the headline says the web feels like, the first one most of all. */
+const feels = ["magical", "instant", "effortless", "solid", "alive"];
 
 /**
  * The home page ("Patch notes", v3). It only answers "who is this, and what
@@ -36,13 +41,10 @@ export default async function PatchNotes() {
 						{identity.title} · {identity.company}
 					</p>
 					<h1 style={riseAt(1)} className="rise mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
-						Ships{" "}
-						<span className="relative inline-block">
-							<span className="absolute inset-x-[-0.08em] bottom-[0.08em] top-[0.18em] -z-0 -skew-x-6 bg-[var(--lime)]" />
-							<span className="relative text-[#0c0c0d]">fast</span>
-						</span>
+						Web that feels
 						<br />
-						interfaces.
+						<span className="sr-only">{feels[0]}</span>
+						<RotatingWord words={feels} />.
 					</h1>
 					<p style={riseAt(2)} className="rise mt-8 max-w-lg text-lg leading-relaxed text-[var(--dim)]">{identity.pitch}</p>
 					<div style={riseAt(3)} className={`${mono} rise mt-10 flex flex-wrap gap-3 text-xs uppercase tracking-wider`}>

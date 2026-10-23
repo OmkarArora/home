@@ -7,6 +7,8 @@
  * another instead of repeating themselves.
  */
 
+import type { Metadata } from "next";
+
 import { baseUrl } from "@/app/sitemap";
 import { identity } from "@/content/profile";
 
@@ -16,8 +18,28 @@ export const ids = {
 	blog: `${baseUrl}/blog#blog`,
 };
 
-/** The address a page should be known by. Lab pages pass the path they will have once live. */
-export const canonical = (path: string) => ({ alternates: { canonical: `${baseUrl}${path}` } });
+/**
+ * A page's metadata: its title and description, the address it should be known
+ * by, and the card a shared link to it shows (drawn by `/og`).
+ */
+export function pageMetadata(path: string, { title, description }: { title: string; description: string }): Metadata {
+	const url = `${baseUrl}${path}`;
+	const image = `${baseUrl}/og?page=${path.slice(1) || "home"}`;
+	return {
+		title,
+		description,
+		alternates: { canonical: url },
+		openGraph: {
+			title,
+			description,
+			url,
+			siteName: identity.name,
+			type: "website",
+			images: [{ url: image, width: 1200, height: 630, alt: title }],
+		},
+		twitter: { card: "summary_large_image", title, description, images: [image] },
+	};
+}
 
 export function person() {
 	return {

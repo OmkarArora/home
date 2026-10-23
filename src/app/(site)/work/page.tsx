@@ -7,13 +7,14 @@ import { Trace } from "@/components/site/Trace";
 import { PageHead, PlaceholderTag, label, mono } from "@/components/site/ui";
 import { type Media, type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
 import { type Product, also, company, outcomes, products } from "@/content/sparklin";
-import { canonical } from "@/lib/site-seo";
+import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "Patch notes — Omkar Arora",
-	description:
-		"What Omkar Arora has shipped: flights and cabs on the web at ixigo, and three products at Sparklin before that.",
-	...canonical("/work"),
+	...pageMetadata("/work", {
+		title: "Patch notes — Omkar Arora",
+		description:
+			"What Omkar Arora has shipped: flights and cabs on the web at ixigo, and three products at Sparklin before that.",
+	}),
 };
 
 /** A stop on the line, which lights up once the line reaches it. */

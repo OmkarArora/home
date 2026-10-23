@@ -5,12 +5,13 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHead, label, mono } from "@/components/site/ui";
 import { allPosts, shortDate } from "@/components/site/data";
 import { JsonLd } from "@/components/json-ld";
-import { blog, canonical, graph } from "@/lib/site-seo";
+import { blog, graph, pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "Dev log — Omkar Arora",
-	description: "Notes on frontend engineering by Omkar Arora, most with live demos you can play with.",
-	...canonical("/blog"),
+	...pageMetadata("/blog", {
+		title: "Dev log — Omkar Arora",
+		description: "Notes on frontend engineering by Omkar Arora, most with live demos you can play with.",
+	}),
 };
 
 export default async function Writing() {

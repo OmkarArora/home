@@ -5,12 +5,13 @@ import { Reveal } from "@/components/site/Reveal";
 import { Trace } from "@/components/site/Trace";
 import { PageHead, label, mono } from "@/components/site/ui";
 import { versions } from "@/content/site-history";
-import { canonical } from "@/lib/site-seo";
+import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-	title: "Version history — Omkar Arora",
-	description: "Every version of Omkar Arora's site, from a 2020 college portfolio on Netlify to the one you're reading.",
-	...canonical("/history"),
+	...pageMetadata("/history", {
+		title: "Version history — Omkar Arora",
+		description: "Every version of Omkar Arora's site, from a 2020 college portfolio on Netlify to the one you're reading.",
+	}),
 };
 
 /** A stop on the line, which lights up once the line reaches it. */
