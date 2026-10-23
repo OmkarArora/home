@@ -30,8 +30,8 @@ const every = 4000;
 /** Where a card goes when it's pulled aside, like the end of a drag. */
 const aside = { x: 190, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } } as const;
 
-/** The "Open ↗" tag on each card. Hidden for now: the picture itself is the link. */
-const showOpen = false;
+/** The back, pause and forward buttons under the stack. Hidden for now. */
+const showControls = false;
 
 export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
@@ -117,28 +117,31 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								aria-hidden={!isTop}
 								className={`flex size-full flex-col border border-[var(--line)] bg-[#fafaf5] p-3 shadow-[0_10px_30px_rgb(0_0_0/0.18)] ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
 							>
-								{/* The picture is the link. */}
+								{/* The picture opens it too; the Open button is the one for keyboards and screen readers. */}
 								<a
 									href={snap.href}
 									{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-									tabIndex={isTop ? 0 : -1}
+									tabIndex={-1}
+									aria-hidden
 									onClick={(event) => dragged.current && event.preventDefault()}
 									draggable={false}
-									aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
 									className="flex min-h-0 flex-1 flex-col"
 								>
 									<Face snap={snap} />
 								</a>
 								<figcaption className={`${mono} flex h-11 items-center justify-between gap-2 pt-1 text-sm text-[#0c0c0d]`}>
 									<span className="truncate">{snap.caption}</span>
-									{showOpen && (
-										<span
-											aria-hidden
-											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee]"
-										>
-											Open ↗
-										</span>
-									)}
+									<a
+										href={snap.href}
+										{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+										tabIndex={isTop ? 0 : -1}
+										onClick={(event) => dragged.current && event.preventDefault()}
+										draggable={false}
+										className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
+										aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+									>
+										Open ↗
+									</a>
 								</figcaption>
 							</motion.figure>
 						</motion.div>
@@ -149,29 +152,31 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 			<p className="sr-only" aria-live={touched ? "polite" : "off"}>
 				{snaps[order[0]].caption}, {order[0] + 1} of {snaps.length}
 			</p>
-			<div className={`${mono} mx-auto mt-6 flex w-fit border border-[var(--ink)] text-sm font-bold`}>
-				<button type="button" onClick={() => manual("back")} aria-label="Previous" className="px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)]">
-					←
-				</button>
-				{!reduced && (
+			{showControls && (
+				<div className={`${mono} mx-auto mt-6 flex w-fit border border-[var(--ink)] text-sm font-bold`}>
+					<button type="button" onClick={() => manual("back")} aria-label="Previous" className="px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)]">
+						←
+					</button>
+					{!reduced && (
+						<button
+							type="button"
+							onClick={() => setPaused((p) => !p)}
+							aria-label={paused ? "Play the slideshow" : "Pause the slideshow"}
+							className="border-x border-[var(--ink)] px-3.5 py-1.5 text-xs hover:bg-[var(--soft)]"
+						>
+							{paused ? "▶" : "❚❚"}
+						</button>
+					)}
 					<button
 						type="button"
-						onClick={() => setPaused((p) => !p)}
-						aria-label={paused ? "Play the slideshow" : "Pause the slideshow"}
-						className="border-x border-[var(--ink)] px-3.5 py-1.5 text-xs hover:bg-[var(--soft)]"
+						onClick={() => manual("next")}
+						aria-label="Next"
+						className={`px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)] ${reduced ? "border-l border-[var(--ink)]" : ""}`}
 					>
-						{paused ? "▶" : "❚❚"}
+						→
 					</button>
-				)}
-				<button
-					type="button"
-					onClick={() => manual("next")}
-					aria-label="Next"
-					className={`px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)] ${reduced ? "border-l border-[var(--ink)]" : ""}`}
-				>
-					→
-				</button>
-			</div>
+				</div>
+			)}
 		</div>
 	);
 }
