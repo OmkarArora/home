@@ -95,11 +95,10 @@ function Built({ item }: { item: Shipped }) {
  * One of the big features: a stop of its own, and a card.
  *
  * With a clip, the text sits centred against the phone so neither side is left
- * half empty (`left` puts the phone first: one of two layouts being compared,
- * ?card=left). Without one, the card splits in two: what it is on the left,
+ * half empty. Without one, the card splits in two: what it is on the left,
  * what was built on the right.
  */
-function Major({ item, left }: { item: Shipped; left: boolean }) {
+function Major({ item }: { item: Shipped }) {
 	const card = "mt-5 grid gap-8 border border-[var(--ink)] p-6 md:gap-12 md:p-10";
 
 	return (
@@ -110,16 +109,16 @@ function Major({ item, left }: { item: Shipped; left: boolean }) {
 			{item.media ? (
 				<Reveal
 					as="article"
-					className={`${card} md:items-center ${left ? "md:grid-cols-[11rem_1fr]" : "md:grid-cols-[1fr_11rem]"}`}
+					className={`${card} md:grid-cols-[1fr_11rem] md:items-center`}
 				>
-					<div className={`min-w-0 ${left ? "md:order-2" : ""}`}>
+					<div className="min-w-0">
 						<Headline item={item} />
 						<div className="mt-5">
 							<Built item={item} />
 						</div>
 						<p className={`${label} mt-6`}>{item.skills.join(" · ")}</p>
 					</div>
-					<div className={left ? "md:order-1" : ""}>
+					<div>
 						<Clip media={item.media} />
 					</div>
 				</Reveal>
@@ -222,8 +221,7 @@ function SparklinProduct({ product }: { product: Product }) {
 	);
 }
 
-export default async function Work({ searchParams }: { searchParams: Promise<{ card?: string }> }) {
-	const left = (await searchParams).card === "left";
+export default function Work() {
 	const rest = alsoShipped();
 
 	return (
@@ -262,7 +260,7 @@ export default async function Work({ searchParams }: { searchParams: Promise<{ c
 				</section>
 
 				{majors().map((item) => (
-					<Major key={item.title} item={item} left={left} />
+					<Major key={item.title} item={item} />
 				))}
 
 				<section className="pb-20">
