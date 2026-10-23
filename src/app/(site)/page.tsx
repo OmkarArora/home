@@ -3,14 +3,13 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 
-import { PlayerCard } from "@/components/site/PlayerCard";
+import { Polaroids } from "@/components/site/Polaroids";
 import { Reveal } from "@/components/site/Reveal";
 import { RotatingWord } from "@/components/site/RotatingWord";
 import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { allPosts } from "@/components/site/data";
-import { productLabel, shipped, timeline } from "@/content/ixigo";
+import { productLabel, shipped } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
-import { products } from "@/content/sparklin";
 import { graph, pageMetadata, person, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
@@ -69,32 +68,15 @@ export default async function PatchNotes() {
 				</div>
 
 				<aside style={riseAt(4)} className="rise min-w-0 self-end md:col-span-5">
-					<PlayerCard
-						player={{
-							name: identity.name,
-							title: identity.title,
-							company: identity.company,
-							location: identity.location,
-							stack: identity.stack,
-							careerStart: identity.careerStart.toISOString(),
-							shipped: timeline().flatMap((month) => month.shipped).length + products.length,
-							posts: posts.length,
-							sideQuests: projects.length,
-							photo: "/images/omkar-fuji.jpg",
-							latestShip: { title: highlights[0].title, when: highlights[0].when },
-							latestPost: { title: latest.title, href: `/blog/${latest.slug}` },
-							tracks: [
-								...highlights.map((item) => ({ side: "A" as const, title: item.title, year: item.when.slice(-4) })),
-								...products.map((product) => ({ side: "B" as const, title: product.name, year: product.years ?? "" })),
-								{ side: "Bonus" as const, title: "Game Night", year: "2026" },
-							],
-							snaps: [
-								{ src: "/images/omkar-fuji.jpg", alt: "Omkar by a lake, Mt Fuji behind", caption: "Mt Fuji" },
-								{ src: "/images/projects/openvy/screenshot1.webp", alt: "Openvy's feed", caption: "Openvy" },
-								{ src: "/images/projects/team-resume-builder/screenshot1.webp", alt: "Team Resume Builder", caption: "Team Resume Builder" },
-								{ alt: "Art, coming soon", caption: "Sketchbook" },
-							],
-						}}
+					<Polaroids
+						snaps={[
+							{ kind: "photo", src: "/images/omkar-fuji.jpg", alt: "Omkar by a lake, Mt Fuji behind", caption: "Mt Fuji" },
+							{ kind: "post", title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` },
+							{ kind: "art", alt: "An art piece", caption: "Sketchbook" },
+							{ kind: "work", title: highlights[0].title, meta: `${identity.company} · ${highlights[0].when}`, caption: "Latest work", href: "/work" },
+							{ kind: "photo", alt: "A photo", caption: "Off the clock" },
+							{ kind: "art", alt: "An art piece", caption: "Sketchbook" },
+						]}
 					/>
 				</aside>
 			</section>

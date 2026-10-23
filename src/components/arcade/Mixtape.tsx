@@ -3,15 +3,20 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 
-import type { Player } from "../PlayerCard";
-import { label, mono } from "../ui";
+import { label, mono } from "@/components/site/ui";
 
-/** 9. A cassette whose tracks are the work: side A ixigo, side B Sparklin, a bonus track for Game Night. */
-export function Mixtape({ player }: { player: Player }) {
+export type Track = { side: "A" | "B" | "Bonus"; title: string; year: string };
+
+/**
+ * A cassette whose tracks are the work: side A ixigo, side B Sparklin, a bonus
+ * track for Game Night. Press play and the reels spin through them.
+ *
+ * Built as a home page card and kept for the Arcade; not used anywhere yet.
+ */
+export function Mixtape({ name, tracks }: { name: string; tracks: Track[] }) {
 	const reduced = useReducedMotion();
 	const [track, setTrack] = useState(0);
 	const [playing, setPlaying] = useState(false);
-	const tracks = player.tracks;
 	const now = tracks[track];
 
 	useEffect(() => {
@@ -32,7 +37,7 @@ export function Mixtape({ player }: { player: Player }) {
 			<div className="relative rounded-md border-2 border-[var(--ink)] bg-[var(--ink)] p-3">
 				<div className="rounded-sm bg-[var(--lime)] px-3 pt-2 pb-3 text-[#0c0c0d]">
 					<div className={`${mono} flex justify-between text-xs font-bold uppercase tracking-widest`}>
-						<span>{player.name.split(" ")[0]}&apos;s mix</span>
+						<span>{name.split(" ")[0]}&apos;s mix</span>
 						<span>2021 – 2026</span>
 					</div>
 					<div className="mx-auto mt-2 flex h-14 w-4/5 items-center justify-between rounded-full border-2 border-[#0c0c0d] bg-[#f3f3ee] px-3">
