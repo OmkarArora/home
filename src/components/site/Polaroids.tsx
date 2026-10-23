@@ -30,8 +30,9 @@ const every = 4000;
 /** Where a card goes when it's pulled aside, like the end of a drag. */
 const aside = { x: 190, y: 0, rotate: 0, scale: 1.04, transition: { duration: 0.2, ease: [0.4, 0, 0.7, 1] } } as const;
 
-/** The back, pause and forward buttons under the stack. Hidden for now. */
+/** The back, pause and forward buttons under the stack, and the Open button on each card. Hidden for now. */
 const showControls = false;
+const showOpen = false;
 
 export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
@@ -117,12 +118,13 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								aria-hidden={!isTop}
 								className={`flex size-full flex-col border border-[var(--line)] bg-[#fafaf5] p-3 shadow-[0_10px_30px_rgb(0_0_0/0.18)] ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
 							>
-								{/* The picture opens it too; the Open button is the one for keyboards and screen readers. */}
+								{/* The picture opens it. With the Open button shown, that button is the one for keyboards and screen readers. */}
 								<a
 									href={snap.href}
 									{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-									tabIndex={-1}
-									aria-hidden
+									tabIndex={showOpen || !isTop ? -1 : 0}
+									aria-hidden={showOpen || undefined}
+									aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
 									onClick={(event) => dragged.current && event.preventDefault()}
 									draggable={false}
 									className="flex min-h-0 flex-1 flex-col"
@@ -131,17 +133,19 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								</a>
 								<figcaption className={`${mono} flex h-11 items-center justify-between gap-2 pt-1 text-sm text-[#0c0c0d]`}>
 									<span className="truncate">{snap.caption}</span>
-									<a
-										href={snap.href}
-										{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-										tabIndex={isTop ? 0 : -1}
-										onClick={(event) => dragged.current && event.preventDefault()}
-										draggable={false}
-										className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
-										aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
-									>
-										Open ↗
-									</a>
+									{showOpen && (
+										<a
+											href={snap.href}
+											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+											tabIndex={isTop ? 0 : -1}
+											onClick={(event) => dragged.current && event.preventDefault()}
+											draggable={false}
+											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
+											aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+										>
+											Open ↗
+										</a>
+									)}
 								</figcaption>
 							</motion.figure>
 						</motion.div>
