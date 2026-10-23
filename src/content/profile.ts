@@ -19,7 +19,7 @@ export const identity = {
 	/** First full-time role: Sparklin, November 2021. */
 	careerStart: new Date("2021-11-01"),
 	pitch:
-		"I build fast, careful interfaces — and the plumbing underneath that keeps them fast when real people show up.",
+		"Moving pixels around: on the web at ixigo, on canvas for fun, and in games with friends.",
 	/**
 	 * The About page's longer introduction. DRAFT, assembled only from the facts
 	 * in this file, for Omkar to rewrite in his own voice.
