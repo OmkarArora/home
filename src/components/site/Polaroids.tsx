@@ -1,31 +1,60 @@
 "use client";
 
-import { motion } from "motion/react";
-import { useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
-import { PlaceholderTag, label, mono } from "./ui";
+import { PlaceholderTag, mono } from "./ui";
 
 /**
  * The stack beside the home page headline: photos, art, the newest post and the
  * latest work, each a polaroid that opens what it shows. Drag the top one aside,
- * or press Next, and it goes to the back.
+ * or press the arrows, to move through it. Links off the site open in a new tab.
+ *
+ * It also flicks through on its own every few seconds, except under reduced
+ * motion, in a hidden tab, while the pointer or focus is on it, or once paused.
+ * Screen readers only hear about the changes a visitor makes.
  */
 
 export type Snap =
-	| { kind: "photo" | "art"; src?: string; alt: string; caption: string; href?: string }
+	| { kind: "photo" | "art"; src?: string; alt: string; caption: string; href?: string; contain?: boolean }
 	| { kind: "post"; title: string; meta: string; caption: string; href: string }
 	| { kind: "work"; title: string; meta: string; caption: string; href: string };
 
 const tilt = [-4, 3, -2, 5, -3, 2];
+const every = 4000;
 
 export function Polaroids({ snaps }: { snaps: Snap[] }) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
 	// A drag ends with a click; this keeps that click from opening the card.
 	const dragged = useRef(false);
 	const next = () => setOrder((o) => [...o.slice(1), o[0]]);
+	const back = () => setOrder((o) => [o[o.length - 1], ...o.slice(0, -1)]);
+
+	const reduced = useReducedMotion();
+	const [paused, setPaused] = useState(false);
+	const [holding, setHolding] = useState(false);
+	const [flinging, setFlinging] = useState(false);
+	const [touched, setTouched] = useState(false);
+	const manual = (move: () => void) => {
+		setTouched(true);
+		move();
+	};
+
+	// One timer per card shown, so a manual change restarts the wait.
+	useEffect(() => {
+		if (reduced || paused || holding) return;
+		const timer = setTimeout(() => !document.hidden && setFlinging(true), every);
+		return () => clearTimeout(timer);
+	}, [order, reduced, paused, holding]);
 
 	return (
-		<div>
+		<div
+			onPointerEnter={() => setHolding(true)}
+			onPointerLeave={() => setHolding(false)}
+			onFocus={() => setHolding(true)}
+			onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setHolding(false)}
+		>
 			<div className="relative mx-auto h-[23rem] w-[17rem]">
 				{order
 					.slice()
@@ -39,10 +68,20 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								drag={isTop ? "x" : false}
 								dragSnapToOrigin
 								onDragStart={() => (dragged.current = true)}
-								onDragEnd={(_, info) => Math.abs(info.offset.x) > 80 && next()}
+								onDragEnd={(_, info) => Math.abs(info.offset.x) > 80 && manual(next)}
 								onPointerDown={() => (dragged.current = false)}
 								initial={false}
-								animate={{ rotate: tilt[index % tilt.length], scale: isTop ? 1 : 0.97, y: isTop ? 0 : 4 }}
+								animate={
+									isTop && flinging
+										? { x: 300, rotate: 14, opacity: 0, transition: { duration: 0.45, ease: [0.4, 0, 1, 1] } }
+										: { x: 0, opacity: 1, rotate: tilt[index % tilt.length], scale: isTop ? 1 : 0.97, y: isTop ? 0 : 4 }
+								}
+								onAnimationComplete={() => {
+									if (isTop && flinging) {
+										setFlinging(false);
+										next();
+									}
+								}}
 								whileDrag={{ rotate: 0, scale: 1.04 }}
 								transition={{ type: "spring", stiffness: 300, damping: 24 }}
 								aria-hidden={!isTop}
@@ -55,11 +94,12 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 									{snap.href ? (
 										<a
 											href={snap.href}
+											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
 											tabIndex={isTop ? 0 : -1}
 											onClick={(event) => dragged.current && event.preventDefault()}
 											draggable={false}
 											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
-											aria-label={`Open: ${snap.caption}`}
+											aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
 										>
 											Open ↗
 										</a>
@@ -71,16 +111,31 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 						);
 					})}
 			</div>
-			<div className="mt-6 flex items-center justify-between">
-				<p className={label} aria-live="polite">
-					{snaps[order[0]].caption} · {order[0] + 1} / {snaps.length}
-				</p>
+			{/* What's on top, for screen readers, once a visitor has moved the stack. */}
+			<p className="sr-only" aria-live={touched ? "polite" : "off"}>
+				{snaps[order[0]].caption}, {order[0] + 1} of {snaps.length}
+			</p>
+			<div className={`${mono} mx-auto mt-6 flex w-fit border border-[var(--ink)] text-sm font-bold`}>
+				<button type="button" onClick={() => manual(back)} aria-label="Previous" className="px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)]">
+					←
+				</button>
+				{!reduced && (
+					<button
+						type="button"
+						onClick={() => setPaused((p) => !p)}
+						aria-label={paused ? "Play the slideshow" : "Pause the slideshow"}
+						className="border-x border-[var(--ink)] px-3.5 py-1.5 text-xs hover:bg-[var(--soft)]"
+					>
+						{paused ? "▶" : "❚❚"}
+					</button>
+				)}
 				<button
 					type="button"
-					onClick={next}
-					className={`${mono} border border-[var(--ink)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-[var(--ink)] hover:text-[var(--bg)]`}
+					onClick={() => manual(next)}
+					aria-label="Next"
+					className={`px-3.5 py-1.5 hover:bg-[var(--ink)] hover:text-[var(--bg)] ${reduced ? "border-l border-[var(--ink)]" : ""}`}
 				>
-					Next →
+					→
 				</button>
 			</div>
 		</div>
@@ -117,9 +172,15 @@ function Face({ snap }: { snap: Snap }) {
 	}
 
 	return (
-		<div className={face}>
-			{/* eslint-disable-next-line @next/next/no-img-element -- a small fixed crop inside a toy */}
-			<img src={snap.src} alt={snap.alt} draggable={false} className="size-full object-cover" />
+		<div className={`${face} ${snap.contain ? "bg-white" : ""}`}>
+			<Image
+				src={snap.src}
+				alt={snap.alt}
+				fill
+				sizes="272px"
+				draggable={false}
+				className={snap.contain ? "object-contain p-2" : "object-cover"}
+			/>
 		</div>
 	);
 }

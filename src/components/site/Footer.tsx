@@ -37,10 +37,10 @@ export function Footer() {
 				className={`${mono} mt-12 flex flex-wrap justify-between gap-4 text-xs uppercase tracking-wider text-[var(--dim)]`}
 			>
 				<div className="flex gap-6">
-					<a href={identity.links.github} className="hover:text-[var(--ink)]">
+					<a href={identity.links.github} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--ink)]">
 						GitHub
 					</a>
-					<a href={identity.links.linkedin} className="hover:text-[var(--ink)]">
+					<a href={identity.links.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--ink)]">
 						LinkedIn
 					</a>
 					<a href={identity.links.resume} className="hover:text-[var(--ink)]">

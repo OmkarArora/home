@@ -19,6 +19,13 @@ export const metadata: Metadata = {
 	}),
 };
 
+/** His Instagram posts, for the art and photos in the polaroid stack. */
+const instagram = {
+	goku: "https://www.instagram.com/p/Dd_YAZ3Cjir/",
+	asta: "https://www.instagram.com/p/Ddehb0NvvOB/",
+	tokyo: "https://www.instagram.com/p/DVBEx_8ESHa3v4I3TBbGSrBN6xAGJKwhJ1cxDY0/",
+};
+
 /** What the headline says the web feels like, the first one most of all. */
 const feels = ["magical", "instant", "effortless", "solid", "alive"];
 
@@ -70,12 +77,13 @@ export default async function PatchNotes() {
 				<aside style={riseAt(4)} className="rise min-w-0 self-end md:col-span-5">
 					<Polaroids
 						snaps={[
-							{ kind: "photo", src: "/images/omkar-fuji.jpg", alt: "Omkar by a lake, Mt Fuji behind", caption: "Mt Fuji" },
 							{ kind: "post", title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` },
-							{ kind: "art", alt: "An art piece", caption: "Sketchbook" },
+							{ kind: "art", src: "/images/display-art/kid-goku.jpeg", alt: "Drawing of Kid Goku in a fighting stance", caption: "Kid Goku", href: instagram.goku, contain: true },
+							{ kind: "photo", src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower", href: instagram.tokyo },
 							{ kind: "work", title: highlights[0].title, meta: `${identity.company} · ${highlights[0].when}`, caption: "Latest work", href: "/work" },
-							{ kind: "photo", alt: "A photo", caption: "Off the clock" },
-							{ kind: "art", alt: "An art piece", caption: "Sketchbook" },
+							{ kind: "art", src: "/images/display-art/asta-demon.jpeg", alt: "Painting of Asta raising his demon sword against a red sky", caption: "Asta", href: instagram.asta },
+							{ kind: "photo", src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat", href: instagram.tokyo },
+							{ kind: "photo", src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow", href: instagram.tokyo },
 						]}
 					/>
 				</aside>
