@@ -3,12 +3,18 @@
 import { animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
+import { BoardingPass } from "./cards/BoardingPass";
+import { FeelIt } from "./cards/FeelIt";
+import { Mixtape } from "./cards/Mixtape";
+import { Now } from "./cards/Now";
+import { PlayRound } from "./cards/PlayRound";
+import { Polaroids } from "./cards/Polaroids";
 import { LocalTime } from "./LocalTime";
 import { mono } from "./ui";
 
 /**
- * The card beside the home page headline. Three versions, compared with
- * `?card=1|2|3`; every number on them is real.
+ * The card beside the home page headline. Nine versions, compared with
+ * `?card=1` to `?card=9`; every number on them is real.
  */
 
 export type Player = {
@@ -23,6 +29,10 @@ export type Player = {
 	posts: number;
 	sideQuests: number;
 	photo: string;
+	latestShip: { title: string; when: string };
+	latestPost: { title: string; href: string };
+	tracks: Array<{ side: "A" | "B" | "Bonus"; title: string; year: string }>;
+	snaps: Array<{ src?: string; alt: string; caption: string }>;
 };
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -32,12 +42,29 @@ export function PlayerCard({ player }: { player: Player }) {
 	const [version, setVersion] = useState("1");
 	useEffect(() => {
 		const chosen = new URLSearchParams(window.location.search).get("card");
-		if (chosen === "2" || chosen === "3") setVersion(chosen);
+		if (chosen && /^[1-9]$/.test(chosen)) setVersion(chosen);
 	}, []);
 
-	if (version === "2") return <LevelUp player={player} />;
-	if (version === "3") return <Terminal player={player} />;
-	return <Holo player={player} />;
+	switch (version) {
+		case "2":
+			return <LevelUp player={player} />;
+		case "3":
+			return <Terminal player={player} />;
+		case "4":
+			return <BoardingPass player={player} />;
+		case "5":
+			return <FeelIt />;
+		case "6":
+			return <PlayRound />;
+		case "7":
+			return <Now player={player} />;
+		case "8":
+			return <Polaroids player={player} />;
+		case "9":
+			return <Mixtape player={player} />;
+		default:
+			return <Holo player={player} />;
+	}
 }
 
 /* ─── 1. Holo: a trading card that tilts toward the pointer ─── */

@@ -68,7 +68,7 @@ export default async function PatchNotes() {
 					</div>
 				</div>
 
-				<aside style={riseAt(4)} className="rise self-end md:col-span-5">
+				<aside style={riseAt(4)} className="rise min-w-0 self-end md:col-span-5">
 					<PlayerCard
 						player={{
 							name: identity.name,
@@ -81,6 +81,19 @@ export default async function PatchNotes() {
 							posts: posts.length,
 							sideQuests: projects.length,
 							photo: "/images/omkar-fuji.jpg",
+							latestShip: { title: highlights[0].title, when: highlights[0].when },
+							latestPost: { title: latest.title, href: `/blog/${latest.slug}` },
+							tracks: [
+								...highlights.map((item) => ({ side: "A" as const, title: item.title, year: item.when.slice(-4) })),
+								...products.map((product) => ({ side: "B" as const, title: product.name, year: product.years ?? "" })),
+								{ side: "Bonus" as const, title: "Game Night", year: "2026" },
+							],
+							snaps: [
+								{ src: "/images/omkar-fuji.jpg", alt: "Omkar by a lake, Mt Fuji behind", caption: "Mt Fuji" },
+								{ src: "/images/projects/openvy/screenshot1.webp", alt: "Openvy's feed", caption: "Openvy" },
+								{ src: "/images/projects/team-resume-builder/screenshot1.webp", alt: "Team Resume Builder", caption: "Team Resume Builder" },
+								{ alt: "Art, coming soon", caption: "Sketchbook" },
+							],
 						}}
 					/>
 				</aside>
