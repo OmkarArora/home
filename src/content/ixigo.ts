@@ -55,6 +55,8 @@ export type Shipped = {
 	points: string[];
 	skills: string[];
 	media?: Media;
+	/** Where the feature lives on ixigo's own site, when it has a page of its own. */
+	link?: { label: string; href: string };
 };
 
 export const shipped: Shipped[] = [
@@ -83,6 +85,7 @@ export const shipped: Shipped[] = [
 			alt: "ixigo's Smart Lock launch video: choosing a route, dates and preferences, setting a budget, and the flight it finds",
 			credit: { label: "ixigo's launch video", href: "https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4" },
 		},
+		link: { label: "Smart Lock on ixigo.com", href: "https://www.ixigo.com/smart-lock" },
 	},
 	{
 		month: "2026-08",

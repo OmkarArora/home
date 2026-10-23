@@ -92,6 +92,16 @@ function Major({ item }: { item: Shipped }) {
 						))}
 					</ul>
 					<p className={`${label} mt-5`}>{item.skills.join(" · ")}</p>
+					{item.link && (
+						<a
+							href={item.link.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							className={`${mono} mt-5 inline-block border border-[var(--ink)] px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-[var(--lime)] hover:text-[#0c0c0d]`}
+						>
+							{item.link.label} ↗
+						</a>
+					)}
 				</div>
 				<Clip item={item} />
 			</Reveal>
