@@ -45,7 +45,12 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 
 	const reduced = useReducedMotion();
 	const [paused, setPaused] = useState(false);
-	const [holding, setHolding] = useState(false);
+	// Held still while a pointer is over the stack, or keyboard focus is in it. A click
+	// focuses a card's link too, and the browser hands that focus back whenever the
+	// window regains focus, so only focus that shows a ring (keyboard focus) counts.
+	const [hovering, setHovering] = useState(false);
+	const [keyboard, setKeyboard] = useState(false);
+	const holding = hovering || keyboard;
 	// The card on its way out (the top one) or in (the bottom one), before the stack reorders.
 	const [moving, setMoving] = useState<"next" | "back" | null>(null);
 	// Each move goes out the other side from the last: right, left, right…
@@ -81,10 +86,10 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 
 	return (
 		<div
-			onPointerEnter={() => setHolding(true)}
-			onPointerLeave={() => setHolding(false)}
-			onFocus={() => setHolding(true)}
-			onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setHolding(false)}
+			onPointerEnter={() => setHovering(true)}
+			onPointerLeave={() => setHovering(false)}
+			onFocus={(event) => setKeyboard(event.target.matches(":focus-visible"))}
+			onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setKeyboard(false)}
 		>
 			<div className="relative mx-auto h-[23rem] w-[17rem]">
 				{/* Rendered in a fixed order and stacked by z-index: moving an element in the DOM would cancel its animation. */}
