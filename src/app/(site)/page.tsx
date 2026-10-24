@@ -17,7 +17,7 @@ import { graph, pageMetadata, person, website } from "@/lib/site-seo";
 export const metadata: Metadata = {
 	...pageMetadata("/", {
 		title: `${identity.name} — ${identity.title}`,
-		description: `${identity.name} is a ${identity.title.toLowerCase()} at ${identity.company}, building fast, careful interfaces for flights and cabs on the web. ${yearsOfExperience()}+ years, from Sparklin to ixigo.`,
+		description: `${identity.name}, ${identity.title.toLowerCase()} at ${identity.company}: fast, careful web interfaces. ${yearsOfExperience()}+ years in frontend.`,
 	}),
 };
 
