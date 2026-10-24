@@ -9,59 +9,77 @@
  */
 
 /**
- * The tools he works with, grouped, for the Loadout section. From his resume
- * (October 2026). `main` marks the ones he uses every day.
+ * The tools he works with, for the Loadout section: the Technical Skills on
+ * his resume (October 2026), same groups, same order. Keep the two in step.
+ * `main` marks the ones he uses every day.
  */
 export const toolkit: Array<{ name: string; tools: Array<{ name: string; main?: true }> }> = [
 	{
-		name: "Languages & frontend",
+		name: "Frontend",
 		tools: [
+			{ name: "JavaScript (ES6+)" },
 			{ name: "TypeScript", main: true },
 			{ name: "React", main: true },
 			{ name: "Next.js", main: true },
-			{ name: "JavaScript" },
-			{ name: "HTML & CSS" },
-			{ name: "Tailwind CSS", main: true },
-			{ name: "Motion" },
 			{ name: "TanStack Start" },
 			{ name: "React Native" },
-		],
-	},
-	{
-		name: "State & data",
-		tools: [
-			{ name: "React Query" },
+			{ name: "Tailwind CSS", main: true },
+			{ name: "HTML/CSS" },
 			{ name: "Zustand" },
 			{ name: "Redux Toolkit" },
-			{ name: "Convex" },
+			{ name: "React Query" },
+			{ name: "PWAs" },
+			{ name: "SSR" },
+			{ name: "SSG" },
+			{ name: "OAuth" },
+		],
+	},
+	{
+		name: "Backend & databases",
+		tools: [
 			{ name: "Node.js" },
+			{ name: "Java" },
 			{ name: "REST APIs" },
+			{ name: "SQL" },
+			{ name: "NoSQL" },
+			{ name: "Convex" },
 			{ name: "WebSockets" },
+			{ name: "Socket.io" },
 		],
 	},
 	{
-		name: "Quality & performance",
+		name: "AI & agentic tooling",
 		tools: [
-			{ name: "Playwright" },
-			{ name: "Vitest" },
-			{ name: "Jest" },
-			{ name: "React Testing Library" },
-			{ name: "SSR & SSG" },
-			{ name: "Caching & CDNs" },
-			{ name: "SEO" },
-			{ name: "Accessibility" },
-		],
-	},
-	{
-		name: "Tools & workflow",
-		tools: [
-			{ name: "Git", main: true },
 			{ name: "Claude Code", main: true },
 			{ name: "MCP" },
-			{ name: "Vercel" },
+			{ name: "Agentic workflows" },
+			{ name: "LLM-integrated development" },
+			{ name: "Prompt engineering" },
+		],
+	},
+	{
+		name: "Testing & tooling",
+		tools: [
+			{ name: "Jest" },
+			{ name: "React Testing Library" },
+			{ name: "Playwright" },
+			{ name: "Webpack" },
+			{ name: "Babel" },
+			{ name: "Git", main: true },
+			{ name: "npm/Yarn" },
+			{ name: "JSON" },
+		],
+	},
+	{
+		name: "Deployment & practices",
+		tools: [
 			{ name: "CI/CD" },
-			{ name: "Analytics events" },
-			{ name: "Code review" },
+			{ name: "Vercel" },
+			{ name: "CDN & browser caching" },
+			{ name: "SEO" },
+			{ name: "Agile" },
+			{ name: "Code reviews" },
+			{ name: "Reusable component architecture" },
 		],
 	},
 ];
