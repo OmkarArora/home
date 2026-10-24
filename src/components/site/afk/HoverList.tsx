@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { type Pic, afk } from "@/content/afk";
 
@@ -59,9 +59,9 @@ export function HoverList() {
 								<span className={`relative ${open ? "text-[#0c0c0d]" : ""}`}>{item.label}</span>
 							</span>
 							{/* Wide screens: the note, or the line while it's lit. Narrower: always the note. */}
-							<span className={`${mono} hidden max-w-[13rem] text-right text-xs text-[var(--dim)] lg:block ${open ? "" : "uppercase tracking-widest"}`}>
+							<Grow className={`${mono} hidden max-w-[13rem] text-right text-xs text-[var(--dim)] lg:block ${open ? "" : "uppercase tracking-widest"}`}>
 								{open ? item.line : item.note}
-							</span>
+							</Grow>
 							<span className={`${mono} text-right text-xs uppercase tracking-widest text-[var(--dim)] lg:hidden`}>{item.note}</span>
 						</button>
 
@@ -104,6 +104,32 @@ export function HoverList() {
 				);
 			})}
 		</ul>
+	);
+}
+
+/**
+ * Text whose box eases to its new height when the text changes, so the row
+ * (and every row below it) glides instead of jumping. `overflow: clip` keeps
+ * the text on the word's baseline, which `hidden` wouldn't.
+ */
+function Grow({ className, children }: { className: string; children: React.ReactNode }) {
+	const inner = useRef<HTMLSpanElement>(null);
+	const [height, setHeight] = useState<number | "auto">("auto");
+	// After every render: same height, no update; new text, a new target.
+	useLayoutEffect(() => {
+		if (inner.current) setHeight(inner.current.offsetHeight);
+	});
+	return (
+		<motion.span
+			initial={false}
+			animate={{ height }}
+			transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+			className={`overflow-clip ${className}`}
+		>
+			<span ref={inner} className="block">
+				{children}
+			</span>
+		</motion.span>
 	);
 }
 
