@@ -3,8 +3,7 @@
  * interests (pointing at one fans out its pictures), then a wall of his own
  * art and photos, then his Instagram pages.
  *
- * Every `line` is a DRAFT, kept to what his work and photos already show, for
- * Omkar to rewrite.
+ * The lines are Omkar's (Art and Anime drafted from his work; he kept them).
  */
 
 /** A picture for an interest. Posters are official artwork, shown as favourites. */
@@ -57,11 +56,11 @@ export const afk: Afk[] = [
 		key: "gaming",
 		label: "Gaming",
 		note: "Play & build",
-		line: "Playing them, and lately building them: Game Night started at a game night.",
+		line: "Elden Lord, aiming for heads, conquering dungeons.",
 		pictures: [
 			poster("display-games", "eldenring-poster.webp", "Elden Ring"),
-			poster("display-games", "minecraft-poster.jpg", "Minecraft"),
 			poster("display-games", "valorant-poster.jpg", "Valorant"),
+			poster("display-games", "minecraft-poster.jpg", "Minecraft"),
 		],
 	},
 	{
@@ -106,7 +105,7 @@ export const afk: Afk[] = [
 		key: "movies",
 		label: "Movies & TV",
 		note: "Films & series",
-		line: "Draft: the films and shows you go back to.",
+		line: "Latest watches, and the comfort rewatches.",
 		pictures: [
 			poster("display-movies", "spiderman-poster.jpg", "Spider-Man"),
 			poster("display-movies", "suits-poster.webp", "Suits"),
