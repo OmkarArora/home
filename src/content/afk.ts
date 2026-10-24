@@ -1,7 +1,6 @@
 /**
- * What he does away from the keyboard, for the AFK section. Being compared in
- * layouts at /about/afk; the winner moves to About and this moves to
- * `src/content/profile.ts`.
+ * What he does away from the keyboard, for About's AFK section: a list of
+ * interests, then a wall of his art and photos, then his Instagram pages.
  *
  * Every `line` is a DRAFT, kept to what his work and photos already show, for
  * Omkar to rewrite.

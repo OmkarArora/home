@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 
 import { mono } from "../ui";
-import { type Afk, afk } from "./data";
+import { type Afk, afk } from "@/content/afk";
 
 /**
  * A stack of big words. Pointing at one brings up its picture beside the

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Reveal } from "@/components/site/Reveal";
+import { HoverList } from "@/components/site/afk/HoverList";
+import { Scrapbook } from "@/components/site/afk/Scrapbook";
 import { Toolkit } from "@/components/site/Toolkit";
 import { PageHead, SectionHead, label, mono, riseAt } from "@/components/site/ui";
-import { identity, interests } from "@/content/profile";
+import { elsewhere } from "@/content/afk";
+import { identity } from "@/content/profile";
 import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/about", {
 		title: "About — Omkar Arora",
-		description: "Who Omkar Arora is when he isn't shipping: games, badminton, fitness, anime, heroes and films.",
+		description: "Who Omkar Arora is when he isn't shipping: art, games, anime, travel, badminton, fitness, superheroes and films.",
 	}),
 };
 
@@ -37,24 +39,23 @@ export default function About() {
 
 			<section className="py-12">
 				<SectionHead title="AFK" meaning="interests and hobbies" tag="Interests" />
-				<div className="mt-6 grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
-					{interests.map((interest, index) => (
-						<Reveal
-							key={interest.key}
-							index={index}
-							className="bg-[var(--bg)] p-5 last:col-span-2 md:last:col-span-1"
-						>
-							<p className="text-3xl">{interest.emoji}</p>
-							<h3 className="mt-4 font-bold">{interest.label}</h3>
-							<p className="mt-1 text-sm leading-snug text-[var(--dim)]">{interest.line}</p>
-							{interest.picks.map((pick) => (
-								<p key={pick.name} className={`${label} mt-3`}>
-									{pick.placeholder ? `[${pick.name}]` : pick.name}
-								</p>
-							))}
-						</Reveal>
-					))}
+				<div className="mt-6">
+					<HoverList />
 				</div>
+				<p className={`${label} mt-12 mb-6`}>Sketchbook & snapshots</p>
+				<Scrapbook />
+				<ul className={`${mono} mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs uppercase tracking-wider`}>
+					{elsewhere.map((page) => (
+						<li key={page.href}>
+							<a href={page.href} target="_blank" rel="noopener noreferrer" className="group inline-flex items-baseline gap-2">
+								<span className="text-[var(--dim)]">{page.what}</span>
+								<span className="font-bold underline decoration-[var(--lime)] decoration-2 underline-offset-4 group-hover:text-[var(--accent-ink)]">
+									{page.handle} ↗
+								</span>
+							</a>
+						</li>
+					))}
+				</ul>
 			</section>
 		</>
 	);
