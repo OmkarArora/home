@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/work", {
-		title: "Patch notes — Omkar Arora",
+		title: "Work — Omkar Arora",
 		description:
 			"What Omkar Arora has shipped: flights and cabs on the web at ixigo, and three products at Sparklin before that.",
 	}),
@@ -228,7 +228,7 @@ export default function Work() {
 
 	return (
 		<>
-			<PageHead kicker="Patch notes · newest first" title="Patch notes.">
+			<PageHead kicker="Patch notes · newest first" title="Patch notes." meaning="Work and experience of Omkar Arora">
 				What I&apos;ve shipped: flights and cabs on the web at ixigo, and three products at Sparklin
 				before that.
 			</PageHead>

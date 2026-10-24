@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function About() {
 	return (
 		<>
-			<PageHead kicker={`About · ${identity.location}`} title="Off the clock." />
+			<PageHead kicker={`About · ${identity.location}`} title="Off the clock." meaning={`About ${identity.name}`} />
 
 			<section style={riseAt(2)} className="rise grid gap-10 pb-12 md:grid-cols-12">
 				<div className="space-y-5 text-xl leading-relaxed md:col-span-8">
@@ -36,7 +36,7 @@ export default function About() {
 			<Toolkit />
 
 			<section className="py-12">
-				<SectionHead title="AFK" tag="Interests" />
+				<SectionHead title="AFK" meaning="interests and hobbies" tag="Interests" />
 				<div className="mt-6 grid grid-cols-2 gap-px border border-[var(--line)] bg-[var(--line)] md:grid-cols-3">
 					{interests.map((interest, index) => (
 						<Reveal

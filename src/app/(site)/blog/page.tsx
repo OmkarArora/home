@@ -9,7 +9,7 @@ import { blog, graph, pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/blog", {
-		title: "Dev log — Omkar Arora",
+		title: "Blog — Omkar Arora",
 		description: "Notes on frontend engineering by Omkar Arora, most with live demos you can play with.",
 	}),
 };
@@ -20,7 +20,7 @@ export default async function Writing() {
 	return (
 		<>
 			<JsonLd json={graph(blog(posts))} />
-			<PageHead kicker={`Dev log · ${posts.length} entries`} title="Dev log.">
+			<PageHead kicker={`Dev log · ${posts.length} entries`} title="Dev log." meaning="Blog posts by Omkar Arora">
 				Notes on building for the web — most of them with demos you can play with.
 			</PageHead>
 

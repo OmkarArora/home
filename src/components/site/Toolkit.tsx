@@ -11,7 +11,7 @@ import { SectionHead, label, mono } from "./ui";
 export function Toolkit({ tag = "Tools of the trade" }: { tag?: string }) {
 	return (
 		<section className="py-12">
-			<SectionHead title="Loadout" tag={tag} />
+			<SectionHead title="Loadout" meaning="skills and tech stack" tag={tag} />
 			<div className="mt-6 grid gap-px border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-3">
 				{toolkit.map((group, index) => (
 					<Reveal key={group.name} index={index} className="bg-[var(--bg)] p-5">

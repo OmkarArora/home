@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/projects", {
-		title: "Side quests — Omkar Arora",
+		title: "Projects — Omkar Arora",
 		description: "Things Omkar Arora built for fun, starting with Game Night.",
 	}),
 };
@@ -20,7 +20,7 @@ export default function Projects() {
 
 	return (
 		<>
-			<PageHead kicker="Side quests · built for fun" title="Side quests.">
+			<PageHead kicker="Side quests · built for fun" title="Side quests." meaning="Projects by Omkar Arora">
 				What I build when nobody asked: games, tools and this site.
 			</PageHead>
 
@@ -72,7 +72,7 @@ export default function Projects() {
 			)}
 
 			<section className="py-16">
-				<SectionHead title="Quest log" tag={`${quests.length} more`} />
+				<SectionHead title="Quest log" meaning="more projects" tag={`${quests.length} more`} />
 				<ol>
 					{quests.map((quest, index) => (
 						<Reveal

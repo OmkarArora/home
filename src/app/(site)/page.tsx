@@ -52,12 +52,16 @@ export default async function PatchNotes() {
 						{identity.title} · {identity.company}
 					</p>
 					<h1
-						aria-label={`Web that feels ${feels[0]}`}
+						aria-label={`Web that feels ${feels[0]}: ${identity.name}, ${identity.title} at ${identity.company}`}
 						style={riseAt(1)}
 						className="rise mt-6 text-[clamp(3rem,9vw,6.75rem)] leading-[0.92] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
 						Web that feels{" "}
 						<br />
 						<RotatingWord words={feels} />
+						{/* Whose site this is, for search engines; the label above says it for screen readers. */}
+						<span className="sr-only">
+							: {identity.name}, {identity.title} at {identity.company}
+						</span>
 					</h1>
 					<p style={riseAt(2)} className="rise mt-8 max-w-lg text-lg leading-relaxed text-[var(--dim)]">{identity.pitch}</p>
 					<div style={riseAt(3)} className="rise mt-10">
@@ -82,7 +86,7 @@ export default async function PatchNotes() {
 
 			{/* ─── Patch notes: the biggest things shipped at ixigo ─── */}
 			<section id="patch-notes" className="py-12">
-				<SectionHead title="Patch notes" tag={`Shipped at ${identity.company}`} />
+				<SectionHead title="Patch notes" meaning={`features shipped at ${identity.company}`} tag={`Shipped at ${identity.company}`} />
 				<ol>
 					{highlights.map((feature, index) => (
 						<Reveal
@@ -114,7 +118,7 @@ export default async function PatchNotes() {
 
 			{/* ─── Save history ─── */}
 			<section className="py-12">
-				<SectionHead title="Save history" tag={`${years}+ years`} />
+				<SectionHead title="Save history" meaning="work experience" tag={`${years}+ years`} />
 				<ol>
 					{roles.map((role, index) => (
 						<Reveal

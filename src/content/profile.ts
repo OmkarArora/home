@@ -21,7 +21,7 @@ export const toolkit: Array<{ name: string; tools: Array<{ name: string; main?: 
 			{ name: "TypeScript", main: true },
 			{ name: "React", main: true },
 			{ name: "Next.js", main: true },
-			{ name: "TanStack Start" },
+			{ name: "TanStack Start", main: true },
 			{ name: "React Native" },
 			{ name: "Tailwind CSS", main: true },
 			{ name: "HTML/CSS" },
