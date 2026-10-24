@@ -1,7 +1,7 @@
 ---
 title: "Improving syntax highlighting in a Next.js MDX blog"
 publishedAt: "2025-12-07"
-updatedAt: "2026-10-11"
+updatedAt: "2026-10-24"
 summary: "From plain, unhighlighted code blocks to VS Code-style highlighting, line numbers and a copy button, using remark-gfm and rehype-pretty-code."
 keywords: "syntax highlighting, rehype-pretty-code, remark-gfm, nextjs, mdx, code blocks, line numbers, copy button, shiki"
 ---
@@ -110,7 +110,7 @@ pre code[data-line-numbers] > span[data-line]::before {
 	counter-increment: line;
 	content: counter(line);
 	display: inline-block;
-	width: 1rem;
+	width: 2ch;
 	margin-right: 1rem;
 	text-align: right;
 	color: oklch(0.556 0 0);
@@ -134,6 +134,14 @@ pre code span {
 ```
 
 The CSS uses CSS counters to generate line numbers, which is more performant than JavaScript-based solutions.
+
+`2ch` fits two digits. For blocks of 100 lines or more, `rehype-pretty-code` sets `data-line-numbers-max-digits` on the `<code>`, so the gutter can grow to match:
+
+```css
+pre code[data-line-numbers-max-digits="3"] > [data-line]::before {
+	width: 3ch;
+}
+```
 
 ## Step 4: Enabling Line Numbers
 
@@ -300,7 +308,7 @@ pre code[data-line-numbers] > span[data-line]::before {
 
 ### Challenge 2: Code Not Rendering
 
-When I first added the copy button wrapper, the code stopped rendering. This was because I was returning early when `code` was empty, but `useEffect` runs after the initial render.
+When I first added the copy button wrapper, the code stopped rendering. I was returning `null` while `code` was still empty. But `code` is only filled in by the `ref` callback, and that only runs once the `<pre>` is on the page. Returning early meant it never got there, so `code` never filled and the block never appeared.
 
 **Solution**: Always render children, and conditionally render the copy button:
 
