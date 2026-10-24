@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLd } from "@/components/json-ld";
+
 import { HoverList } from "@/components/site/afk/HoverList";
 import { Scrapbook } from "@/components/site/afk/Scrapbook";
 import { PageHead, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { elsewhere } from "@/content/afk";
 import { identity } from "@/content/profile";
-import { pageMetadata } from "@/lib/site-seo";
+import { graph, ids, pageMetadata, person, webPage, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/about", {
@@ -18,6 +20,18 @@ export const metadata: Metadata = {
 export default function About() {
 	return (
 		<>
+			<JsonLd
+				json={graph(
+					webPage("/about", {
+						name: "About",
+						description: String(metadata.description),
+						type: "ProfilePage",
+						mainEntity: { "@id": ids.person },
+					}),
+					person(),
+					website(),
+				)}
+			/>
 			<PageHead kicker={`About · ${identity.location}`} title="Off the clock." meaning={`About ${identity.name}`} />
 
 			<section style={riseAt(2)} className="rise grid gap-10 pb-12 md:grid-cols-12">

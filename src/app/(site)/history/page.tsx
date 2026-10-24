@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { JsonLd } from "@/components/json-ld";
+
 import { Reveal } from "@/components/site/Reveal";
 import { Trace } from "@/components/site/Trace";
 import { PageHead, label, mono } from "@/components/site/ui";
 import { versions } from "@/content/site-history";
-import { pageMetadata } from "@/lib/site-seo";
+import { graph, ids, itemList, pageMetadata, webPage, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/history", {
@@ -20,6 +22,26 @@ const stop = `${mono} text-sm font-bold uppercase tracking-[0.14em] text-[var(--
 export default function History() {
 	return (
 		<>
+			<JsonLd
+				json={graph(
+					webPage("/history", {
+						name: "Version history",
+						description: String(metadata.description),
+						type: "AboutPage",
+						about: { "@id": ids.website },
+						mainEntity: itemList(
+							versions.map((version) => ({
+								"@type": "WebSite",
+								name: `${version.label}: ${version.name}`,
+								url: `https://${version.address}`,
+								description: version.summary,
+								author: { "@id": ids.person },
+							})),
+						),
+					}),
+					website(),
+				)}
+			/>
 			<PageHead kicker={`This site · ${versions.length} versions`} title="Version history.">
 				Every version of this site, newest first. Screens are from each one as it last looked.
 			</PageHead>

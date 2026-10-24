@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { JsonLd } from "@/components/json-ld";
+
 import { InViewVideo } from "@/components/site/InViewVideo";
 import { Reveal } from "@/components/site/Reveal";
 import { Screens } from "@/components/site/Screens";
@@ -8,7 +10,7 @@ import { PageHead, PlaceholderTag, label, mono } from "@/components/site/ui";
 import { type Media, type Shipped, alsoShipped, majors, productLabel, since, surfaceLabel } from "@/content/ixigo";
 import { identity } from "@/content/profile";
 import { type Product, also, company, outcomes, products } from "@/content/sparklin";
-import { pageMetadata } from "@/lib/site-seo";
+import { graph, ids, itemList, pageMetadata, person, webPage, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/work", {
@@ -228,6 +230,35 @@ export default function Work() {
 
 	return (
 		<>
+			<JsonLd
+				json={graph(
+					webPage("/work", {
+						name: "Work",
+						description: String(metadata.description),
+						type: "CollectionPage",
+						about: { "@id": ids.person },
+						mainEntity: itemList([
+							...majors().map((item) => ({
+								"@type": "CreativeWork",
+								name: item.title,
+								description: item.summary,
+								creator: { "@id": ids.person },
+								sourceOrganization: { "@type": "Organization", name: identity.company },
+							})),
+							...products.map((product) => ({
+								"@type": "SoftwareApplication",
+								name: product.name,
+								description: product.what,
+								applicationCategory: "WebApplication",
+								creator: { "@id": ids.person },
+								sourceOrganization: { "@type": "Organization", name: company.name },
+							})),
+						]),
+					}),
+					person(),
+					website(),
+				)}
+			/>
 			<PageHead kicker="Patch notes · newest first" title="Patch notes." meaning="Work and experience of Omkar Arora">
 				What I&apos;ve shipped: flights and cabs on the web at ixigo, and three products at Sparklin
 				before that.

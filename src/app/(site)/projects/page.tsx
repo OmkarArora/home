@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 
+import { JsonLd } from "@/components/json-ld";
+
 import { Reveal } from "@/components/site/Reveal";
 import { ReticleZone } from "@/components/site/Reticle";
 import { PageHead, SectionHead, label, mono } from "@/components/site/ui";
 import { projects } from "@/content/profile";
-import { pageMetadata } from "@/lib/site-seo";
+import { graph, ids, itemList, pageMetadata, person, webPage, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
 	...pageMetadata("/projects", {
 		title: "Projects — Omkar Arora",
-		description: "Things Omkar Arora built for fun, starting with Game Night.",
+		description: "Side projects by Omkar Arora: Game Night, real-time party games for a room of phones, plus a team résumé builder and this site.",
 	}),
 };
 
@@ -20,6 +22,29 @@ export default function Projects() {
 
 	return (
 		<>
+			<JsonLd
+				json={graph(
+					webPage("/projects", {
+						name: "Projects",
+						description: String(metadata.description),
+						type: "CollectionPage",
+						about: { "@id": ids.person },
+						mainEntity: itemList(
+							projects.map((project) => ({
+								"@type": "SoftwareApplication",
+								name: project.name,
+								description: project.summary,
+								applicationCategory: "WebApplication",
+								...(project.href && { url: project.href }),
+								...(project.repo && { codeRepository: project.repo }),
+								author: { "@id": ids.person },
+							})),
+						),
+					}),
+					person(),
+					website(),
+				)}
+			/>
 			<PageHead kicker="Side quests · built for fun" title="Side quests." meaning="Projects by Omkar Arora">
 				What I build when nobody asked: games, tools and this site.
 			</PageHead>

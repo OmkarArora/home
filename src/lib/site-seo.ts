@@ -10,6 +10,7 @@
 import type { Metadata } from "next";
 
 import { baseUrl } from "@/app/sitemap";
+import { elsewhere } from "@/content/afk";
 import { identity } from "@/content/profile";
 
 export const ids = {
@@ -51,7 +52,7 @@ export function person() {
 		worksFor: { "@type": "Organization", name: identity.company, url: "https://www.ixigo.com" },
 		address: { "@type": "PostalAddress", addressLocality: identity.location.split(",")[0], addressCountry: "IN" },
 		knowsAbout: identity.stack,
-		sameAs: [identity.links.github, identity.links.linkedin],
+		sameAs: [identity.links.github, identity.links.linkedin, ...elsewhere.map((page) => page.href)],
 	};
 }
 
@@ -87,6 +88,43 @@ export function blog(posts: PostSummary[]) {
 			dateModified: post.updatedAt ?? post.publishedAt,
 			author: { "@id": ids.person },
 		})),
+	};
+}
+
+/**
+ * A page of the site, with a breadcrumb back to home. `type` is schema.org's
+ * kind of page (AboutPage, CollectionPage…); `extra` adds what it's about.
+ */
+export function webPage(
+	path: string,
+	{ name, description, type = "WebPage", ...extra }: { name: string; description: string; type?: string } & Record<string, unknown>,
+) {
+	const url = `${baseUrl}${path}`;
+	return {
+		"@type": type,
+		"@id": `${url}#page`,
+		url,
+		name,
+		description,
+		inLanguage: "en",
+		isPartOf: { "@id": ids.website },
+		breadcrumb: {
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{ "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+				{ "@type": "ListItem", position: 2, name, item: url },
+			],
+		},
+		...extra,
+	};
+}
+
+/** A numbered list of things, for a page that's a collection of them. */
+export function itemList(items: object[]) {
+	return {
+		"@type": "ItemList",
+		numberOfItems: items.length,
+		itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, item })),
 	};
 }
 
