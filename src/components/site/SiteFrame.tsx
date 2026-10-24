@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 
+import { Atmosphere } from "./Atmosphere";
 import { Footer } from "./Footer";
 import { RevealConfig } from "./Reveal";
 import { TopBar } from "./TopBar";
@@ -65,8 +66,10 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
 			<noscript>
 				<style>{"[data-reveal] { opacity: 1 !important; transform: none !important; }"}</style>
 			</noscript>
+			<Atmosphere />
 			<RevealConfig>
-				<div className="mx-auto max-w-6xl px-5 sm:px-8">
+				{/* Above the particles. */}
+				<div className="relative z-[1] mx-auto max-w-6xl px-5 sm:px-8">
 					<TopBar />
 					<main>{children}</main>
 					<Footer />
