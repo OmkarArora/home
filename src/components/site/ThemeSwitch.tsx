@@ -59,6 +59,9 @@ function changeTheme(next: "light" | "dark", commit: () => void, origin?: { x: n
 		page.animate([at(0), at(reach)], {
 			duration: 800,
 			easing: "cubic-bezier(0.45, 0, 0.2, 1)",
+			// Hold the full size until the transition ends; otherwise the mask drops back to 0 for a
+			// frame or two first, and the old theme flashes through.
+			fill: "forwards",
 			pseudoElement: "::view-transition-new(root)",
 		});
 	});
