@@ -20,7 +20,8 @@ type Note = [number, number, number];
 
 /** Each sound as notes, pitched for the 8-bit voice; other voices shift them. */
 export const sounds: Record<Sfx, Note[]> = {
-	click: [[1320, 0, 0.03]],
+	// Low and a little longer: a soft "tock". Up at 1320 Hz it sounded like a laser.
+	click: [[330, 0, 0.05]],
 	on: [
 		[660, 0, 0.05],
 		[990, 0.05, 0.07],
