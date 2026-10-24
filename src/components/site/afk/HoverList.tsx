@@ -1,108 +1,116 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
+
+import { type Pic, afk } from "@/content/afk";
 
 import { Polaroid, PolaroidPhoto } from "../Polaroid";
 import { mono } from "../ui";
-import { type Afk, afk } from "@/content/afk";
+
+const tilt = [-4, 3, -2, 4, -3];
+
+/** Each polaroid lands a beat after the one before. */
+const land = (i: number) =>
+	({
+		initial: { opacity: 0, y: 24, scale: 0.85, rotate: 0 },
+		animate: { opacity: 1, y: 0, scale: 1, rotate: tilt[i % tilt.length] },
+		exit: { opacity: 0, y: 12, scale: 0.9, transition: { duration: 0.12 } },
+		transition: { type: "spring", stiffness: 380, damping: 26, delay: i * 0.07 },
+	}) as const;
 
 /**
- * A stack of big words. Pointing at one brings up its picture beside the
- * pointer; on a phone (or by keyboard) a row opens to show it inline.
+ * A stack of big words, one per interest. Pointing at one (or focusing it)
+ * lights it up and fans its pictures out in a row beside it, one after the
+ * other, and the note on the right becomes its line. Below 1024px there isn't
+ * room beside the word, so a tap opens the row under it instead.
  */
 export function HoverList() {
 	const [active, setActive] = useState<string | null>(null);
-	const box = useRef<HTMLUListElement>(null);
-	const x = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 });
-	const y = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 });
-	const current = afk.find((item) => item.key === active);
-
-	const follow = (event: React.PointerEvent) => {
-		const rect = box.current?.getBoundingClientRect();
-		if (!rect) return;
-		x.set(event.clientX - rect.left + 24);
-		y.set(event.clientY - rect.top - 110);
+	// Where the row starts: just past the end of the lit word, which differs per word.
+	const [left, setLeft] = useState(0);
+	const light = (key: string, button: HTMLElement) => {
+		const word = button.firstElementChild?.getBoundingClientRect();
+		const row = button.getBoundingClientRect();
+		if (word) setLeft(word.right - row.left + 32);
+		setActive(key);
 	};
+	// A mouse has already opened the row by hovering, so its click shouldn't close it again; a tap toggles.
+	const pointer = useRef("mouse");
 
 	return (
-		<ul ref={box} onPointerMove={follow} onPointerLeave={() => setActive(null)} className="relative border-t border-[var(--line)]">
+		<ul onPointerLeave={() => setActive(null)} className="border-t border-[var(--line)]">
 			{afk.map((item) => {
 				const open = active === item.key;
 				return (
-					<li key={item.key} className="border-b border-[var(--line)]">
+					<li key={item.key} className={`relative border-b border-[var(--line)] ${open ? "z-10" : ""}`}>
 						<button
 							type="button"
-							onPointerEnter={(event) => event.pointerType === "mouse" && setActive(item.key)}
-							onClick={() => setActive(open ? null : item.key)}
+							onPointerEnter={(event) => event.pointerType === "mouse" && light(item.key, event.currentTarget)}
+							// Keyboard focus opens it; a tap or click focuses too, and those are handled by onClick.
+							onFocus={(event) => event.currentTarget.matches(":focus-visible") && light(item.key, event.currentTarget)}
+							onPointerDown={(event) => (pointer.current = event.pointerType)}
+							onClick={(event) => (open && pointer.current !== "mouse" ? setActive(null) : light(item.key, event.currentTarget))}
 							aria-expanded={open}
-							className="group flex w-full items-baseline justify-between gap-6 py-4 text-left"
+							className="flex w-full items-baseline justify-between gap-6 py-4 text-left"
 						>
-							<span
-								className={`relative text-[clamp(2.25rem,6vw,4.5rem)] leading-none font-extrabold tracking-[-0.035em] [font-stretch:85%] transition-colors ${open ? "" : "text-[var(--ink)]"}`}
-							>
+							<span className="relative shrink-0 text-[clamp(2.25rem,6vw,4.5rem)] leading-none font-extrabold tracking-[-0.035em] [font-stretch:85%]">
 								{open && <span className="absolute inset-x-[-0.06em] bottom-[0.02em] top-[0.2em] -skew-x-6 bg-[var(--lime)]" />}
 								<span className={`relative ${open ? "text-[#0c0c0d]" : ""}`}>{item.label}</span>
 							</span>
-							<span className={`${mono} shrink-0 text-xs uppercase tracking-widest text-[var(--dim)]`}>{item.note}</span>
+							{/* Wide screens: the note, or the line while it's lit. Narrower: always the note. */}
+							<span className={`${mono} hidden max-w-[13rem] text-right text-xs text-[var(--dim)] lg:block ${open ? "" : "uppercase tracking-widest"}`}>
+								{open ? item.line : item.note}
+							</span>
+							<span className={`${mono} text-right text-xs uppercase tracking-widest text-[var(--dim)] lg:hidden`}>{item.note}</span>
 						</button>
-						{/* Phones and keyboards: the picture and line open under the word. */}
+
+						{/* Wide screens: the row floats just past the word, over the rows around it. */}
+						<AnimatePresence>
+							{open && item.pictures.length > 0 && (
+								<div aria-hidden style={{ left }} className="pointer-events-none absolute top-1/2 hidden -translate-y-1/2 gap-3 lg:flex">
+									{item.pictures.map((pic, i) => (
+										<motion.div key={pic.src} {...land(i)} className="w-24 xl:w-28">
+											<Card pic={pic} />
+										</motion.div>
+									))}
+								</div>
+							)}
+						</AnimatePresence>
+
+						{/* Phones and tablets: the line, then the row, open under the word. */}
 						<AnimatePresence initial={false}>
 							{open && (
 								<motion.div
 									initial={{ height: 0, opacity: 0 }}
 									animate={{ height: "auto", opacity: 1 }}
 									exit={{ height: 0, opacity: 0 }}
-									className="overflow-hidden md:hidden"
+									className="overflow-hidden lg:hidden"
 								>
-									<div className="flex gap-4 pb-5">
-										<Picture item={item} className="h-28 w-24 shrink-0" />
-										<p className="text-[var(--dim)]">{item.line}</p>
-									</div>
+									<p className="pb-4 text-[var(--dim)]">{item.line}</p>
+									{item.pictures.length > 0 && (
+										<div className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-1 pb-6">
+											{item.pictures.map((pic, i) => (
+												<motion.div key={pic.src} {...land(i)} className="w-28 shrink-0">
+													<Card pic={pic} />
+												</motion.div>
+											))}
+										</div>
+									)}
 								</motion.div>
 							)}
 						</AnimatePresence>
 					</li>
 				);
 			})}
-
-			{/* Desktop: the picture follows the pointer. */}
-			<AnimatePresence>
-				{current && (
-					<motion.div
-						key="float"
-						aria-hidden
-						style={{ x, y }}
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						exit={{ opacity: 0, scale: 0.9 }}
-						className="pointer-events-none absolute top-0 left-0 z-10 hidden w-56 md:block"
-					>
-						<Polaroid className="rotate-3" caption={current.line}>
-							<Picture item={current} className="aspect-[4/5] w-full" />
-						</Polaroid>
-					</motion.div>
-				)}
-			</AnimatePresence>
 		</ul>
 	);
 }
 
-/**
- * The interest's picture, or a lime card when there's none yet: with its note,
- * or (`initial`, for small tiles) just its first letter, big.
- */
-export function Picture({ item, className = "", initial = false }: { item: Afk; className?: string; initial?: boolean }) {
-	if (!item.image) {
-		return initial ? (
-			<div className={`flex items-center justify-center bg-[var(--lime)] pb-5 text-3xl font-extrabold sm:text-6xl text-[#0c0c0d] [font-stretch:85%] ${className}`}>
-				{item.label[0]}
-			</div>
-		) : (
-			<div className={`${mono} flex items-end bg-[var(--lime)] p-3 text-xs font-bold uppercase tracking-widest text-[#0c0c0d] ${className}`}>
-				{item.note}
-			</div>
-		);
-	}
-	return <PolaroidPhoto src={item.image.src} alt={item.image.alt} contain={item.image.contain} sizes="240px" className={className} />;
+function Card({ pic }: { pic: Pic }) {
+	return (
+		<Polaroid caption={<span className="truncate">{pic.caption}</span>}>
+			<PolaroidPhoto src={pic.src} alt={pic.alt} contain={pic.contain} sizes="112px" className="aspect-[3/4]" />
+		</Polaroid>
+	);
 }

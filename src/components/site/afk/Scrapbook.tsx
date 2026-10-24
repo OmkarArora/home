@@ -2,24 +2,21 @@
 
 import { motion } from "motion/react";
 
-import { afk, extras } from "@/content/afk";
+import { afk } from "@/content/afk";
 
 import { Polaroid, PolaroidPhoto } from "../Polaroid";
 
 const tilt = [-3, 2, -1.5, 3, -2.5, 1.5, -2, 2.5];
 
 /**
- * A loose wall of his art and photos as polaroids, each a little crooked.
- * Hovering one straightens and lifts it.
+ * A loose wall of his own art and photos (the interests marked `onWall`) as
+ * polaroids, each a little crooked. Hovering one straightens and lifts it.
  */
 export function Scrapbook() {
-	const pictures = [
-		...afk.flatMap((item) => (item.image ? [{ ...item.image, caption: item.label }] : [])),
-		...extras.map((extra) => ({ ...extra, contain: false })),
-	];
+	const pictures = afk.filter((item) => item.onWall).flatMap((item) => item.pictures);
 
 	return (
-		<div className="columns-3 gap-4 md:columns-5">
+		<div className="columns-3 gap-4 md:columns-6">
 			{pictures.map((picture, i) => (
 				<motion.div
 					key={picture.src}
