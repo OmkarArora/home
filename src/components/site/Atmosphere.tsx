@@ -125,8 +125,12 @@ export function Atmosphere() {
 			el.height = h * dpr;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			const megapixels = (w * h) / 1_000_000;
-			dust = Array.from({ length: Math.round(40 + megapixels * 160) }, () => mote(w, h, [0.9, 1.6], [0.25, 0.55], 3));
-			flies = Array.from({ length: Math.round(8 + megapixels * 8) }, () => mote(w, h, [1.2, 1.6], [0.45, 0.85], 8));
+			// Keep the motes already there (a phone's address bar resizes the page as you
+			// scroll); only add or drop a few to match the new size.
+			const fit = (motes: Mote[], count: number, make: () => Mote) =>
+				motes.slice(0, count).concat(Array.from({ length: Math.max(0, count - motes.length) }, make));
+			dust = fit(dust, Math.round(40 + megapixels * 160), () => mote(w, h, [0.9, 1.6], [0.25, 0.55], 3));
+			flies = fit(flies, Math.round(8 + megapixels * 8), () => mote(w, h, [1.2, 1.6], [0.45, 0.85], 8));
 		};
 
 		// Where the mouse is (the canvas is fixed to the screen, so client coordinates do). Touch has no hover.
