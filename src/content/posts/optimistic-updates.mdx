@@ -1,7 +1,7 @@
 ---
 title: "Optimistic Updates: Building Instant, Responsive UIs"
 publishedAt: "2025-12-20"
-updatedAt: "2026-10-11"
+updatedAt: "2026-10-24"
 summary: "What optimistic updates are, when they are safe, and how to build them in React with plain state, TanStack Query and React 19's useOptimistic, including what to do when the request fails."
 keywords: "optimistic updates, react, ux, user experience, state management, react query, tanstack query, performance, ui patterns, frontend development"
 ---
@@ -289,12 +289,12 @@ const [optimisticState, addOptimistic] = useOptimistic(state, updateFn);
 - `state`: the "real" state value.
 - `updateFn(currentState, optimisticValue)`: a **pure function** that returns the optimistic state.
 - `optimisticState`: equals `state` unless an update is pending.
-- `addOptimistic(optimisticValue)`: triggers an optimistic update by calling `updateFn`.
+- `addOptimistic(optimisticValue)`: triggers an optimistic update by calling `updateFn`. Call it inside an action or a transition (a form's `action` counts); outside one, React warns and the optimistic state doesn't stick.
 
 A classic example is a message thread: when the user sends a message, you want it to appear immediately with a "Sending…" label.
 
 ```tsx showLineNumbers
-import { useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useRef, useState, useTransition } from "react";
 
 function deliverMessage(message: string) {
 	return new Promise<string>((resolve) => {
@@ -418,7 +418,7 @@ Optimistic updates can introduce subtle bugs that are easy to miss:
 
 - **Stale optimistic state**: If a user navigates away or the component unmounts before the request completes, you might have orphaned optimistic updates that never get reconciled.
 
-- **Ordering issues**: Rapid clicks can cause optimistic updates to apply in a different order than server responses arrive. For example, clicking "like" then "unlike" quickly might result in both requests succeeding, leaving the final state incorrect.
+- **Ordering issues**: Rapid clicks can send requests whose responses come back in a different order. Click "like" then "unlike" quickly, and if the "like" response arrives last, the UI (or a rollback to its snapshot) can end up showing "liked" when the server's last word was "unliked".
 
 - **Server response mismatch**: The server might return data that differs from your optimistic update (e.g., different ID, modified timestamp, or transformed values). If you don't handle this, your UI can show stale or incorrect data.
 
@@ -427,7 +427,7 @@ Optimistic updates can introduce subtle bugs that are easy to miss:
 **Mitigation strategies**:
 
 - Always reconcile with server responses (use `onSettled` in React Query, or refetch after mutations).
-- Cancel pending requests when components unmount.
+- Ignore responses that arrive after a component has unmounted, or keep the state somewhere that outlives it, like the query cache. (Cancelling the request doesn't undo it if the server already acted.)
 - Use request IDs or timestamps to handle out-of-order responses.
 - Validate that server responses match your expectations before applying them.
 
