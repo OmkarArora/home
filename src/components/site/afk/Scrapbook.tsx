@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
 
-import { mono } from "../ui";
 import { afk, extras } from "@/content/afk";
+
+import { Polaroid, PolaroidPhoto } from "../Polaroid";
 
 const tilt = [-3, 2, -1.5, 3, -2.5, 1.5, -2, 2.5];
 
@@ -21,19 +21,18 @@ export function Scrapbook() {
 	return (
 		<div className="columns-3 gap-4 md:columns-5">
 			{pictures.map((picture, i) => (
-				<motion.figure
+				<motion.div
 					key={picture.src}
 					initial={false}
 					style={{ rotate: tilt[i % tilt.length] }}
 					whileHover={{ rotate: 0, scale: 1.04, zIndex: 2 }}
 					transition={{ type: "spring", stiffness: 300, damping: 20 }}
-					className="relative mb-4 break-inside-avoid border border-[var(--line)] bg-[#fafaf5] p-2 pb-1 shadow-[0_8px_20px_rgb(0_0_0/0.15)]"
+					className="relative mb-4 break-inside-avoid"
 				>
-					<div className={`relative aspect-[4/5] overflow-hidden ${picture.contain ? "bg-white" : ""}`}>
-						<Image src={picture.src} alt={picture.alt} fill sizes="240px" className={picture.contain ? "object-contain p-1" : "object-cover"} />
-					</div>
-					<figcaption className={`${mono} py-2 text-center text-xs text-[#0c0c0d]`}>{picture.caption}</figcaption>
-				</motion.figure>
+					<Polaroid caption={<span className="w-full text-center">{picture.caption}</span>}>
+						<PolaroidPhoto src={picture.src} alt={picture.alt} contain={picture.contain} sizes="240px" className="aspect-[4/5]" />
+					</Polaroid>
+				</motion.div>
 			))}
 		</div>
 	);

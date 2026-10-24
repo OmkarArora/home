@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
-import Image from "next/image";
 import { useRef, useState } from "react";
 
+import { Polaroid, PolaroidPhoto } from "../Polaroid";
 import { mono } from "../ui";
 import { type Afk, afk } from "@/content/afk";
 
@@ -78,10 +78,9 @@ export function HoverList() {
 						exit={{ opacity: 0, scale: 0.9 }}
 						className="pointer-events-none absolute top-0 left-0 z-10 hidden w-56 md:block"
 					>
-						<div className="rotate-3 border border-[var(--line)] bg-[#fafaf5] p-2 pb-3 shadow-[0_12px_30px_rgb(0_0_0/0.25)]">
+						<Polaroid className="rotate-3" caption={current.line}>
 							<Picture item={current} className="aspect-[4/5] w-full" />
-							<p className="mt-2 text-sm leading-snug text-[#0c0c0d]">{current.line}</p>
-						</div>
+						</Polaroid>
 					</motion.div>
 				)}
 			</AnimatePresence>
@@ -105,15 +104,5 @@ export function Picture({ item, className = "", initial = false }: { item: Afk; 
 			</div>
 		);
 	}
-	return (
-		<div className={`relative overflow-hidden ${item.image.contain ? "bg-white" : ""} ${className}`}>
-			<Image
-				src={item.image.src}
-				alt={item.image.alt}
-				fill
-				sizes="240px"
-				className={item.image.contain ? "object-contain p-1" : "object-cover"}
-			/>
-		</div>
-	);
+	return <PolaroidPhoto src={item.image.src} alt={item.image.alt} contain={item.image.contain} sizes="240px" className={className} />;
 }

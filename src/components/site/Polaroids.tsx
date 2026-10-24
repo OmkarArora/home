@@ -1,9 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+import { Polaroid, PolaroidPhoto } from "./Polaroid";
 import { mono } from "./ui";
 
 /**
@@ -119,7 +119,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 							className="absolute inset-0"
 							style={{ zIndex: depth }}
 						>
-							<motion.figure
+							<motion.div
 								drag={isTop && !moving ? "x" : false}
 								dragSnapToOrigin
 								onDragStart={() => {
@@ -135,38 +135,45 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								}}
 								onPointerDown={() => (dragged.current = false)}
 								aria-hidden={!isTop}
-								className={`flex size-full flex-col border border-[var(--line)] bg-[#fafaf5] p-3 shadow-[0_10px_30px_rgb(0_0_0/0.18)] ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
+								className={`size-full ${isTop ? "cursor-grab touch-pan-y active:cursor-grabbing" : ""}`}
 							>
-								{/* The picture opens it. With the Open button shown, that button is the one for keyboards and screen readers. */}
-								<a
-									href={snap.href}
-									{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-									tabIndex={showOpen || !isTop ? -1 : 0}
-									aria-hidden={showOpen || undefined}
-									aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
-									onClick={(event) => dragged.current && event.preventDefault()}
-									draggable={false}
-									className="flex min-h-0 flex-1 flex-col"
+								<Polaroid
+									size="lg"
+									className="size-full"
+									caption={
+										<>
+											<span className="truncate">{snap.caption}</span>
+											{showOpen && (
+												<a
+													href={snap.href}
+													{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+													tabIndex={isTop ? 0 : -1}
+													onClick={(event) => dragged.current && event.preventDefault()}
+													draggable={false}
+													className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
+													aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+												>
+													Open ↗
+												</a>
+											)}
+										</>
+									}
 								>
-									<Face snap={snap} />
-								</a>
-								<figcaption className={`${mono} flex h-11 items-center justify-between gap-2 pt-1 text-sm text-[#0c0c0d]`}>
-									<span className="truncate">{snap.caption}</span>
-									{showOpen && (
-										<a
-											href={snap.href}
-											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-											tabIndex={isTop ? 0 : -1}
-											onClick={(event) => dragged.current && event.preventDefault()}
-											draggable={false}
-											className="shrink-0 bg-[#0c0c0d] px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#f3f3ee] hover:bg-[#3f6212]"
-											aria-label={`Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
-										>
-											Open ↗
-										</a>
-									)}
-								</figcaption>
-							</motion.figure>
+									{/* The picture opens it. With the Open button shown, that button is the one for keyboards and screen readers. */}
+									<a
+										href={snap.href}
+										{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+										tabIndex={showOpen || !isTop ? -1 : 0}
+										aria-hidden={showOpen || undefined}
+										aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+										onClick={(event) => dragged.current && event.preventDefault()}
+										draggable={false}
+										className="flex min-h-0 flex-1 flex-col"
+									>
+										<Face snap={snap} />
+									</a>
+								</Polaroid>
+							</motion.div>
 						</motion.div>
 					);
 				})}
@@ -233,16 +240,5 @@ function Face({ snap }: { snap: Snap }) {
 		);
 	}
 
-	return (
-		<div className={`${face} ${snap.contain ? "bg-white" : ""}`}>
-			<Image
-				src={snap.src}
-				alt={snap.alt}
-				fill
-				sizes="272px"
-				draggable={false}
-				className={snap.contain ? "object-contain p-2" : "object-cover"}
-			/>
-		</div>
-	);
+	return <PolaroidPhoto src={snap.src} alt={snap.alt} contain={snap.contain} sizes="272px" className="flex-1" />;
 }
