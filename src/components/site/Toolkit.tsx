@@ -5,8 +5,8 @@ import { SectionHead, label, mono } from "./ui";
 
 /**
  * The tools he works with, grouped as on his resume, in a ruled grid of chips.
- * The everyday ones ("main") are filled in lime; the rest are outlined. The
- * last cell holds the key and a link to the full resume.
+ * The core ones ("main") are filled in lime; the rest are outlined. The last
+ * cell holds the key and a link to the full resume.
  */
 export function Toolkit({ tag = "Tools of the trade" }: { tag?: string }) {
 	return (
@@ -34,14 +34,10 @@ export function Toolkit({ tag = "Tools of the trade" }: { tag?: string }) {
 					</Reveal>
 				))}
 				<div className="flex flex-col justify-between gap-6 bg-[var(--bg)] p-5">
-					<div className={`${label} space-y-2`}>
-						<p className="flex items-center gap-2">
-							<span aria-hidden className="inline-block size-2.5 bg-[var(--lime)]" /> Every day
-						</p>
-						<p className="flex items-center gap-2">
-							<span aria-hidden className="inline-block size-2.5 border border-[var(--dim)]" /> Comfortable with
-						</p>
-					</div>
+					{/* One positive key: the lime says "core", without ranking the rest below it. */}
+					<p className={`${label} flex items-center gap-2`}>
+						<span aria-hidden className="inline-block size-2.5 bg-[var(--lime)]" /> Core stack
+					</p>
 					<a
 						href={identity.links.resume}
 						target="_blank"

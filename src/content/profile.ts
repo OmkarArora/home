@@ -11,7 +11,7 @@
 /**
  * The tools he works with, for the Loadout section: the Technical Skills on
  * his resume (October 2026), same groups, same order. Keep the two in step.
- * `main` marks the ones he uses every day.
+ * `main` marks his core stack, shown in lime.
  */
 export const toolkit: Array<{ name: string; tools: Array<{ name: string; main?: true }> }> = [
 	{
