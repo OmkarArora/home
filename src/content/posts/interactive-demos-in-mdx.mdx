@@ -1,7 +1,7 @@
 ---
 title: "Building interactive demos in MDX"
 publishedAt: "2025-12-09"
-updatedAt: "2026-10-11"
+updatedAt: "2026-10-24"
 summary: "Live previews, side-by-side comparisons and step-by-step walkthroughs inside MDX posts, each built from a small React client component."
 keywords: "mdx, interactive demos, react, nextjs, blog, code playground, live preview, web development, tutorial"
 ---
@@ -120,7 +120,7 @@ Use `ComparisonDemo` to show side-by-side comparisons of different approaches, b
 		content: (
 			<div className="space-y-2">
 				<p className="text-sm text-muted-foreground">
-					Traditional class-based approach with lifecycle methods
+					The older class-based approach, with a render method
 				</p>
 				<div className="p-3 bg-muted/50 rounded text-xs font-mono">
 					class MyComponent extends React.Component {"{"}
@@ -372,9 +372,11 @@ For performance, you can lazy load heavy demo components:
 ```tsx showLineNumbers
 import dynamic from "next/dynamic";
 
-const HeavyDemo = dynamic(() => import("./demos/HeavyDemo"), {
-	loading: () => <p>Loading demo...</p>,
-});
+// The demos use named exports, so pick the one you want from the module.
+const HeavyDemo = dynamic(
+	() => import("./demos/HeavyDemo").then((mod) => mod.HeavyDemo),
+	{ loading: () => <p>Loading demo...</p> }
+);
 ```
 
 Example used in this post:
@@ -405,7 +407,7 @@ You can also embed external code playgrounds:
 />
 ```
 
-Example used in this post (iframe stays sandboxed and does not execute in your page context):
+Example used in this post. The iframe runs on CodeSandbox's own origin, so its code never runs in your page; `allow` grants only the browser features it needs (here, copying to the clipboard):
 
 <div className="aspect-video w-full rounded-lg overflow-hidden border border-border bg-muted/30">
 	<iframe
@@ -416,7 +418,7 @@ Example used in this post (iframe stays sandboxed and does not execute in your p
 			border: 0,
 		}}
 		title="Embedded CodeSandbox demo"
-		allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+		allow="clipboard-write"
 		sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
     loading="lazy"
   />
