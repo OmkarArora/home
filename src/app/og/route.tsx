@@ -31,8 +31,13 @@ const color = {
 	lime: "#c6f03a",
 };
 
-const file = (path: string) => readFile(join(process.cwd(), "public", path));
-const dataUrl = async (path: string, type: string) => `data:${type};base64,${(await file(path)).toString("base64")}`;
+// Each path is written out in full so the deploy's file tracer ships exactly these files.
+const read = {
+	photo: () => readFile(join(process.cwd(), "public/images/omkar-fuji.jpg")),
+	display: () => readFile(join(process.cwd(), "public/fonts/bricolage-grotesque-latin-800-normal.woff")),
+	mono: () => readFile(join(process.cwd(), "public/fonts/jetbrains-mono-latin-400-normal.woff")),
+	monoBold: () => readFile(join(process.cwd(), "public/fonts/jetbrains-mono-latin-700-normal.woff")),
+};
 
 async function cardFor(url: URL): Promise<Card | undefined> {
 	const slug = url.searchParams.get("slug");
@@ -42,7 +47,8 @@ async function cardFor(url: URL): Promise<Card | undefined> {
 		const { title, publishedAt } = post.metadata;
 		return { kicker: `Dev log · ${readingTime(post.content)} min read · ${shortDate(publishedAt)}`, title, sub: identity.name };
 	}
-	return pages[url.searchParams.get("page") ?? "home"];
+	const page = url.searchParams.get("page") ?? "home";
+	return Object.prototype.hasOwnProperty.call(pages, page) ? pages[page] : undefined;
 }
 
 /** The title, with one word on a lime block like the home page's "magical". */
@@ -117,10 +123,10 @@ export async function GET(request: Request) {
 	if (!card) return new Response("Not found", { status: 404 });
 
 	const [photo, display, mono, monoBold] = await Promise.all([
-		dataUrl("images/omkar-fuji.jpg", "image/jpeg"),
-		file("fonts/bricolage-grotesque-latin-800-normal.woff"),
-		file("fonts/jetbrains-mono-latin-400-normal.woff"),
-		file("fonts/jetbrains-mono-latin-700-normal.woff"),
+		read.photo().then((photo) => `data:image/jpeg;base64,${photo.toString("base64")}`),
+		read.display(),
+		read.mono(),
+		read.monoBold(),
 	]);
 
 	return new ImageResponse(<Tile card={card} photo={photo} />, {
