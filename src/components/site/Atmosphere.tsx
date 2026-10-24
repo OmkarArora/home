@@ -58,7 +58,7 @@ export function Atmosphere() {
 			flies = Array.from({ length: count }, () => ({
 				x: rand(0, w),
 				y: rand(0, h),
-				r: rand(1.2, 2),
+				r: rand(1.2, 1.6),
 				alpha: rand(0.45, 0.85),
 				vx: rand(-8, 8),
 				vy: rand(-8, 8),
