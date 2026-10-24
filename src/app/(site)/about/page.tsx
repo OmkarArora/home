@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Reveal } from "@/components/site/Reveal";
-import { PageHead, PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
+import { Toolkit } from "@/components/site/Toolkit";
+import { PageHead, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { identity, interests } from "@/content/profile";
 import { pageMetadata } from "@/lib/site-seo";
 
@@ -23,7 +24,6 @@ export default function About() {
 					{identity.about.map((paragraph) => (
 						<p key={paragraph}>{paragraph}</p>
 					))}
-					<PlaceholderTag />
 					<Link
 						href="/history"
 						className={`${mono} block pt-2 text-xs font-bold uppercase tracking-wider hover:text-[var(--accent-ink)]`}
@@ -31,15 +31,9 @@ export default function About() {
 						How this site got here: version history →
 					</Link>
 				</div>
-				<dl className={`${mono} self-start border border-[var(--ink)] text-xs md:col-span-4`}>
-					<div className="border-b border-[var(--ink)] px-4 py-2 text-xs uppercase tracking-widest">Loadout</div>
-					{identity.stack.map((tool) => (
-						<div key={tool} className="border-b border-[var(--line)] px-4 py-2 uppercase last:border-b-0">
-							{tool}
-						</div>
-					))}
-				</dl>
 			</section>
+
+			<Toolkit />
 
 			<section className="py-12">
 				<SectionHead title="AFK" tag="Interests" />

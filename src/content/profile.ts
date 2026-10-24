@@ -8,6 +8,64 @@
  * passing it off as real.
  */
 
+/**
+ * The tools he works with, grouped, for the Loadout section. From his resume
+ * (October 2026). `main` marks the ones he uses every day.
+ */
+export const toolkit: Array<{ name: string; tools: Array<{ name: string; main?: true }> }> = [
+	{
+		name: "Languages & frontend",
+		tools: [
+			{ name: "TypeScript", main: true },
+			{ name: "React", main: true },
+			{ name: "Next.js", main: true },
+			{ name: "JavaScript" },
+			{ name: "HTML & CSS" },
+			{ name: "Tailwind CSS", main: true },
+			{ name: "Motion" },
+			{ name: "TanStack Start" },
+			{ name: "React Native" },
+		],
+	},
+	{
+		name: "State & data",
+		tools: [
+			{ name: "React Query" },
+			{ name: "Zustand" },
+			{ name: "Redux Toolkit" },
+			{ name: "Convex" },
+			{ name: "Node.js" },
+			{ name: "REST APIs" },
+			{ name: "WebSockets" },
+		],
+	},
+	{
+		name: "Quality & performance",
+		tools: [
+			{ name: "Playwright" },
+			{ name: "Vitest" },
+			{ name: "Jest" },
+			{ name: "React Testing Library" },
+			{ name: "SSR & SSG" },
+			{ name: "Caching & CDNs" },
+			{ name: "SEO" },
+			{ name: "Accessibility" },
+		],
+	},
+	{
+		name: "Tools & workflow",
+		tools: [
+			{ name: "Git", main: true },
+			{ name: "Claude Code", main: true },
+			{ name: "MCP" },
+			{ name: "Vercel" },
+			{ name: "CI/CD" },
+			{ name: "Analytics events" },
+			{ name: "Code review" },
+		],
+	},
+];
+
 export type Placeholder = { placeholder?: true };
 
 export const identity = {
@@ -21,8 +79,8 @@ export const identity = {
 	pitch:
 		"Moving pixels around: on the web, on canvas, and in games with friends.",
 	/**
-	 * The About page's longer introduction. DRAFT, assembled only from the facts
-	 * in this file, for Omkar to rewrite in his own voice.
+	 * The About page's longer introduction. Assembled from the facts in this
+	 * file; Omkar kept it as written (October 2026).
 	 */
 	about: [
 		"I'm a frontend engineer at ixigo, in Gurugram. I started as an intern at Homerunn in 2020, spent four and a half years at Sparklin building products end to end, and joined ixigo in 2026.",

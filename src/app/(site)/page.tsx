@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Polaroids } from "@/components/site/Polaroids";
 import { Reveal } from "@/components/site/Reveal";
 import { RotatingWord } from "@/components/site/RotatingWord";
+import { Toolkit } from "@/components/site/Toolkit";
 import { HeroActions } from "@/components/site/HeroActions";
 import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { allPosts } from "@/components/site/data";
@@ -137,6 +138,9 @@ export default async function PatchNotes() {
 					))}
 				</ol>
 			</section>
+
+			{/* ─── Loadout: the tools ─── */}
+			<Toolkit />
 
 			{/* ─── Elsewhere on the site ─── */}
 			<Reveal as="section" className="grid gap-4 py-12 md:grid-cols-2">
