@@ -297,3 +297,19 @@ pre code span {
 .dark pre code {
 	@apply bg-transparent;
 }
+
+/*
+ * Theme changes (see changeTheme in ThemeSwitch): for the circle and the wipe,
+ * the new look is drawn on top and revealed by a clip-path, so the browser's
+ * default cross-fade is switched off. The fade keeps it, a touch slower.
+ */
+html[data-theme-fx="circle"]::view-transition-old(root),
+html[data-theme-fx="circle"]::view-transition-new(root),
+html[data-theme-fx="wipe"]::view-transition-old(root),
+html[data-theme-fx="wipe"]::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+html[data-theme-fx="fade"]::view-transition-group(root) {
+	animation-duration: 0.35s;
+}

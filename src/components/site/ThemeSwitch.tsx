@@ -19,6 +19,63 @@ import { mono } from "./ui";
  * After that Motion animates it: next-themes switches CSS transitions off
  * during a theme change, which would make a CSS-animated switch jump.
  */
+/** How the page changes theme: compared with `?themefx=circle|wipe|fade`. */
+type Fx = "circle" | "wipe" | "fade";
+
+/**
+ * Change the theme with a View Transition: the browser snapshots the page,
+ * the theme changes, and the new look is revealed over the old (a circle
+ * growing from `origin`, a wipe down from the top, or a cross-fade). Without
+ * View Transitions, or with reduced motion, it just changes.
+ *
+ * next-themes puts the class on <html> after a render, too late for the
+ * snapshot, so the class is set here first; next-themes then sets the same one.
+ */
+function changeTheme(next: "light" | "dark", commit: () => void, origin?: { x: number; y: number }) {
+	const page = document.documentElement;
+	const transition = (document as Document & { startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> } })
+		.startViewTransition;
+	const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if (!transition || reduced || page.classList.contains("dark") === (next === "dark")) {
+		commit();
+		return;
+	}
+
+	const chosen = new URLSearchParams(window.location.search).get("themefx");
+	const fx: Fx = chosen === "wipe" || chosen === "fade" ? chosen : "circle";
+	page.dataset.themeFx = fx;
+
+	const view = transition.call(document, () => {
+		page.classList.toggle("dark", next === "dark");
+		page.style.colorScheme = next;
+		commit();
+	});
+	view.finished.finally(() => delete page.dataset.themeFx);
+	if (fx === "fade") return;
+
+	view.ready.then(() => {
+		const { innerWidth: w, innerHeight: h } = window;
+		const x = origin?.x ?? w;
+		const y = origin?.y ?? 0;
+		const reach = Math.hypot(Math.max(x, w - x), Math.max(y, h - y));
+		page.animate(
+			{
+				clipPath:
+					fx === "circle"
+						? [`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`]
+						: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
+			},
+			{ duration: 550, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" },
+		);
+	});
+}
+
+/** The middle of the element a click came from, where the circle grows from. */
+const centreOf = (event?: React.MouseEvent<HTMLElement>) => {
+	const box = event?.currentTarget.getBoundingClientRect();
+	return box && { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+};
+
 function useThemeSwitch() {
 	const { theme, resolvedTheme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
@@ -29,8 +86,14 @@ function useThemeSwitch() {
 		mounted,
 		dark,
 		following: !mounted || theme === "system",
-		flip: () => setTheme(dark ? "light" : "dark"),
-		follow: () => setTheme("system"),
+		flip: (event?: React.MouseEvent<HTMLElement>) => {
+			const next = dark ? "light" : "dark";
+			changeTheme(next, () => setTheme(next), centreOf(event));
+		},
+		follow: (event?: React.MouseEvent<HTMLElement>) => {
+			const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+			changeTheme(system, () => setTheme("system"), centreOf(event));
+		},
 	};
 }
 
