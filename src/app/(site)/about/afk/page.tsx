@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
+import { elsewhere } from "@/components/site/afk/data";
 import { HoverList } from "@/components/site/afk/HoverList";
 import { Scrapbook } from "@/components/site/afk/Scrapbook";
-import { PageHead, label } from "@/components/site/ui";
+import { PageHead, label, mono } from "@/components/site/ui";
 
 /** Takes on About's AFK section, side by side. Temporary: delete once one is picked. */
 export const metadata: Metadata = {
@@ -16,6 +17,23 @@ function Combo() {
 			<HoverList />
 			<p className={`${label} mt-12 mb-6`}>Sketchbook & snapshots</p>
 			<Scrapbook picturesOnly />
+			<ul className={`${mono} mt-6 flex flex-wrap gap-x-8 gap-y-3 text-xs uppercase tracking-wider`}>
+				{elsewhere.map((page) => (
+					<li key={page.href}>
+						<a
+							href={page.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="group inline-flex items-baseline gap-2"
+						>
+							<span className="text-[var(--dim)]">{page.what}</span>
+							<span className="font-bold underline decoration-[var(--lime)] decoration-2 underline-offset-4 group-hover:text-[var(--accent-ink)]">
+								{page.handle} ↗
+							</span>
+						</a>
+					</li>
+				))}
+			</ul>
 		</>
 	);
 }

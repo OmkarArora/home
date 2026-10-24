@@ -73,6 +73,12 @@ export const afk: Afk[] = [
 	},
 ];
 
+/** His Instagram pages, linked under the snapshots. */
+export const elsewhere = [
+	{ href: "https://www.instagram.com/goingbananas.art", handle: "@goingbananas.art", what: "Art" },
+	{ href: "https://www.instagram.com/halfcoldgamesyt", handle: "@halfcoldgamesyt", what: "Gaming, casual uploads" },
+];
+
 /** For the scrapbook: photos that aren't tied to one interest. */
 export const extras = [
 	{ src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat" },
