@@ -27,7 +27,7 @@ export function Scrapbook({ picturesOnly = false }: { picturesOnly?: boolean }) 
 		: [...notes.flatMap((note, i) => (photos[i] ? [note, photos[i]] : [note])), ...photos.slice(notes.length)];
 
 	return (
-		<div className={`columns-2 gap-4 ${picturesOnly ? "md:columns-3" : "md:columns-4"}`}>
+		<div className={`gap-4 ${picturesOnly ? "columns-3 md:columns-5" : "columns-2 md:columns-4"}`}>
 			{wall.map((piece, i) => (
 				<motion.div
 					key={i}

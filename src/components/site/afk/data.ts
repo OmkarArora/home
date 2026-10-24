@@ -77,5 +77,4 @@ export const afk: Afk[] = [
 export const extras = [
 	{ src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat" },
 	{ src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow" },
-	{ src: "/images/omkar-fuji.jpg", alt: "Omkar by a lake, Mt Fuji behind", caption: "Mt Fuji" },
 ];
