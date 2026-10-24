@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { HoverList } from "@/components/site/afk/HoverList";
 import { Scrapbook } from "@/components/site/afk/Scrapbook";
-import { Toolkit } from "@/components/site/Toolkit";
 import { PageHead, SectionHead, label, mono, riseAt } from "@/components/site/ui";
 import { elsewhere } from "@/content/afk";
 import { identity } from "@/content/profile";
@@ -34,8 +33,6 @@ export default function About() {
 					</Link>
 				</div>
 			</section>
-
-			<Toolkit />
 
 			<section className="py-12">
 				<SectionHead title="AFK" meaning="interests and hobbies" tag="Interests" />
