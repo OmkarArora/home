@@ -80,7 +80,7 @@ export const afk: Afk[] = [
 		key: "travel",
 		label: "Travel",
 		note: "Manali, lately",
-		line: "Most recently Manali. These snaps are from Japan.",
+		line: "Manali last. Japan below.",
 		pictures: [
 			{ src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower" },
 			{ src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow" },
