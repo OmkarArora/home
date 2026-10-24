@@ -27,6 +27,12 @@ export function MobileMenu() {
 	// The panel hangs from the top bar's bottom edge, wherever the page is scrolled to.
 	const [top, setTop] = useState(0);
 
+	// Closing from inside the panel hands focus back to the button, rather than dropping it on the page.
+	const close = () => {
+		setOpen(false);
+		button.current?.focus();
+	};
+
 	// A link was followed: close.
 	useEffect(() => setOpen(false), [pathname]);
 
@@ -39,8 +45,7 @@ export function MobileMenu() {
 
 		const onKey = (event: KeyboardEvent) => {
 			if (event.key === "Escape") {
-				setOpen(false);
-				button.current?.focus();
+				close();
 			}
 			// Keep Tab inside the menu and its button.
 			if (event.key === "Tab" && sheet.current) {
@@ -69,7 +74,7 @@ export function MobileMenu() {
 			>
 				<Link
 					href={item.href}
-					onClick={() => setOpen(false)}
+					onClick={close}
 					aria-current={active ? "page" : undefined}
 					className="group flex items-baseline gap-4 py-2"
 				>
@@ -128,7 +133,7 @@ export function MobileMenu() {
 						<motion.div
 							key="shade"
 							aria-hidden
-							onClick={() => setOpen(false)}
+							onClick={close}
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
