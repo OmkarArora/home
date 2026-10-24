@@ -5,14 +5,13 @@ import { useTheme } from "next-themes";
 import { useEffect, useId, useState } from "react";
 
 import { play } from "./sound";
-import { mono } from "./ui";
 
 /**
  * The light/dark switch in the top bar:
  *
  * - A first visit follows the system theme; flipping the switch saves a choice.
- * - Once a choice is saved, a small "Auto" button appears to hand control back
- *   to the system.
+ * - Flipping back to the system's own theme drops the saved choice, so the
+ *   site follows the system again.
  * - It is a real `role="switch"`, checked when dark.
  *
  * The theme is known on the server only as a class on <html>, so until the
@@ -75,7 +74,7 @@ const centreOf = (event?: React.MouseEvent<HTMLElement>) => {
 };
 
 function useThemeSwitch() {
-	const { theme, resolvedTheme, setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
 
@@ -83,39 +82,20 @@ function useThemeSwitch() {
 	return {
 		mounted,
 		dark,
-		following: !mounted || theme === "system",
 		flip: (event?: React.MouseEvent<HTMLElement>) => {
 			const next = dark ? "light" : "dark";
-			play(next === "dark" ? "off" : "on");
-			changeTheme(next, () => setTheme(next), centreOf(event));
-		},
-		follow: (event?: React.MouseEvent<HTMLElement>) => {
 			const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-			changeTheme(system, () => setTheme("system"), centreOf(event));
+			play(next === "dark" ? "off" : "on");
+			changeTheme(next, () => setTheme(next === system ? "system" : next), centreOf(event));
 		},
 	};
 }
 
 const spring = { type: "spring", stiffness: 500, damping: 32 } as const;
 
-/** Shown only once a choice overrides the system: one click goes back to following it. */
-function Auto({ show, onClick }: { show: boolean; onClick: () => void }) {
-	if (!show) return null;
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			title="Follow the system theme again"
-			className={`${mono} text-xs uppercase tracking-wider text-[var(--dim)] underline decoration-dotted underline-offset-4 hover:text-[var(--ink)]`}
-		>
-			Auto
-		</button>
-	);
-}
-
 /** A sun; going dark, a second disc slides across it to leave a crescent, and the rays draw in. */
 export function EclipseSwitch() {
-	const { mounted, dark, following, flip, follow } = useThemeSwitch();
+	const { mounted, dark, flip } = useThemeSwitch();
 	const rays = [0, 45, 90, 135, 180, 225, 270, 315];
 	const mask = useId();
 
@@ -125,7 +105,6 @@ export function EclipseSwitch() {
 
 	return (
 		<span className="flex items-center gap-3">
-			<Auto show={!following} onClick={follow} />
 			<button
 				type="button"
 				role="switch"
