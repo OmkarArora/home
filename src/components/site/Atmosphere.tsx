@@ -54,11 +54,11 @@ export function Atmosphere() {
 			el.width = w * dpr;
 			el.height = h * dpr;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-			const count = Math.round(10 + ((w * h) / 1_000_000) * 10);
+			const count = Math.round(16 + ((w * h) / 1_000_000) * 16);
 			flies = Array.from({ length: count }, () => ({
 				x: rand(0, w),
 				y: rand(0, h),
-				r: rand(2, 3.2),
+				r: rand(1.2, 2),
 				alpha: rand(0.45, 0.85),
 				vx: rand(-8, 8),
 				vy: rand(-8, 8),
@@ -77,7 +77,7 @@ export function Atmosphere() {
 			ctx.clearRect(0, 0, w, h);
 			ctx.fillStyle = core;
 			ctx.shadowColor = glow;
-			ctx.shadowBlur = 14;
+			ctx.shadowBlur = 10;
 
 			for (const f of flies) {
 				f.t += dt;
