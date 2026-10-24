@@ -68,9 +68,10 @@ export function HoverList() {
 						{/* Wide screens: the row floats just past the word, over the rows around it. */}
 						<AnimatePresence>
 							{open && item.pictures.length > 0 && (
-								<div aria-hidden style={{ left }} className="pointer-events-none absolute top-1/2 hidden -translate-y-1/2 gap-3 lg:flex">
+								<div aria-hidden style={{ left }} className="pointer-events-none absolute top-1/2 hidden -translate-y-1/2 lg:flex">
+									{/* Each overlaps the last a little, like a fanned hand of polaroids. */}
 									{item.pictures.map((pic, i) => (
-										<motion.div key={pic.src} {...land(i)} className="w-24 xl:w-28">
+										<motion.div key={pic.src} {...land(i)} className={`w-28 xl:w-32 ${i > 0 ? "-ml-4" : ""}`}>
 											<Card pic={pic} />
 										</motion.div>
 									))}
@@ -91,7 +92,7 @@ export function HoverList() {
 									{item.pictures.length > 0 && (
 										<div className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-1 pb-6">
 											{item.pictures.map((pic, i) => (
-												<motion.div key={pic.src} {...land(i)} className="w-28 shrink-0">
+												<motion.div key={pic.src} {...land(i)} className="w-32 shrink-0">
 													<Card pic={pic} />
 												</motion.div>
 											))}
@@ -136,7 +137,7 @@ function Grow({ className, children }: { className: string; children: React.Reac
 function Card({ pic }: { pic: Pic }) {
 	return (
 		<Polaroid caption={<span className="truncate">{pic.caption}</span>}>
-			<PolaroidPhoto src={pic.src} alt={pic.alt} contain={pic.contain} sizes="112px" className="aspect-[3/4]" />
+			<PolaroidPhoto src={pic.src} alt={pic.alt} contain={pic.contain} sizes="128px" className="aspect-[3/4]" />
 		</Polaroid>
 	);
 }
