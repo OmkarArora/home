@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { Polaroid, PolaroidPhoto } from "./Polaroid";
+import { play } from "./sound";
 import { mono } from "./ui";
 
 /**
@@ -130,6 +131,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 									setDragging(false);
 									if (Math.abs(info.offset.x) > 80) {
 										setTouched(true);
+										play("flip");
 										next();
 									}
 								}}

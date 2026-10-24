@@ -7,6 +7,7 @@ import { LocalTime } from "@/components/site/LocalTime";
 import { identity } from "@/content/profile";
 
 import { MobileMenu } from "./MobileMenu";
+import { SoundSwitch } from "./SoundSwitch";
 import { EclipseSwitch } from "./ThemeSwitch";
 import { mono, nav } from "./ui";
 
@@ -43,6 +44,7 @@ export function TopBar() {
 			</nav>
 			<div className="flex items-center gap-3">
 				<LocalTime className="hidden text-[var(--dim)] sm:inline" />
+				<SoundSwitch />
 				<EclipseSwitch />
 				<MobileMenu />
 			</div>

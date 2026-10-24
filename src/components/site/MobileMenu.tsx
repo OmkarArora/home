@@ -106,6 +106,7 @@ export function MobileMenu() {
 			<button
 				ref={button}
 				type="button"
+				data-sfx={open ? "close" : "open"}
 				onClick={() => {
 					setTop(Math.max(0, button.current?.closest("header")?.getBoundingClientRect().bottom ?? 0));
 					setOpen((o) => !o);

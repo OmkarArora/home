@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useId, useState } from "react";
 
+import { play } from "./sound";
 import { mono } from "./ui";
 
 /**
@@ -85,6 +86,7 @@ function useThemeSwitch() {
 		following: !mounted || theme === "system",
 		flip: (event?: React.MouseEvent<HTMLElement>) => {
 			const next = dark ? "light" : "dark";
+			play(next === "dark" ? "off" : "on");
 			changeTheme(next, () => setTheme(next), centreOf(event));
 		},
 		follow: (event?: React.MouseEvent<HTMLElement>) => {
@@ -129,6 +131,7 @@ export function EclipseSwitch() {
 				role="switch"
 				aria-checked={dark}
 				aria-label="Dark mode"
+				data-sfx="none"
 				onClick={flip}
 				className="flex size-9 items-center justify-center border border-[var(--ink)] text-[var(--ink)] hover:bg-[var(--soft)]"
 			>
