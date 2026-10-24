@@ -40,7 +40,7 @@ export function HoverList() {
 	const pointer = useRef("mouse");
 
 	return (
-		<ul onPointerLeave={() => setActive(null)} className="border-t border-[var(--line)]">
+		<ul onPointerLeave={(event) => event.pointerType === "mouse" && setActive(null)} className="border-t border-[var(--line)]">
 			{afk.map((item) => {
 				const open = active === item.key;
 				return (
