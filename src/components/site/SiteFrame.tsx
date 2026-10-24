@@ -1,16 +1,30 @@
-import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
 import { Atmosphere } from "./Atmosphere";
 import { Footer } from "./Footer";
 import { RevealConfig } from "./Reveal";
 import { TopBar } from "./TopBar";
 
-const display = Bricolage_Grotesque({
-	subsets: ["latin"],
+/*
+ * The two fonts live in the repo (Google Fonts' Latin files, variable), so a
+ * build or the dev server never depends on reaching Google. Bricolage carries
+ * its weight, width and optical-size axes; the headlines use the width.
+ */
+const display = localFont({
+	src: "./fonts/bricolage-grotesque-latin.woff2",
 	variable: "--font-display",
-	axes: ["wdth", "opsz"],
+	weight: "200 800",
+	style: "normal",
+	display: "swap",
+	declarations: [{ prop: "font-stretch", value: "75% 100%" }],
 });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-code" });
+const mono = localFont({
+	src: "./fonts/jetbrains-mono-latin.woff2",
+	variable: "--font-code",
+	weight: "100 800",
+	style: "normal",
+	display: "swap",
+});
 
 /**
  * The site's palette. One accent — an acid lime (`--lime`) that reads as a
