@@ -59,16 +59,10 @@ export const afk: Afk[] = [
 		line: "Draft: what training looks like for you.",
 	},
 	{
-		key: "heroes",
-		label: "Superheroes",
-		note: "Comics & films",
-		line: "Draft: comics, films, or both, and the favourite.",
-	},
-	{
 		key: "movies",
-		label: "Movies",
-		note: "Rewatches",
-		line: "Draft: the kind of film you go back to.",
+		label: "Movies & TV",
+		note: "Films & series",
+		line: "Draft: the films and shows you go back to.",
 	},
 ];
 

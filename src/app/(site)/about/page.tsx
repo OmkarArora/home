@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/site-seo";
 export const metadata: Metadata = {
 	...pageMetadata("/about", {
 		title: "About — Omkar Arora",
-		description: "Who Omkar Arora is when he isn't shipping: art, games, anime, travel, badminton, fitness, superheroes and films.",
+		description: "Who Omkar Arora is when he isn't shipping: art, games, anime, travel, badminton, fitness, films and TV.",
 	}),
 };
 
