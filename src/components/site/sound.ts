@@ -3,18 +3,23 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * The site's sound effects: tiny 8-bit blips made on the spot with the Web
- * Audio API, so there are no audio files to download.
+ * The site's sound effects, made on the spot with the Web Audio API: no audio
+ * files to download. Each sound is a few notes; a "voice" decides what a note
+ * sounds like (an 8-bit blip, a soft wooden thunk, a key click…). Voices are
+ * compared at /sound-lab.
  *
  * Off until the visitor turns them on (the speaker in the top bar); the choice
  * is remembered in this browser. Sounds only ever follow something the visitor
- * did: a click, a drag, the switch. Nothing plays on its own.
+ * did: a click, a drag, a hover. Nothing plays on its own.
  */
 
 export type Sfx = "click" | "on" | "off" | "chime" | "open" | "close" | "flip";
 
-/** Each sound as notes: [frequency in Hz, start in s, length in s]. */
-const sounds: Record<Sfx, Array<[number, number, number]>> = {
+/** A note: [frequency in Hz, start in s, length in s]. */
+type Note = [number, number, number];
+
+/** Each sound as notes, pitched for the 8-bit voice; other voices shift them. */
+export const sounds: Record<Sfx, Note[]> = {
 	click: [[1320, 0, 0.03]],
 	on: [
 		[660, 0, 0.05],
@@ -42,6 +47,119 @@ const sounds: Record<Sfx, Array<[number, number, number]>> = {
 		[880, 0.03, 0.04],
 	],
 };
+
+type Voice = {
+	label: string;
+	note: string;
+	/** Draws one note into `out`. */
+	play: (audio: AudioContext, out: AudioNode, frequency: number, at: number, length: number) => void;
+};
+
+/** A volume shape: up fast to `peak`, then down to silence by `end`. */
+function envelope(audio: AudioContext, at: number, peak: number, end: number) {
+	const gain = audio.createGain();
+	gain.gain.setValueAtTime(0.0001, at);
+	gain.gain.exponentialRampToValueAtTime(peak, at + 0.004);
+	gain.gain.exponentialRampToValueAtTime(0.0001, end);
+	return gain;
+}
+
+function tone(audio: AudioContext, type: OscillatorType, at: number, end: number) {
+	const osc = audio.createOscillator();
+	osc.type = type;
+	osc.start(at);
+	osc.stop(end + 0.02);
+	return osc;
+}
+
+let noise: AudioBuffer | null = null;
+function noiseBuffer(audio: AudioContext) {
+	if (noise) return noise;
+	noise = audio.createBuffer(1, audio.sampleRate * 0.05, audio.sampleRate);
+	const data = noise.getChannelData(0);
+	for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+	return noise;
+}
+
+export const voices = {
+	bit: {
+		label: "8-bit",
+		note: "The original: square-wave blips, bright and high.",
+		play(audio, out, f, at, length) {
+			const end = at + length;
+			const gain = envelope(audio, at, 0.04, end);
+			const osc = tone(audio, "square", at, end);
+			osc.frequency.value = f;
+			osc.connect(gain).connect(out);
+		},
+	},
+	thunk: {
+		label: "Thunk",
+		note: "Wooden: an octave down, a quick pitch drop on the hit, soft triangle wave.",
+		play(audio, out, f, at, length) {
+			const end = at + length + 0.07;
+			const gain = envelope(audio, at, 0.22, end);
+			const filter = audio.createBiquadFilter();
+			filter.type = "lowpass";
+			filter.frequency.value = 1800;
+			const osc = tone(audio, "triangle", at, end);
+			osc.frequency.setValueAtTime(f * 0.9, at);
+			osc.frequency.exponentialRampToValueAtTime(f * 0.45, at + 0.05);
+			osc.connect(filter).connect(gain).connect(out);
+		},
+	},
+	pop: {
+		label: "Pop",
+		note: "Round and bubbly: a sine that bends down fast, like a bubble popping.",
+		play(audio, out, f, at, length) {
+			const end = at + length + 0.05;
+			const gain = envelope(audio, at, 0.25, end);
+			const osc = tone(audio, "sine", at, end);
+			osc.frequency.setValueAtTime(f * 1.1, at);
+			osc.frequency.exponentialRampToValueAtTime(f * 0.6, at + 0.03);
+			osc.connect(gain).connect(out);
+		},
+	},
+	key: {
+		label: "Key",
+		note: "A mechanical-keyboard tap: a filtered click of noise over a low body.",
+		play(audio, out, f, at, length) {
+			const end = at + length + 0.04;
+			const click = audio.createBufferSource();
+			click.buffer = noiseBuffer(audio);
+			const band = audio.createBiquadFilter();
+			band.type = "bandpass";
+			band.frequency.value = 2600;
+			band.Q.value = 1.2;
+			click.connect(band).connect(envelope(audio, at, 0.16, at + 0.025)).connect(out);
+			click.start(at);
+			click.stop(at + 0.03);
+			const body = tone(audio, "sine", at, end);
+			body.frequency.setValueAtTime(f * 0.3, at);
+			body.frequency.exponentialRampToValueAtTime(f * 0.2, at + 0.04);
+			body.connect(envelope(audio, at, 0.2, end)).connect(out);
+		},
+	},
+	muted: {
+		label: "Muted 8-bit",
+		note: "The 8-bit voice an octave down, through a low-pass filter: retro, without the tin.",
+		play(audio, out, f, at, length) {
+			const end = at + length + 0.03;
+			const filter = audio.createBiquadFilter();
+			filter.type = "lowpass";
+			filter.frequency.value = 1100;
+			const gain = envelope(audio, at, 0.1, end);
+			const osc = tone(audio, "square", at, end);
+			osc.frequency.value = f * 0.5;
+			osc.connect(filter).connect(gain).connect(out);
+		},
+	},
+} satisfies Record<string, Voice>;
+
+export type VoiceName = keyof typeof voices;
+
+/** The voice the site uses. Being chosen at /sound-lab. */
+export const siteVoice: VoiceName = "thunk";
 
 const key = "sfx";
 const listeners = new Set<() => void>();
@@ -79,26 +197,40 @@ export function useSoundOn() {
 	);
 }
 
-export function play(name: Sfx) {
-	if (!enabled) return;
+function context() {
 	audio ??= new AudioContext();
 	// Browsers start audio suspended until a gesture; every call here follows one.
 	if (audio.state === "suspended") void audio.resume();
+	return audio;
+}
 
-	const now = audio.currentTime;
-	for (const [frequency, start, length] of sounds[name]) {
-		const tone = audio.createOscillator();
-		const volume = audio.createGain();
-		tone.type = "square";
-		tone.frequency.value = frequency;
-		// Quiet, with a fast fade so it ticks instead of beeping.
-		volume.gain.setValueAtTime(0.0001, now + start);
-		volume.gain.exponentialRampToValueAtTime(0.04, now + start + 0.005);
-		volume.gain.exponentialRampToValueAtTime(0.0001, now + start + length);
-		tone.connect(volume).connect(audio.destination);
-		tone.start(now + start);
-		tone.stop(now + start + length + 0.02);
-	}
+/** Notes in a voice, now, whether or not sound is switched on (the lab uses this). */
+export function playNotes(voice: VoiceName, notes: Note[]) {
+	const ctx = context();
+	const now = ctx.currentTime;
+	for (const [f, start, length] of notes) voices[voice].play(ctx, ctx.destination, f, now + start, length);
+}
+
+/** A sound in the site's voice, if sound is on. */
+export function play(name: Sfx) {
+	if (enabled) playNotes(siteVoice, sounds[name]);
+}
+
+/**
+ * A rising run for sweeping across a list: each call plays the next note up a
+ * pentatonic scale (which never sounds sour, whatever the order), and a pause
+ * of `rest` ms starts the run again from the bottom.
+ */
+const pentatonic = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28, 31];
+let step = 0;
+let restTimer: ReturnType<typeof setTimeout> | undefined;
+export function stepNote(notes: (f: number) => Note[] = (f) => [[f, 0, 0.05]], voice: VoiceName = siteVoice, force = false, rest = 450) {
+	if (!enabled && !force) return;
+	const f = 523.25 * 2 ** (pentatonic[Math.min(step, pentatonic.length - 1)] / 12);
+	playNotes(voice, notes(f));
+	step++;
+	clearTimeout(restTimer);
+	restTimer = setTimeout(() => (step = 0), rest);
 }
 
 /**

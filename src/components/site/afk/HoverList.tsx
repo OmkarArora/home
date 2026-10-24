@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { type Pic, afk } from "@/content/afk";
 
 import { Polaroid, PolaroidPhoto } from "../Polaroid";
+import { stepNote } from "../sound";
 import { mono } from "../ui";
 
 const tilt = [-4, 3, -2, 4, -3];
@@ -46,7 +47,12 @@ export function HoverList() {
 					<li key={item.key} className={`relative border-b border-[var(--line)] ${open ? "z-10" : ""}`}>
 						<button
 							type="button"
-							onPointerEnter={(event) => event.pointerType === "mouse" && light(item.key, event.currentTarget)}
+							onPointerEnter={(event) => {
+								if (event.pointerType !== "mouse") return;
+								light(item.key, event.currentTarget);
+								// Sweeping down the list climbs a scale; a pause starts it over.
+								stepNote();
+							}}
 							// Keyboard focus opens it; a tap or click focuses too, and those are handled by onClick.
 							onFocus={(event) => event.currentTarget.matches(":focus-visible") && light(item.key, event.currentTarget)}
 							onPointerDown={(event) => (pointer.current = event.pointerType)}
