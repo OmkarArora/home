@@ -77,9 +77,13 @@ export const shipped: Shipped[] = [
 		skills: ["Product launch", "Forms", "Shared components", "Motion"],
 		media: {
 			type: "video",
-			src: "https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4",
-			width: 1124,
-			height: 2444,
+			// ixigo's launch video, compressed to the size it's shown at (360px wide, no audio:
+			// 0.9 MB instead of 4.8 MB) and served from here. The original is at
+			// https://videos.ixigo.com/flights/smart_lock_video_9sep2026.mp4.
+			src: "/videos/smart-lock.mp4",
+			poster: "/images/work/smart-lock-poster.jpg",
+			width: 360,
+			height: 782,
 			alt: "ixigo's Smart Lock launch video: choosing a route, dates and preferences, setting a budget, and the flight it finds",
 			credit: { label: "Smart Lock on ixigo", href: "https://www.ixigo.com/smart-lock" },
 		},

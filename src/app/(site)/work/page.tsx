@@ -44,6 +44,7 @@ function Clip({ media }: { media: Media }) {
 			{media.type === "video" ? (
 				<InViewVideo
 					src={media.src}
+					poster={media.poster}
 					label={media.alt}
 					className={`${frame} object-cover`}
 					style={media.width && media.height ? { aspectRatio: `${media.width} / ${media.height}` } : undefined}
