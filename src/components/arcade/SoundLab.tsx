@@ -8,7 +8,11 @@ import { type Sfx, type VoiceName, playNotes, siteVoice, sounds, stepNote, voice
 const names = Object.keys(sounds) as Sfx[];
 const voiceNames = Object.keys(voices) as VoiceName[];
 
-/** Every sound in every voice, plus a strip to sweep for the hover run. Plays even with sound switched off. */
+/**
+ * Every sound in every voice, plus a strip to sweep for the hover run. Plays
+ * even with sound switched off. Built to choose the site's voice; kept for the
+ * Arcade (and a post on making the sounds).
+ */
 export function SoundLab() {
 	const [voice, setVoice] = useState<VoiceName>(siteVoice);
 

@@ -5,8 +5,8 @@ import { useSyncExternalStore } from "react";
 /**
  * The site's sound effects, made on the spot with the Web Audio API: no audio
  * files to download. Each sound is a few notes; a "voice" decides what a note
- * sounds like (an 8-bit blip, a soft wooden thunk, a key click…). Voices are
- * compared at /sound-lab.
+ * sounds like (an 8-bit blip, a soft wooden thunk, a key click…). The Sound
+ * lab (components/arcade/SoundLab) plays them all side by side.
  *
  * Off until the visitor turns them on (the speaker in the top bar); the choice
  * is remembered in this browser. Sounds only ever follow something the visitor
@@ -158,8 +158,8 @@ export const voices = {
 
 export type VoiceName = keyof typeof voices;
 
-/** The voice the site uses. Being chosen at /sound-lab. */
-export const siteVoice: VoiceName = "thunk";
+/** The voice the site uses: Omkar picked Muted 8-bit (October 2026). */
+export const siteVoice: VoiceName = "muted";
 
 const key = "sfx";
 const listeners = new Set<() => void>();
