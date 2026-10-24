@@ -299,17 +299,17 @@ pre code span {
 }
 
 /*
- * Theme changes (see changeTheme in ThemeSwitch): for the circle and the wipe,
- * the new look is drawn on top and revealed by a clip-path, so the browser's
- * default cross-fade is switched off. The fade keeps it, a touch slower.
+ * Theme changes (see changeTheme in ThemeSwitch): the new look is drawn on top
+ * through a soft radial mask that grows out of the switch, so the browser's
+ * default cross-fade is off. The mask's size and position are animated in JS.
  */
-html[data-theme-fx="circle"]::view-transition-old(root),
-html[data-theme-fx="circle"]::view-transition-new(root),
-html[data-theme-fx="wipe"]::view-transition-old(root),
-html[data-theme-fx="wipe"]::view-transition-new(root) {
+html[data-theme-fx="bloom"]::view-transition-old(root),
+html[data-theme-fx="bloom"]::view-transition-new(root) {
 	animation: none;
 	mix-blend-mode: normal;
 }
-html[data-theme-fx="fade"]::view-transition-group(root) {
-	animation-duration: 0.35s;
+html[data-theme-fx="bloom"]::view-transition-new(root) {
+	mask-image: radial-gradient(circle closest-side, #000 70%, transparent 100%);
+	mask-repeat: no-repeat;
+	mask-size: 0 0;
 }

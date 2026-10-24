@@ -19,14 +19,14 @@ import { mono } from "./ui";
  * After that Motion animates it: next-themes switches CSS transitions off
  * during a theme change, which would make a CSS-animated switch jump.
  */
-/** How the page changes theme: compared with `?themefx=circle|wipe|fade`. */
-type Fx = "circle" | "wipe" | "fade";
-
 /**
  * Change the theme with a View Transition: the browser snapshots the page,
- * the theme changes, and the new look is revealed over the old (a circle
- * growing from `origin`, a wipe down from the top, or a cross-fade). Without
- * View Transitions, or with reduced motion, it just changes.
+ * the theme changes, and the new look blooms out of `origin` (the switch) as a
+ * soft-edged circle over the old. Without View Transitions, or with reduced
+ * motion, it just changes.
+ *
+ * The circle is a radial-gradient mask whose size grows, so its edge stays
+ * feathered instead of the hard line a clip-path would draw.
  *
  * next-themes puts the class on <html> after a render, too late for the
  * snapshot, so the class is set here first; next-themes then sets the same one.
@@ -41,32 +41,26 @@ function changeTheme(next: "light" | "dark", commit: () => void, origin?: { x: n
 		return;
 	}
 
-	const chosen = new URLSearchParams(window.location.search).get("themefx");
-	const fx: Fx = chosen === "wipe" || chosen === "fade" ? chosen : "circle";
-	page.dataset.themeFx = fx;
-
+	page.dataset.themeFx = "bloom";
 	const view = transition.call(document, () => {
 		page.classList.toggle("dark", next === "dark");
 		page.style.colorScheme = next;
 		commit();
 	});
 	view.finished.finally(() => delete page.dataset.themeFx);
-	if (fx === "fade") return;
 
 	view.ready.then(() => {
 		const { innerWidth: w, innerHeight: h } = window;
 		const x = origin?.x ?? w;
 		const y = origin?.y ?? 0;
-		const reach = Math.hypot(Math.max(x, w - x), Math.max(y, h - y));
-		page.animate(
-			{
-				clipPath:
-					fx === "circle"
-						? [`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`]
-						: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
-			},
-			{ duration: 550, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" },
-		);
+		// Far enough to cover the furthest corner, with room for the soft edge (the gradient fades over its outer 30%).
+		const reach = Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) * 2.9;
+		const at = (size: number) => ({ maskSize: `${size}px ${size}px`, maskPosition: `${x - size / 2}px ${y - size / 2}px` });
+		page.animate([at(0), at(reach)], {
+			duration: 800,
+			easing: "cubic-bezier(0.45, 0, 0.2, 1)",
+			pseudoElement: "::view-transition-new(root)",
+		});
 	});
 }
 
