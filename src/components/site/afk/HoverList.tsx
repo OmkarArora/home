@@ -90,9 +90,10 @@ export function HoverList() {
 								>
 									<p className="pb-4 text-balance text-[var(--dim)]">{item.line}</p>
 									{item.pictures.length > 0 && (
-										<div className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-1 pb-6">
+										// Padded all round so a tilted card's corners aren't clipped; fanned like the desktop row.
+										<div className="flex overflow-x-auto px-3 pt-2 pb-6">
 											{item.pictures.map((pic, i) => (
-												<motion.div key={pic.src} {...land(i)} className="w-32 shrink-0">
+												<motion.div key={pic.src} {...land(i)} className={`w-28 shrink-0 sm:w-32 ${i > 0 ? "-ml-6" : ""}`}>
 													<Card pic={pic} />
 												</motion.div>
 											))}
