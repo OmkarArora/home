@@ -23,11 +23,12 @@ export const versions: Version[] = [
 		name: "Patch notes",
 		address: "omkararora.com",
 		summary:
-			"The one you're reading. Bricolage Grotesque and JetBrains Mono, one lime accent, and a line that draws itself down the Work page as you scroll.",
+			"The one you're reading. Bricolage Grotesque and JetBrains Mono, one lime accent, and a web that feels magical: polaroids that flick through on their own, fireflies drifting behind the page, and a theme that blooms out of its switch.",
 		notes: [
 			"Chosen over two other candidates, Editorial and Panels, built side by side in a lab",
 			"Work, Projects, About and the blog, each a page of its own",
-			"The blog restyled to match, with an outline, reading times and collapsible code",
+			"About shows the art, the games and the shows behind the work, fanned out as polaroids",
+			"Optional 8-bit sound effects, made in the browser from nothing but numbers",
 		],
 		status: "Live",
 	},
