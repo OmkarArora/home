@@ -61,12 +61,12 @@ export function Atmosphere() {
 			el.height = h * dpr;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			const area = (w * h) / 1_000_000;
-			const count = kind === "fireflies" ? Math.round(6 + area * 6) : Math.round(Math.min(70, 18 + area * 30));
+			const count = kind === "fireflies" ? Math.round(10 + area * 10) : Math.round(Math.min(120, 30 + area * 55));
 			motes = Array.from({ length: count }, () => ({
 				x: rand(0, w),
 				y: rand(0, h),
-				r: kind === "fireflies" ? rand(1.4, 2.4) : kind === "stars" ? rand(0.5, 1.4) : rand(0.6, 1.6),
-				alpha: kind === "fireflies" ? rand(0.35, 0.7) : rand(0.12, 0.32),
+				r: kind === "fireflies" ? rand(2, 3.2) : kind === "stars" ? rand(0.8, 1.9) : rand(0.9, 2.2),
+				alpha: kind === "fireflies" ? rand(0.45, 0.85) : rand(0.25, 0.55),
 				vx: kind === "fireflies" ? rand(-8, 8) : rand(-2, 2),
 				vy: kind === "dust" ? rand(-9, -3) : kind === "fireflies" ? rand(-8, 8) : 0,
 				t: rand(0, Math.PI * 2),
@@ -110,7 +110,7 @@ export function Atmosphere() {
 					alpha = m.alpha * (0.55 + 0.45 * Math.sin(m.t * 1.3));
 					ctx.fillStyle = lime;
 					ctx.shadowColor = lime;
-					ctx.shadowBlur = 8;
+					ctx.shadowBlur = 14;
 				} else {
 					// Near stars slide with the page more than far ones.
 					y = (((m.y - scroll * (0.12 - m.depth * 0.1)) % h) + h) % h;
