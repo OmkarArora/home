@@ -54,7 +54,7 @@ export function Atmosphere() {
 			el.width = w * dpr;
 			el.height = h * dpr;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-			const count = Math.round(16 + ((w * h) / 1_000_000) * 16);
+			const count = Math.round(12 + ((w * h) / 1_000_000) * 12);
 			flies = Array.from({ length: count }, () => ({
 				x: rand(0, w),
 				y: rand(0, h),
