@@ -72,10 +72,10 @@ export default async function PatchNotes() {
 				<aside className="rise order-first min-w-0 self-end [--rise:0] md:order-none md:col-span-5 md:[--rise:4]">
 					<Polaroids
 						snaps={[
-							{ kind: "post", title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` },
+							...(latest ? [{ kind: "post" as const, title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` }] : []),
 							{ kind: "art", src: "/images/display-art/kid-goku.jpeg", alt: "Drawing of Kid Goku in a fighting stance", caption: "Kid Goku", href: instagram.goku, contain: true },
 							{ kind: "photo", src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower", href: instagram.tokyo },
-							{ kind: "work", title: highlights[0].title, meta: `${identity.company} · ${highlights[0].when}`, caption: "Latest work", href: "/work" },
+							...(highlights[0] ? [{ kind: "work" as const, title: highlights[0].title, meta: `${identity.company} · ${highlights[0].when}`, caption: "Latest work", href: "/work" }] : []),
 							{ kind: "art", src: "/images/display-art/asta-demon.jpeg", alt: "Painting of Asta raising his demon sword against a red sky", caption: "Asta", href: instagram.asta },
 							{ kind: "photo", src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat", href: instagram.tokyo },
 							{ kind: "photo", src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow", href: instagram.tokyo },

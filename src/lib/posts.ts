@@ -69,10 +69,38 @@ export async function getPostBySlug(slug: string) {
 
 /** The prose only: no code samples, no demo components. */
 function proseOf(content: string) {
-	return content
-		.replace(/```[\s\S]*?```/g, " ")
-		.replace(/<[A-Z][\s\S]*?\/>/g, " ")
-		.replace(/<[^>]+>/g, " ");
+	return withoutComponents(content.replace(/```[\s\S]*?```/g, " ")).replace(/<[^>]+>/g, " ");
+}
+
+/**
+ * Drops each `<Component … />` whole (its props are code, not prose), and the
+ * opening and closing tags of `<Component>…</Component>`, keeping what's
+ * between. Props can hold `>` and `/>` inside braces or strings, so it walks
+ * them rather than matching to the next `/>`.
+ */
+function withoutComponents(text: string) {
+	let out = "";
+	let i = 0;
+	while (i < text.length) {
+		const start = text.slice(i).search(/<\/?[A-Z]/);
+		if (start < 0) return out + text.slice(i);
+		out += text.slice(i, i + start) + " ";
+		let j = i + start + 1;
+		let depth = 0;
+		let quote = "";
+		for (; j < text.length; j++) {
+			const c = text[j];
+			if (quote) {
+				if (c === "\\") j++;
+				else if (c === quote) quote = "";
+			} else if (c === '"' || c === "'" || c === "`") quote = c;
+			else if (c === "{") depth++;
+			else if (c === "}") depth--;
+			else if (c === ">" && depth === 0) break;
+		}
+		i = j + 1;
+	}
+	return out;
 }
 
 /** Minutes to read a post, at an unhurried 220 words a minute. */
