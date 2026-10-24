@@ -55,7 +55,7 @@ export function OptimisticComparisonDemo() {
 						Count: <strong>{optimisticCount}</strong>
 					</span>
 					{optimisticPending && (
-						<span className="text-[10px] text-muted-foreground">
+						<span className="text-xs text-muted-foreground">
 							(Syncing…)
 						</span>
 					)}
@@ -80,7 +80,7 @@ export function OptimisticComparisonDemo() {
 						Count: <strong>{pessimisticCount}</strong>
 					</span>
 					{pessimisticPending && (
-						<span className="text-[10px] text-muted-foreground">
+						<span className="text-xs text-muted-foreground">
 							(Loading…)
 						</span>
 					)}

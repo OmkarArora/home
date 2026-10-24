@@ -1,0 +1,111 @@
+/*
+ * A post's body. The base comes from Tailwind Typography (`prose`),
+ * which already follows the palette; this is what A does differently.
+ */
+
+.post-body {
+	font-size: 1.0625rem;
+	line-height: 1.75;
+}
+
+/* Words keep to a comfortable measure. Code and demos get the full column. */
+.post-body > :where(p, ul, ol, blockquote, h2, h3, h4, hr, table) {
+	max-width: 42rem;
+}
+
+.post-body :where(h2, h3, h4) {
+	position: relative;
+	scroll-margin-top: 2rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.15;
+}
+
+.post-body h2 {
+	margin-top: 3.5rem;
+	font-size: 1.875rem;
+}
+
+.post-body h3 {
+	margin-top: 2.5rem;
+	font-size: 1.375rem;
+}
+
+/* The "#" beside a heading: there for anyone who wants to link to the section. */
+.post-body .anchor {
+	position: absolute;
+	right: 100%;
+	padding-right: 0.4em;
+	text-decoration: none;
+	color: var(--accent-ink);
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+.post-body .anchor::before {
+	content: "#";
+}
+
+.post-body :where(h2, h3, h4):hover .anchor,
+.post-body .anchor:focus-visible {
+	opacity: 1;
+}
+
+.post-body :where(p, li, td, blockquote) a {
+	color: var(--ink);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-color: var(--lime);
+	text-decoration-thickness: 3px;
+	text-underline-offset: 3px;
+}
+
+.post-body :where(p, li, td, blockquote) a:hover {
+	background: var(--lime);
+	color: #0c0c0d;
+}
+
+.post-body blockquote {
+	border-left: 4px solid var(--lime);
+	font-style: normal;
+	font-weight: 500;
+}
+
+.post-body blockquote p::before,
+.post-body blockquote p::after {
+	content: none;
+}
+
+/* Inline code: a tinted chip, without the backticks Typography adds. */
+.post-body :where(p, li, td, h2, h3, h4) code {
+	font-weight: 500;
+}
+
+.post-body code::before,
+.post-body code::after {
+	content: none;
+}
+
+.post-body li::marker {
+	color: var(--accent-ink);
+}
+
+.post-body hr {
+	border-color: var(--ink);
+}
+
+.post-body :where(th) {
+	font-family: var(--font-code);
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+}
+
+.post-body .code-block,
+.post-body .not-prose {
+	margin-block: 2rem;
+}
+
+.post-body .code-block {
+	border-color: var(--ink);
+}

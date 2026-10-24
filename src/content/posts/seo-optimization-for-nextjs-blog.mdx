@@ -1,15 +1,16 @@
 ---
-title: "SEO Optimization for Your Next.js MDX Blog"
+title: "SEO for a Next.js MDX blog: metadata, structured data and OG images"
 publishedAt: "2025-12-01"
-summary: "Learn how to optimize your Next.js MDX blog for search engines with metadata, Open Graph tags, JSON-LD structured data, and dynamic OG images."
+updatedAt: "2026-10-24"
+summary: "Metadata, Open Graph tags, JSON-LD structured data, generated OG images, a sitemap and robots.txt for a Next.js MDX blog."
 keywords: "seo, nextjs, mdx, blog, optimization, metadata, open graph, json-ld, og images, search engine optimization"
 ---
 
-Search Engine Optimization (SEO) is crucial for making your blog discoverable. In this guide, I'll show you how to add comprehensive SEO optimization to your Next.js MDX blog, including metadata, Open Graph tags, JSON-LD structured data, and dynamic OG image generation.
+A post nobody can find has no readers. This is what I added to this blog so that search engines and link previews understand each post: metadata, Open Graph tags, JSON-LD structured data, generated OG images, a sitemap and robots.txt.
 
 ## Prerequisites
 
-This guide assumes you already have a Next.js MDX blog set up. If you haven't, check out [How I built my Blog with MDX, Next.js, and Tailwind CSS](/blog/how-i-built-my-blog) first.
+You need a Next.js MDX blog to start from. Mine is described in [How I built my blog with MDX, Next.js and Tailwind CSS](/blog/how-i-built-my-blog).
 
 ## Step 1: Set Up Base URL Configuration
 
@@ -20,6 +21,17 @@ export const baseUrl = "https://yourdomain.com";
 ```
 
 This will be used throughout your SEO implementation for generating absolute URLs.
+
+Also give the root layout a `metadataBase`. Next.js uses it to turn a relative image path like `/images/post.png` into a full URL in the meta tags; without it, it falls back to a guess (and warns at build time):
+
+```tsx
+// src/app/layout.tsx
+import { baseUrl } from "@/app/sitemap";
+
+export const metadata = {
+	metadataBase: new URL(baseUrl),
+};
+```
 
 ## Step 2: Add Metadata Generation
 
@@ -114,7 +126,7 @@ export default async function Page({
 }
 ```
 
-### What This Does
+### What the metadata does
 
 - **Title and Description**: Uses your post's frontmatter for SEO-friendly meta tags
 - **Keywords**: Adds meta keywords tag (comma-separated) for additional SEO context
@@ -152,12 +164,13 @@ export default async function Page({
 				type="application/ld+json"
 				suppressHydrationWarning
 				dangerouslySetInnerHTML={{
+					// Escape "<" so no text in a post can close the <script> tag early.
 					__html: JSON.stringify({
 						"@context": "https://schema.org",
 						"@type": "BlogPosting",
 						headline: post.metadata.title,
 						datePublished: post.metadata.publishedAt,
-						dateModified: post.metadata.publishedAt,
+						dateModified: post.metadata.updatedAt ?? post.metadata.publishedAt,
 						description: post.metadata.summary,
 						image: post.metadata.image
 							? `${baseUrl}${post.metadata.image}`
@@ -169,7 +182,7 @@ export default async function Page({
 							"@type": "Person",
 							name: "Your Name",
 						},
-					}),
+					}).replace(/</g, "\\u003c"),
 				}}
 			/>
 			<h1 className="text-2xl font-semibold tracking-tighter mb-4">
@@ -188,10 +201,10 @@ export default async function Page({
 }
 ```
 
-### What This Does
+### What the structured data does
 
 - **BlogPosting Schema**: Tells search engines this is a blog post
-- **Structured Metadata**: Provides clear information about the post's title, date, description, and author
+- **Structured Metadata**: Provides clear information about the post's title, dates, description, and author. `dateModified` uses an optional `updatedAt` from the frontmatter, so an edited post says so.
 - **Rich Snippets**: Can enable rich results in search engines, potentially showing publication dates and other metadata
 
 ## Step 4: Create Dynamic OG Image Generation
@@ -252,7 +265,7 @@ export function GET(request: Request) {
 }
 ```
 
-### What This Does
+### What the image route does
 
 - **Dynamic Images**: Generates OG images on-the-fly based on the post title
 - **Social Media Optimization**: Ensures your posts look great when shared
@@ -279,8 +292,6 @@ summary: "This is a summary of my blog post."
 keywords: "nextjs, react, web development, tutorial"
 image: "/images/blog-post-og.png"
 ---
-
-# My Blog Post
 
 Content here...
 ```
@@ -340,8 +351,10 @@ This tells search engines which pages to crawl and where to find your sitemap.
 Use these tools to preview how your posts will look when shared:
 
 - [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
-- [Twitter Card Validator](https://cards-dev.twitter.com/validator)
+- [X Card Validator](https://cards-dev.twitter.com/validator): it no longer draws the card, but its log confirms your `twitter:card` tags were found
 - [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
+
+For the card itself on X, paste the link into a new post: the preview shows before you publish.
 
 ### 2. Test Structured Data
 
@@ -366,22 +379,19 @@ View page source and verify:
 3. **Relevant Keywords**: If using keywords, keep them relevant and avoid keyword stuffing (5-10 keywords max)
 4. **High-Quality Images**: Use custom OG images when possible for better engagement
 5. **Regular Updates**: Keep your sitemap updated as you add new posts
-6. **Mobile-Friendly**: Ensure your blog is responsive (Next.js handles this well)
+6. **Mobile-Friendly**: Ensure your blog is responsive. Next.js adds the viewport tag; the layout itself is up to you.
+
+## What I got wrong the first time
+
+Ten months after writing this, I checked the structured data on my own posts and found three mistakes. Check yours for the same ones:
+
+- **The author was a placeholder.** My JSON-LD still named the author "My Portfolio", left over from a template. Search engines read that field, so put your real name in it.
+- **The image URL was relative.** For posts without a custom image I had written `/og?title=...` with no domain in front. Structured data needs the full URL, as in the code above.
+- **No canonical URL.** Without one, the same post reached through two addresses can count as two pages. Add `alternates: { canonical: url }` to what `generateMetadata` returns.
 
 ## Conclusion
 
-You've now added comprehensive SEO optimization to your Next.js MDX blog! Your setup includes:
-
-- ✅ Dynamic metadata generation
-- ✅ Meta keywords support
-- ✅ Open Graph tags for social sharing
-- ✅ Twitter Card optimization
-- ✅ JSON-LD structured data
-- ✅ Dynamic OG image generation
-- ✅ Sitemap support
-- ✅ Robots.txt configuration
-
-These optimizations will help your blog posts rank better in search engines and look great when shared on social media. Happy optimizing! 🚀
+Each post now describes itself three ways: meta tags for search results, Open Graph and Twitter tags for link previews, and JSON-LD for anything that wants structured facts. The sitemap and robots.txt tell crawlers where everything is.
 
 <hr />
 

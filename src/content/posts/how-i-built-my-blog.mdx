@@ -1,15 +1,16 @@
 ---
-title: "How I built my Blog with MDX, Next.js, and Tailwind CSS"
+title: "How I built my blog with MDX, Next.js and Tailwind CSS"
 publishedAt: "2025-11-30"
-summary: "A comprehensive guide on setting up an MDX blog in Next.js with custom components and Tailwind Typography."
+updatedAt: "2026-10-24"
+summary: "The whole setup behind this blog: reading MDX files, parsing frontmatter, custom components and Tailwind Typography, on the Next.js App Router."
 keywords: "mdx, nextjs, tailwind css, blog, tutorial, react, markdown, web development"
 ---
 
-MDX (Markdown + JSX) is a powerful way to write blog posts that combine the simplicity of Markdown with the flexibility of React components. In this guide, I'll walk you through setting up a complete MDX blog system in your Next.js application, including custom components and beautiful typography.
+MDX is Markdown that can render React components. That makes it a good fit for a blog where a post sometimes needs a live example and not just a code sample. This is the setup behind this site, start to finish: reading the files, parsing frontmatter, custom components and typography.
 
 ## Prerequisites
 
-Before we begin, make sure you have a Next.js project set up with the App Router (I used Next.js 16 for my blog).
+You need a Next.js project on the App Router. I used Next.js 16.
 
 ## Step 1: Install Required Dependencies
 
@@ -23,19 +24,9 @@ npm install -D @tailwindcss/typography
 - **next-mdx-remote**: Allows you to render MDX content in React components
 - **@tailwindcss/typography**: Provides beautiful typographic styles for your blog content
 
-## Step 2: Configure Next.js
+## Step 2: Leave `next.config` as it is
 
-Update your `next.config.ts` to include MDX in the page extensions:
-
-```ts showLineNumbers
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-};
-
-export default nextConfig;
-```
+Many MDX guides start by adding `md` and `mdx` to `pageExtensions`. That is only for MDX files that are themselves routes, with `@next/mdx`. Here the posts are plain files that a page reads at build time, so Next.js never needs to know about them, and there is nothing to configure.
 
 ## Step 3: Create the Posts Directory Structure
 
@@ -60,6 +51,7 @@ import path from "path";
 type Metadata = {
 	title: string;
 	publishedAt: string;
+	updatedAt?: string;
 	summary: string;
 	image?: string;
 	keywords?: string;
@@ -121,16 +113,18 @@ export function formatDate(date: string, includeRelative = false) {
 	}
 	let targetDate = new Date(date);
 
-	let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
-	let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
-	let daysAgo = currentDate.getDate() - targetDate.getDate();
+	// Count from the actual gap: comparing the calendar fields would call
+	// 31 December "1y ago" on 1 January.
+	let daysAgo = Math.floor(
+		(currentDate.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24)
+	);
 
 	let formattedDate = "";
 
-	if (yearsAgo > 0) {
-		formattedDate = `${yearsAgo}y ago`;
-	} else if (monthsAgo > 0) {
-		formattedDate = `${monthsAgo}mo ago`;
+	if (daysAgo >= 365) {
+		formattedDate = `${Math.floor(daysAgo / 365)}y ago`;
+	} else if (daysAgo >= 30) {
+		formattedDate = `${Math.floor(daysAgo / 30)}mo ago`;
 	} else if (daysAgo > 0) {
 		formattedDate = `${daysAgo}d ago`;
 	} else {
@@ -228,9 +222,19 @@ function RoundedImage(props: ImageProps) {
 	);
 }
 
-function slugify(str: string | React.ReactNode): string {
-	return String(str)
-		.toString()
+// A heading's plain text, even when it holds inline code or emphasis.
+// (String(children) would give "[object Object]" for those.)
+function textOf(node: React.ReactNode): string {
+	if (typeof node === "string" || typeof node === "number") return String(node);
+	if (Array.isArray(node)) return node.map(textOf).join("");
+	if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+		return textOf(node.props.children);
+	}
+	return "";
+}
+
+function slugify(str: string): string {
+	return str
 		.toLowerCase()
 		.trim()
 		.replace(/\s+/g, "-")
@@ -241,7 +245,7 @@ function slugify(str: string | React.ReactNode): string {
 
 function createHeading(level: number) {
 	const Heading = ({ children }: { children: React.ReactNode }) => {
-		let slug = slugify(children);
+		let slug = slugify(textOf(children));
 		return React.createElement(
 			`h${level}`,
 			{ id: slug },
@@ -278,6 +282,8 @@ export function CustomMDX(props: MDXRemoteProps) {
 		<MDXRemote
 			{...props}
 			components={{ ...components, ...(props.components || {}) }}
+			// The posts are my own files, so let their JSX expressions through (see below).
+			options={{ blockJS: false, ...props.options }}
 		/>
 	);
 }
@@ -291,6 +297,8 @@ This component provides:
 - **Table support** for structured data
 
 Note: Typography styling is handled by `@tailwindcss/typography` (see Step 10).
+
+> **A gotcha I hit later.** `next-mdx-remote` 6 strips JavaScript expressions out of MDX by default. Text props such as `title="Hello"` still work, but a prop like `code={...}` or `steps={[...]}` arrives empty, with no error. That is what `blockJS: false` above turns off. Only do that for MDX you wrote yourself, never for content from users.
 
 ## Step 6: Create the Blog Listing Page
 
@@ -323,7 +331,12 @@ import { formatDate, getBlogPosts } from "@/lib/posts";
 import Link from "next/link";
 
 export async function BlogPosts() {
-	let allBlogs = await getBlogPosts();
+	// Files come back in name order; show the newest first.
+	let allBlogs = (await getBlogPosts()).sort(
+		(a, b) =>
+			new Date(b.metadata.publishedAt).getTime() -
+			new Date(a.metadata.publishedAt).getTime()
+	);
 
 	return (
 		<div>
@@ -353,6 +366,8 @@ export async function BlogPosts() {
 Create `src/app/blog/[slug]/page.tsx`:
 
 ```tsx showLineNumbers
+import { notFound } from "next/navigation";
+
 import { CustomMDX } from "@/components/mdx/mdx";
 import { formatDate, getBlogPosts } from "@/lib/posts";
 
@@ -373,13 +388,8 @@ export default async function Page({
 	const posts = await getBlogPosts();
 	const post = posts.find((post) => post.slug === slug);
 
-	if (!post) {
-		return (
-			<section className="max-w-4xl mx-auto px-6 py-16">
-				<div>Post not found</div>
-			</section>
-		);
-	}
+	// A real 404, so a mistyped address isn't served (and indexed) as a page.
+	if (!post) notFound();
 
 	return (
 		<section className="max-w-4xl mx-auto px-6 py-16">
@@ -403,6 +413,7 @@ This page:
 
 - Generates static paths for all blog posts at build time
 - Renders the MDX content using our custom component
+- Returns a 404 for a slug that doesn't exist
 
 ## Step 9: Create Your First Blog Post
 
@@ -416,8 +427,6 @@ summary: "This is a summary of my first blog post."
 keywords: "mdx, nextjs, blog, tutorial"
 ---
 
-# My First Blog Post
-
 Welcome to my blog! This is written in MDX.
 
 ## Code Example
@@ -429,17 +438,19 @@ const MyComponent = () => {
 	return <div>Hello, world!</div>;
 };
 ```
-````
 
 ## Features
 
 - **Markdown** syntax for easy writing
 - **JSX components** for interactive content
 - **Beautiful typography** with Tailwind Typography
+````
+
+The page already renders the title from the frontmatter as the `<h1>`, so the post itself starts at `##`.
 
 ## Step 10: Configure Tailwind Typography
 
-To enable beautiful typography styles for your blog content, you need to configure `@tailwindcss/typography` in your Tailwind CSS setup.
+The typography plugin has to be switched on in your Tailwind CSS setup.
 
 ### For Tailwind CSS v4
 
@@ -456,6 +467,8 @@ If you're using Tailwind CSS v3, add the plugin to your `tailwind.config.js`:
 
 ```js
 module.exports = {
+	// Include the posts, or classes used only in MDX get purged.
+	content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
 	theme: {
 		extend: {},
 	},
@@ -463,21 +476,15 @@ module.exports = {
 };
 ```
 
-The `prose` class is automatically applied to your article element (as shown in Step 8), which will style all the markdown elements including code blocks, headings, lists, and more. The typography plugin provides beautiful default styles that work great for blog content.
+The `prose` class on the article element (Step 8) then styles everything Markdown produces: headings, lists, quotes, tables and code blocks.
 
 ## Conclusion
 
-You now have a fully functional MDX blog in your Next.js application! The setup includes:
+That is the whole blog: MDX files with frontmatter, a small library that reads them, custom components, Tailwind Typography, and pages generated at build time.
 
-- ✅ MDX file parsing with frontmatter
-- ✅ Custom React components for enhanced content
-- ✅ Beautiful typography with Tailwind Typography
-- ✅ Static site generation for fast performance
-- ✅ Responsive design
+A new post is one new `.mdx` file in `src/content/posts/`.
 
-You can now create new blog posts by simply adding `.mdx` files to your `src/content/posts/` directory with the proper frontmatter format.
-
-Happy blogging! 🎉
+Two follow-ups build on this: [SEO for the blog](/blog/seo-optimization-for-nextjs-blog) and [better code blocks](/blog/improving-syntax-highlighting).
 
 <hr />
 

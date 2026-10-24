@@ -1,11 +1,12 @@
 ---
-title: "Improving Syntax Highlighting in Our Next.js MDX Blog"
+title: "Improving syntax highlighting in a Next.js MDX blog"
 publishedAt: "2025-12-07"
-summary: "A journey from Tailwind CSS Typography to VS Code-like code blocks with syntax highlighting, line numbers, and copy buttons using remark-gfm and rehype-pretty-code."
+updatedAt: "2026-10-24"
+summary: "From plain, unhighlighted code blocks to VS Code-style highlighting, line numbers and a copy button, using remark-gfm and rehype-pretty-code."
 keywords: "syntax highlighting, rehype-pretty-code, remark-gfm, nextjs, mdx, code blocks, line numbers, copy button, shiki"
 ---
 
-When I first built my blog, I relied on Tailwind CSS Typography for styling code blocks, which provided basic formatting but no syntax highlighting or advanced features. In this post, I'll walk you through how I upgraded from plain code blocks to a professional, VS Code-like code block experience with syntax highlighting, line numbers, and copy buttons.
+When I first built this blog, code blocks were styled by Tailwind CSS Typography alone: a grey box of plain text, with no highlighting, no line numbers and no way to copy. This is how I got from there to code blocks that look like an editor.
 
 ## The Starting Point
 
@@ -109,7 +110,7 @@ pre code[data-line-numbers] > span[data-line]::before {
 	counter-increment: line;
 	content: counter(line);
 	display: inline-block;
-	width: 1rem;
+	width: 2ch;
 	margin-right: 1rem;
 	text-align: right;
 	color: oklch(0.556 0 0);
@@ -134,6 +135,14 @@ pre code span {
 
 The CSS uses CSS counters to generate line numbers, which is more performant than JavaScript-based solutions.
 
+`2ch` fits two digits. For blocks of 100 lines or more, `rehype-pretty-code` sets `data-line-numbers-max-digits` on the `<code>`, so the gutter can grow to match:
+
+```css
+pre code[data-line-numbers-max-digits="3"] > [data-line]::before {
+	width: 3ch;
+}
+```
+
 ## Step 4: Enabling Line Numbers
 
 To enable line numbers, you simply add `showLineNumbers` to your code fence meta string:
@@ -148,7 +157,7 @@ The `rehype-pretty-code` plugin automatically detects this and adds the `data-li
 
 ## Step 5: Adding a Copy Button
 
-One of the most requested features was a copy button for code blocks. I created a custom component to handle this:
+Nobody should have to drag-select a code sample, so each block gets a copy button. It is a small client component:
 
 ### Copy Button Component
 
@@ -299,7 +308,7 @@ pre code[data-line-numbers] > span[data-line]::before {
 
 ### Challenge 2: Code Not Rendering
 
-When I first added the copy button wrapper, the code stopped rendering. This was because I was returning early when `code` was empty, but `useEffect` runs after the initial render.
+When I first added the copy button wrapper, the code stopped rendering. I was returning `null` while `code` was still empty. But `code` is only filled in by the `ref` callback, and that only runs once the `<pre>` is on the page. Returning early meant it never got there, so `code` never filled and the block never appeared.
 
 **Solution**: Always render children, and conditionally render the copy button:
 
@@ -331,10 +340,19 @@ The upgrade resulted in:
 
 ✅ **VS Code-like syntax highlighting** with accurate tokenization  
 ✅ **Line numbers** that can be enabled per code block  
-✅ **Copy buttons** that appear on hover  
+✅ **Copy buttons** on every block (on hover at first; see the update below)  
 ✅ **Dark mode support** with theme switching  
 ✅ **Better accessibility** with proper ARIA labels  
 ✅ **Improved UX** with visual feedback on copy
+
+## Update: the copy button moved
+
+The version above shows the button when you hover over the block. That had two problems I only noticed later:
+
+- **Phones have no hover.** On a touch screen the button never appeared unless you happened to tap the block.
+- **It scrolled away.** The button was positioned inside the scrolling `<pre>`, so on a block with long lines it slid out of view with the code.
+
+Each block now has a header bar above the code that shows the language and a button that is always visible. `rehype-pretty-code` puts the language on the `<pre>` as `data-language`, so the wrapper component can read it from its props.
 
 ## Best Practices
 
@@ -345,9 +363,7 @@ The upgrade resulted in:
 
 ## Conclusion
 
-Upgrading from basic Tailwind CSS Typography styling to a professional syntax highlighting solution significantly improved the reading and coding experience on my blog. The combination of `remark-gfm`, `rehype-pretty-code`, and custom components provides a robust foundation for displaying code that matches modern development tools.
-
-The implementation is maintainable, performant, and provides a great user experience. If you're looking to improve code blocks in your own blog, I highly recommend this approach!
+`remark-gfm`, `rehype-pretty-code` and two small components turned plain grey boxes into code blocks that read like an editor. The highlighting happens at build time, the line numbers are CSS, and the only JavaScript that reaches the reader is the copy button.
 
 <hr />
 

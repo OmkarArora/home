@@ -1,130 +1,141 @@
-import { getPostBySlug } from "@/lib/posts";
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export async function GET(request: Request) {
-	let url = new URL(request.url);
-	let slug = url.searchParams.get("slug");
+import { shortDate } from "@/components/site/data";
+import { identity } from "@/content/profile";
+import { getPostBySlug, readingTime } from "@/lib/posts";
 
-	// Construct the image URLs
-	const origin = url.origin;
-	const profileImageUrl = `${origin}/images/profile.jpg`;
-	const faviconUrl = `${origin}/images/favicon-32x32.png`;
+/**
+ * The image a link to the site shows when shared: `?slug=` for a post,
+ * `?page=` for any other page.
+ */
 
-	// Fetch the profile image
-	const profileImageResponse = await fetch(profileImageUrl);
-	const profileImageBuffer = await profileImageResponse.arrayBuffer();
-	const profileImageBase64 = Buffer.from(profileImageBuffer).toString("base64");
-	const profileImageDataUrl = `data:image/jpeg;base64,${profileImageBase64}`;
+type Card = { kicker: string; title: string; mark?: string; sub?: string };
 
-	// Fetch the favicon
-	const faviconResponse = await fetch(faviconUrl);
-	const faviconBuffer = await faviconResponse.arrayBuffer();
-	const faviconBase64 = Buffer.from(faviconBuffer).toString("base64");
-	const faviconDataUrl = `data:image/png;base64,${faviconBase64}`;
+/** Each page's card says what its own heading says. */
+const pages: Record<string, Card> = {
+	home: { kicker: `${identity.title} · ${identity.company}`, title: "Web that feels magical", mark: "magical", sub: identity.name },
+	work: { kicker: "Work · newest first", title: "Patch notes.", sub: "What I've shipped at ixigo and Sparklin." },
+	projects: { kicker: "Projects · built for fun", title: "Side quests.", sub: "Games, tools and this site." },
+	blog: { kicker: "Writing", title: "Dev log.", sub: "Notes on building for the web, with demos." },
+	about: { kicker: `About · ${identity.location}`, title: "Off the clock.", sub: identity.name },
+	history: { kicker: "This site", title: "Version history.", sub: "Every version of this site, newest first." },
+	arcade: { kicker: "Arcade", title: "Under construction.", sub: "Playable experiments, coming soon." },
+};
 
-	let postTitle = "Next.js Portfolio Starter";
+const color = {
+	paper: "#f3f3ee",
+	ink: "#0c0c0d",
+	dim: "#6b6b66",
+	lime: "#c6f03a",
+};
 
-	if (!slug) return new Response("Slug is required", { status: 400 });
+// Each path is written out in full so the deploy's file tracer ships exactly these files.
+const read = {
+	photo: () => readFile(join(process.cwd(), "public/images/omkar-fuji.jpg")),
+	display: () => readFile(join(process.cwd(), "public/fonts/bricolage-grotesque-latin-800-normal.woff")),
+	mono: () => readFile(join(process.cwd(), "public/fonts/jetbrains-mono-latin-400-normal.woff")),
+	monoBold: () => readFile(join(process.cwd(), "public/fonts/jetbrains-mono-latin-700-normal.woff")),
+};
 
-	// Prefer slug as it's more reliable and consistent with blog URLs
+async function cardFor(url: URL): Promise<Card | undefined> {
+	const slug = url.searchParams.get("slug");
+	if (slug) {
+		const post = await getPostBySlug(slug);
+		if (!post) return undefined;
+		const { title, publishedAt } = post.metadata;
+		return { kicker: `Dev log · ${readingTime(post.content)} min read · ${shortDate(publishedAt)}`, title, sub: identity.name };
+	}
+	const page = url.searchParams.get("page") ?? "home";
+	return Object.prototype.hasOwnProperty.call(pages, page) ? pages[page] : undefined;
+}
 
-	const post = await getPostBySlug(slug);
-
-	if (!post) return new Response("Post not found", { status: 404 });
-
-	postTitle = post.metadata.title;
-
-	// Load Inter fonts from file system (TTF format for best performance)
-	const interMedium = await readFile(
-		join(process.cwd(), "public/fonts/Inter-Medium.ttf")
-	);
-	const interSemiBold = await readFile(
-		join(process.cwd(), "public/fonts/Inter-SemiBold.ttf")
-	);
-	const interBold = await readFile(
-		join(process.cwd(), "public/fonts/Inter-Bold.ttf")
-	);
-	const interExtraBold = await readFile(
-		join(process.cwd(), "public/fonts/Inter-ExtraBold.ttf")
-	);
-
-	return new ImageResponse(
-		(
-			<div tw="flex flex-col w-full h-full bg-white relative p-16">
-				{/* Top left header with favicon */}
-				<div tw="flex absolute top-20 left-20"></div>
-
-				{/* Title - left aligned, positioned below header */}
-				<div tw="flex flex-1 items-start justify-start pt-10 pb-16">
-					<div tw="flex flex-col">
-						<img src={faviconDataUrl} tw="w-8 h-8" alt="Favicon" />
-
-						<h1
-							tw="text-7xl text-left leading-tight max-w-5xl"
-							style={{
-								fontFamily: "Inter",
-								fontWeight: 700,
-								color: "#000000",
-								letterSpacing: "-0.02em",
-							}}
-						>
-							{postTitle}
-						</h1>
-					</div>
-				</div>
-
-				{/* Bottom section with profile photo and name */}
-				<div tw="flex items-center absolute bottom-16 left-16">
-					{/* Profile Photo - Circular */}
-					<div tw="flex w-20 h-20 rounded-full mr-4 overflow-hidden">
-						<img src={profileImageDataUrl} tw="w-full h-full" alt="Profile" />
-					</div>
-					{/* Name */}
-					<p
-						tw="text-3xl"
+/** The title, with one word on a lime block like the home page's "magical". */
+function Title({ card, size, ink }: { card: Card; size: number; ink: string }) {
+	const words = card.title.split(" ");
+	return (
+		<div style={{ display: "flex", flexWrap: "wrap", fontFamily: "Bricolage", fontSize: size, lineHeight: 0.95, letterSpacing: "-0.035em", color: ink }}>
+			{words.map((word, i) => {
+				const marked = card.mark && word.replace(/\W/g, "") === card.mark;
+				return (
+					<span
+						key={i}
 						style={{
-							fontFamily: "Inter",
-							fontWeight: 600,
-							color: "#1f2937",
-							letterSpacing: "-0.01em",
+							display: "flex",
+							marginRight: size * 0.22,
+							...(marked ? { background: color.lime, color: color.ink, padding: `0 ${size * 0.08}px` } : {}),
 						}}
 					>
-						Omkar Arora
-					</p>
+						{word}
+					</span>
+				);
+			})}
+		</div>
+	);
+}
+
+function Kicker({ text, ink }: { text: string; ink: string }) {
+	return (
+		<div style={{ display: "flex", fontFamily: "Mono", fontSize: 22, letterSpacing: "0.16em", textTransform: "uppercase", color: ink }}>
+			{text}
+		</div>
+	);
+}
+
+/** The Lime O and the address. */
+function Sign({ ink }: { ink: string }) {
+	return (
+		<div style={{ display: "flex", alignItems: "center", fontFamily: "Mono", fontWeight: 700, fontSize: 22, letterSpacing: "0.08em", color: ink }}>
+			<div style={{ display: "flex", width: 30, height: 30, background: color.lime, borderRadius: 7, alignItems: "center", justifyContent: "center", marginRight: 14 }}>
+				<div style={{ display: "flex", width: 18, height: 18, borderRadius: 9, border: `5px solid ${color.ink}` }} />
+			</div>
+			OMKARARORA.COM
+		</div>
+	);
+}
+
+/** Paper, an ink frame, and the photo as a tile on a lime backing, like a sticker. */
+function Tile({ card, photo }: { card: Card; photo: string }) {
+	return (
+		<div style={{ display: "flex", width: "100%", height: "100%", background: color.paper, padding: 28 }}>
+			<div style={{ display: "flex", flex: 1, border: `4px solid ${color.ink}`, padding: "44px 48px", position: "relative" }}>
+				<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 700 }}>
+					<Kicker text={card.kicker} ink={color.dim} />
+					<div style={{ display: "flex", flexDirection: "column" }}>
+						<Title card={card} size={card.title.length > 40 ? 60 : 88} ink={color.ink} />
+						{card.sub && <div style={{ display: "flex", marginTop: 22, fontFamily: "Mono", fontSize: 24, color: color.dim }}>{card.sub}</div>}
+					</div>
+					<Sign ink={color.ink} />
+				</div>
+				<div style={{ display: "flex", position: "absolute", right: 56, top: 112, width: 300, height: 300, background: color.lime, transform: "rotate(3deg)" }} />
+				<div style={{ display: "flex", position: "absolute", right: 72, top: 96, width: 300, height: 300, border: `4px solid ${color.ink}`, overflow: "hidden", transform: "rotate(-2deg)" }}>
+					<img src={photo} width={292} height={292} style={{ objectFit: "cover", transform: "scale(1.6)", objectPosition: "48% 52%" }} alt="" />
 				</div>
 			</div>
-		),
-		{
-			width: 1200,
-			height: 630,
-			fonts: [
-				{
-					name: "Inter",
-					data: interMedium,
-					style: "normal",
-					weight: 500,
-				},
-				{
-					name: "Inter",
-					data: interSemiBold,
-					style: "normal",
-					weight: 600,
-				},
-				{
-					name: "Inter",
-					data: interBold,
-					style: "normal",
-					weight: 700,
-				},
-				{
-					name: "Inter",
-					data: interExtraBold,
-					style: "normal",
-					weight: 800,
-				},
-			],
-		}
+		</div>
 	);
+}
+
+export async function GET(request: Request) {
+	const url = new URL(request.url);
+	const card = await cardFor(url);
+	if (!card) return new Response("Not found", { status: 404 });
+
+	const [photo, display, mono, monoBold] = await Promise.all([
+		read.photo().then((photo) => `data:image/jpeg;base64,${photo.toString("base64")}`),
+		read.display(),
+		read.mono(),
+		read.monoBold(),
+	]);
+
+	return new ImageResponse(<Tile card={card} photo={photo} />, {
+		width: 1200,
+		height: 630,
+		fonts: [
+			{ name: "Bricolage", data: display, weight: 800, style: "normal" },
+			{ name: "Mono", data: mono, weight: 400, style: "normal" },
+			{ name: "Mono", data: monoBold, weight: 700, style: "normal" },
+		],
+	});
 }

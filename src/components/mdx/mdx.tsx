@@ -18,6 +18,7 @@ import { OptimisticTodoDemo } from "./demos/OptimisticTodoDemo";
 import { UseOptimisticThreadDemo } from "./demos/UseOptimisticThreadDemo";
 import { OptimisticComparisonDemo } from "./demos/OptimisticComparisonDemo";
 import React from "react";
+import { slugify } from "@/lib/slugify";
 
 type TableData = {
 	headers: string[];
@@ -79,20 +80,17 @@ function RoundedImage(props: ImageProps) {
 	);
 }
 
-function slugify(str: string | React.ReactNode): string {
-	return String(str)
-		.toString()
-		.toLowerCase()
-		.trim() // Remove whitespace from both ends of a string
-		.replace(/\s+/g, "-") // Replace spaces with -
-		.replace(/&/g, "-and-") // Replace & with 'and'
-		.replace(/[^\w\-]+/g, "") // Remove all non-word characters except for -
-		.replace(/\-\-+/g, "-"); // Replace multiple - with single -
+/** The words in a heading, whatever inline markup wraps them. */
+function textOf(node: React.ReactNode): string {
+	if (typeof node === "string" || typeof node === "number") return String(node);
+	if (Array.isArray(node)) return node.map(textOf).join("");
+	if (React.isValidElement<{ children?: React.ReactNode }>(node)) return textOf(node.props.children);
+	return "";
 }
 
 function createHeading(level: number) {
 	const Heading = ({ children }: { children: React.ReactNode }) => {
-		let slug = slugify(children);
+		let slug = slugify(textOf(children));
 		return React.createElement(
 			`h${level}`,
 			{ id: slug },
@@ -101,6 +99,7 @@ function createHeading(level: number) {
 					href: `#${slug}`,
 					key: `link-${slug}`,
 					className: "anchor",
+					"aria-label": "Link to this section",
 				}),
 			],
 			children
@@ -138,12 +137,28 @@ let components = {
 	OptimisticComparisonDemo,
 };
 
+/**
+ * A code fence can opt out of collapsing: ```tsx expanded. rehype-pretty-code
+ * hands the fence's text to Shiki, so a Shiki transformer reads the flag and
+ * marks the block for `CodeBlock`.
+ */
+const expandedFlag = {
+	name: "expanded-flag",
+	pre(this: { options: { meta?: { __raw?: string } } }, node: { properties: Record<string, unknown> }) {
+		if (/(^|\s)expanded(\s|$)/.test(this.options.meta?.__raw ?? "")) node.properties["data-expanded"] = "";
+	},
+};
+
 export function CustomMDX(props: MDXRemoteProps) {
 	return (
 		<MDXRemote
 			{...props}
 			components={{ ...components, ...(props.components || {}) }}
 			options={{
+				// The posts are our own files, and several demos take their content
+				// as props (`code={...}`, `steps={[...]}`). The library strips those
+				// expressions by default, which left the demos empty.
+				blockJS: false,
 				mdxOptions: {
 					remarkPlugins: [remarkGfm],
 					rehypePlugins: [
@@ -155,6 +170,7 @@ export function CustomMDX(props: MDXRemoteProps) {
 									dark: "github-dark",
 								},
 								keepBackground: false,
+								transformers: [expandedFlag],
 							},
 						],
 					],

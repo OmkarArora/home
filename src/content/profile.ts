@@ -1,0 +1,209 @@
+/**
+ * Everything the home page says, apart from blog posts (those stay MDX).
+ *
+ * Kept apart from any layout, so a redesign only ever changes the look.
+ *
+ * Anything marked `placeholder: true` is a stand-in for something only Omkar
+ * can supply. The site renders it visibly as a placeholder rather than
+ * passing it off as real.
+ */
+
+/**
+ * The tools he works with, for the Loadout section: the Technical Skills on
+ * his resume (October 2026), same groups, same order. Keep the two in step.
+ * `main` marks his core stack, shown in lime.
+ */
+export const toolkit: Array<{ name: string; tools: Array<{ name: string; main?: true }> }> = [
+	{
+		name: "Frontend",
+		tools: [
+			{ name: "JavaScript (ES6+)" },
+			{ name: "TypeScript", main: true },
+			{ name: "React", main: true },
+			{ name: "Next.js", main: true },
+			{ name: "TanStack Start", main: true },
+			{ name: "React Native" },
+			{ name: "Tailwind CSS", main: true },
+			{ name: "HTML/CSS" },
+			{ name: "Zustand" },
+			{ name: "Redux Toolkit" },
+			{ name: "React Query" },
+			{ name: "PWAs" },
+			{ name: "SSR" },
+			{ name: "SSG" },
+			{ name: "OAuth" },
+		],
+	},
+	{
+		name: "Backend & databases",
+		tools: [
+			{ name: "Node.js" },
+			{ name: "Java" },
+			{ name: "REST APIs" },
+			{ name: "SQL" },
+			{ name: "NoSQL" },
+			{ name: "Convex" },
+			{ name: "WebSockets" },
+			{ name: "Socket.io" },
+		],
+	},
+	{
+		name: "AI & agentic tooling",
+		tools: [
+			{ name: "Claude Code", main: true },
+			{ name: "MCP" },
+			{ name: "Agentic workflows" },
+			{ name: "LLM-integrated development" },
+			{ name: "Prompt engineering" },
+		],
+	},
+	{
+		name: "Testing & tooling",
+		tools: [
+			{ name: "Jest" },
+			{ name: "React Testing Library" },
+			{ name: "Playwright" },
+			{ name: "Webpack" },
+			{ name: "Babel" },
+			{ name: "Git", main: true },
+			{ name: "npm/Yarn" },
+			{ name: "JSON" },
+		],
+	},
+	{
+		name: "Deployment & practices",
+		tools: [
+			{ name: "CI/CD" },
+			{ name: "Vercel" },
+			{ name: "CDN & browser caching" },
+			{ name: "SEO" },
+			{ name: "Agile" },
+			{ name: "Code reviews" },
+			{ name: "Reusable component architecture" },
+		],
+	},
+];
+
+export type Placeholder = { placeholder?: true };
+
+export const identity = {
+	name: "Omkar Arora",
+	firstName: "Omkar",
+	title: "Senior Software Engineer",
+	company: "ixigo",
+	location: "Gurugram, India",
+	/** First full-time role: Sparklin, November 2021. */
+	careerStart: new Date("2021-11-01"),
+	pitch:
+		"Moving pixels around: on the web, on canvas, and in games with friends.",
+	/**
+	 * The About page's longer introduction. Assembled from the facts in this
+	 * file; Omkar kept it as written (October 2026).
+	 */
+	about: [
+		"I'm a frontend engineer at ixigo, in Gurugram. I started as an intern at Homerunn in 2020, spent four and a half years at Sparklin building products end to end, and joined ixigo in 2026.",
+		"Outside work I build things for fun — lately Game Night, party games for a room full of phones — and write up what I learn along the way.",
+	],
+	email: "aroraomkar12@gmail.com",
+	links: {
+		github: "https://github.com/OmkarArora",
+		linkedin: "https://www.linkedin.com/in/omkar-arora-0ab08375",
+		resume: "/resume",
+	},
+	stack: ["React", "Next.js", "TypeScript", "Motion", "Convex"],
+};
+
+/**
+ * Full-time years, to the nearest year: shown as "N+ years". Rounded rather
+ * than floored, so ten days short of five years reads as five, not four.
+ */
+export function yearsOfExperience(now = new Date()): number {
+	const years =
+		(now.getTime() - identity.careerStart.getTime()) /
+		(365.25 * 24 * 60 * 60 * 1000);
+	return Math.round(years);
+}
+
+export type Project = {
+	name: string;
+	summary: string;
+	stack: string[];
+	href?: string;
+	repo?: string;
+	/** A write-up worth more than the link itself. */
+	caseStudy?: { href: string; label: string };
+	highlight?: { value: string; label: string };
+	year: string;
+};
+
+export const projects: Project[] = [
+	{
+		name: "Game Night",
+		summary:
+			"Real-time party games for a room of phones — Dots and Boxes, Wavelength, Pictionary and Uno — with room codes, no sign-up, and every move synced live.",
+		stack: ["React", "TanStack Start", "Convex", "Tailwind", "Playwright"],
+		href: "https://gamenight.omkararora.com",
+		caseStudy: {
+			href: "https://gamenight.omkararora.com/performance",
+			label: "How I cut its database reads 6×",
+		},
+		highlight: { value: "6.1×", label: "fewer rows read" },
+		year: "2026",
+	},
+	{
+		name: "Team Resume Builder",
+		summary:
+			"Create, edit and export resumes as PDF, with team management and a type-safe routing layer.",
+		stack: ["React", "Vite", "Zustand", "@react-pdf/renderer"],
+		href: "https://team-resume-builder.vercel.app/",
+		repo: "https://github.com/OmkarArora/team-resume-builder",
+		year: "2025",
+	},
+	{
+		name: "This site",
+		summary:
+			"Next.js App Router, an MDX blog with live interactive demos, and generated OG images.",
+		stack: ["Next.js", "MDX", "Tailwind"],
+		repo: "https://github.com/OmkarArora/home",
+		year: "2025",
+	},
+];
+
+export type Role = Placeholder & {
+	company: string;
+	title: string;
+	from: string;
+	to: string;
+	summary: string;
+	/** Products shipped in this role. */
+	products?: string[];
+};
+
+export const roles: Role[] = [
+	{
+		// Titles and dates are from his resume. The features are in ixigo.ts.
+		company: "ixigo",
+		title: "Senior Software Engineer",
+		from: "2026",
+		to: "Now",
+		summary:
+			"Flights and cabs on the web: the search screen for Smart Lock, a flash-sale hero that runs itself, partial payment for cabs, and the analytics underneath.",
+	},
+	{
+		// The products themselves are in sparklin.ts.
+		company: "Sparklin Innovations",
+		title: "Software Development Engineer → SDE 2",
+		from: "2021",
+		to: "2026",
+		summary:
+			"Frontend for Openvy, Recommendations.email and Jupitun. Caching and SEO work cut data-fetching time 30% and lifted organic traffic 20%; React Native prototypes lifted mobile engagement 15%.",
+		products: ["Openvy", "Recommendations.email", "Jupitun"],
+	},
+	{
+		company: "Homerunn",
+		title: "Frontend Intern",
+		from: "2020",
+		to: "2020",
+		summary: "Rendering fixes that made pages load 20% faster.",
+	},
+];

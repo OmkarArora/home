@@ -1,11 +1,12 @@
 ---
-title: "Building Interactive Demos in MDX: Taking Your Blog Posts to the Next Level"
+title: "Building interactive demos in MDX"
 publishedAt: "2025-12-09"
-summary: "Learn how to create engaging, interactive demos in your MDX blog posts. From live code previews to step-by-step walkthroughs, discover how to make your technical content more engaging and educational."
+updatedAt: "2026-10-24"
+summary: "Live previews, side-by-side comparisons and step-by-step walkthroughs inside MDX posts, each built from a small React client component."
 keywords: "mdx, interactive demos, react, nextjs, blog, code playground, live preview, web development, tutorial"
 ---
 
-Static code examples are great, but interactive demos can transform your blog posts from informative to truly engaging. In this guide, I'll show you how to build various types of interactive demos in your MDX blog posts, making your technical content more hands-on and educational.
+A code sample shows what to type. A demo lets the reader press the button and see what happens. This post covers the demo components this blog uses, and every one of them is running on this page.
 
 ## Why Interactive Demos Matter
 
@@ -19,7 +20,7 @@ Interactive demos offer several key benefits:
 
 ## Prerequisites
 
-This guide builds on the MDX blog setup covered in [How I built my Blog with MDX, Next.js, and Tailwind CSS](/blog/how-i-built-my-blog). Make sure you have:
+This builds on the setup in [How I built my blog with MDX, Next.js and Tailwind CSS](/blog/how-i-built-my-blog). You need:
 
 - A Next.js blog with MDX support (using `next-mdx-remote`)
 - React components set up for MDX
@@ -53,7 +54,7 @@ src/components/mdx/
 
 ## Interactive Demo Types
 
-Let's explore the different types of interactive demos you can build:
+There are four kinds on this blog:
 
 ### 1. Live Code Preview
 
@@ -64,7 +65,7 @@ The `LivePreview` component displays code alongside a live React component previ
     const [count, setCount] = useState(0);
     return (
       <div>
-        <p>Count: {'{'}count{'}'}</p>
+        <p>Count: {count}</p>
         <button onClick={() => setCount(count + 1)}>
           Increment
         </button>
@@ -108,7 +109,7 @@ Usage:
 </InteractiveDemo>
 ```
 
-### 4. Comparison Demos
+### 3. Comparison Demos
 
 Use `ComparisonDemo` to show side-by-side comparisons of different approaches, before/after states, or different implementations.
 
@@ -119,7 +120,7 @@ Use `ComparisonDemo` to show side-by-side comparisons of different approaches, b
 		content: (
 			<div className="space-y-2">
 				<p className="text-sm text-muted-foreground">
-					Traditional class-based approach with lifecycle methods
+					The older class-based approach, with a render method
 				</p>
 				<div className="p-3 bg-muted/50 rounded text-xs font-mono">
 					class MyComponent extends React.Component {"{"}
@@ -162,7 +163,7 @@ Use `ComparisonDemo` to show side-by-side comparisons of different approaches, b
 	}}
 />
 
-### 5. Step-by-Step Demos
+### 4. Step-by-Step Demos
 
 The `StepByStepDemo` component is perfect for progressive disclosure, walking readers through complex processes step by step.
 
@@ -208,7 +209,7 @@ The `StepByStepDemo` component is perfect for progressive disclosure, walking re
 					<pre className="p-3 bg-muted/50 rounded text-xs font-mono overflow-x-auto">
 						<code>{`return (
   <div>
-    <p>Count: {'{'}count{'}'}</p>
+    <p>Count: {count}</p>
     <button onClick={() => setCount(count + 1)}>
       Increment
     </button>
@@ -223,7 +224,7 @@ The `StepByStepDemo` component is perfect for progressive disclosure, walking re
 
 ## Practical Examples
 
-Let's look at some real-world examples you can use in your blog posts:
+Three demos built with the wrapper above:
 
 ### Example 1: Form Validation Demo
 
@@ -371,9 +372,11 @@ For performance, you can lazy load heavy demo components:
 ```tsx showLineNumbers
 import dynamic from "next/dynamic";
 
-const HeavyDemo = dynamic(() => import("./demos/HeavyDemo"), {
-	loading: () => <p>Loading demo...</p>,
-});
+// The demos use named exports, so pick the one you want from the module.
+const HeavyDemo = dynamic(
+	() => import("./demos/HeavyDemo").then((mod) => mod.HeavyDemo),
+	{ loading: () => <p>Loading demo...</p> }
+);
 ```
 
 Example used in this post:
@@ -404,7 +407,7 @@ You can also embed external code playgrounds:
 />
 ```
 
-Example used in this post (iframe stays sandboxed and does not execute in your page context):
+Example used in this post. The iframe runs on CodeSandbox's own origin, so its code never runs in your page; `allow` grants only the browser features it needs (here, copying to the clipboard):
 
 <div className="aspect-video w-full rounded-lg overflow-hidden border border-border bg-muted/30">
 	<iframe
@@ -415,7 +418,7 @@ Example used in this post (iframe stays sandboxed and does not execute in your p
 			border: 0,
 		}}
 		title="Embedded CodeSandbox demo"
-		allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+		allow="clipboard-write"
 		sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
     loading="lazy"
   />
@@ -475,6 +478,9 @@ If a component doesn't render in MDX:
 2. **Verify component registration**: Ensure it's in the components map
 3. **Check imports**: Make sure all dependencies are imported
 4. **Review console errors**: Check browser console for errors
+5. **Check that the props arrive**: `next-mdx-remote` 6 strips JavaScript expressions out of MDX by default, so `code={...}` and `steps={[...]}` reach the component as `undefined`, with no error. Text props such as `title="..."` still work, which makes it easy to miss. Pass `blockJS: false` in the `MDXRemote` options if the posts are your own files.
+
+That last one caught me. When I came back to this post, the live preview, comparison and step-by-step demos on this page were all rendering empty.
 
 ### Styling Issues
 
@@ -496,16 +502,7 @@ If state isn't updating:
 
 ## Conclusion
 
-Interactive demos can transform your technical blog posts from static documentation into engaging, hands-on learning experiences. By combining MDX's flexibility with React's interactivity, you can create content that:
-
-- Engages readers more effectively
-- Improves learning outcomes
-- Reduces context switching
-- Makes complex topics accessible
-
-Start with simple demos and gradually add more complex interactions as you become comfortable with the patterns. The components we've built provide a solid foundation, but don't hesitate to customize them for your specific needs.
-
-Remember: the best demos are those that make learning easier and more enjoyable. Experiment, iterate, and have fun building interactive content!
+A demo is worth building when pressing something teaches more than reading about it. Start with the plain wrapper and one small component. Add the comparison and step-by-step kinds when a post needs them.
 
 ## Resources
 

@@ -1,0 +1,122 @@
+/**
+ * What he does away from the keyboard, for About's AFK section: a list of
+ * interests (pointing at one fans out its pictures), then a wall of his own
+ * art and photos, then his Instagram pages.
+ *
+ * The lines are Omkar's (Art and Anime drafted from his work; he kept them).
+ */
+
+/** A picture for an interest. Posters are official artwork, shown as favourites. */
+export type Pic = {
+	src: string;
+	alt: string;
+	caption: string;
+	/** A drawing on white: show it whole, not cropped. */
+	contain?: boolean;
+};
+
+export type Afk = {
+	key: string;
+	label: string;
+	/** A short mono note shown beside it. */
+	note: string;
+	line: string;
+	pictures: Pic[];
+	/** On the wall of his own work (art and photos), not just in the list. */
+	onWall?: true;
+};
+
+const art = (file: string, alt: string, caption: string, contain = false): Pic => ({
+	src: `/images/display-art/${file}`,
+	alt,
+	caption,
+	contain,
+});
+/** `short` is the caption when the full title won't fit on a polaroid. */
+const poster = (folder: string, file: string, title: string, short = title): Pic => ({
+	src: `/images/${folder}/${file}`,
+	alt: `${title} poster`,
+	caption: short,
+});
+
+export const afk: Afk[] = [
+	{
+		key: "art",
+		label: "Art",
+		note: "Ink & digital",
+		line: "Anime characters, mostly. Ink on paper, colour on a screen.",
+		pictures: [
+			art("asta-demon.jpeg", "Painting of Asta raising his demon sword against a red sky", "Asta"),
+			art("kid-goku.jpeg", "Drawing of Kid Goku in a fighting stance", "Kid Goku", true),
+			art("minato.jpg", "Drawing of Minato from behind, his Fourth Hokage cloak", "Minato"),
+		],
+		onWall: true,
+	},
+	{
+		key: "gaming",
+		label: "Gaming",
+		note: "Play & build",
+		line: "Elden Lord, aiming for heads, conquering dungeons.",
+		pictures: [
+			poster("display-games", "eldenring-poster.webp", "Elden Ring"),
+			poster("display-games", "valorant-poster.jpg", "Valorant"),
+			poster("display-games", "minecraft-poster.jpg", "Minecraft"),
+		],
+	},
+	{
+		key: "anime",
+		label: "Anime",
+		note: "Shōnen first",
+		line: "Naruto to Haikyu!!, and the characters in my sketchbook.",
+		pictures: [
+			poster("display-anime", "naruto-poster.webp", "Naruto"),
+			poster("display-anime", "dragonball-poster.webp", "Dragon Ball"),
+			poster("display-anime", "demonslayer-poster.webp", "Demon Slayer"),
+			poster("display-anime", "haikyu-poster.webp", "Haikyu!!"),
+		],
+	},
+	{
+		key: "travel",
+		label: "Travel",
+		note: "Manali, lately",
+		line: "Manali, lately. Snaps from Japan.",
+		pictures: [
+			{ src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower" },
+			{ src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow" },
+			{ src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat" },
+		],
+		onWall: true,
+	},
+	{
+		key: "badminton",
+		label: "Badminton",
+		note: "On court",
+		line: "Racquet fun, anyone?",
+		pictures: [],
+	},
+	{
+		key: "fitness",
+		label: "Fitness",
+		note: "Training",
+		line: "See you in the gym. Started your winter arc yet?",
+		pictures: [],
+	},
+	{
+		key: "movies",
+		label: "Movies & TV",
+		note: "Films & series",
+		line: "Latest watches, and the comfort rewatches.",
+		pictures: [
+			poster("display-movies", "spiderman-poster.jpg", "Spider-Man"),
+			poster("display-movies", "suits-poster.webp", "Suits"),
+			poster("display-movies", "himym-poster.webp", "How I Met Your Mother", "HIMYM"),
+			poster("display-movies", "znmd-poster.webp", "Zindagi Na Milegi Dobara", "ZNMD"),
+		],
+	},
+];
+
+/** His Instagram pages, linked under the snapshots. */
+export const elsewhere = [
+	{ href: "https://www.instagram.com/goingbananas.art", handle: "@goingbananas.art", what: "Art" },
+	{ href: "https://www.instagram.com/halfcoldgamesyt", handle: "@halfcoldgamesyt", what: "Gaming, casual uploads" },
+];

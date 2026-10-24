@@ -7,8 +7,8 @@
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-display, ui-sans-serif, system-ui, sans-serif);
+	--font-mono: var(--font-code, ui-monospace, monospace);
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -177,6 +177,44 @@ pre {
 	@apply relative overflow-x-auto rounded-lg border border-border bg-muted p-4;
 }
 
+/* A highlighted block: a header bar (language, copy button), then the code. */
+.code-block {
+	@apply my-6 overflow-hidden rounded-lg border border-border bg-muted;
+}
+
+.code-head {
+	@apply flex items-center justify-between border-b border-border px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground;
+}
+
+.code-block pre {
+	@apply m-0 rounded-none border-0 bg-transparent;
+	/* Tabs at their default width of 8 push code off a phone screen. */
+	tab-size: 2;
+}
+
+/* A long block, collapsed: its first lines, fading out above a "Show all" button. */
+.code-block[data-collapsed] pre {
+	max-height: 20rem;
+	overflow-y: hidden;
+	mask-image: linear-gradient(to bottom, black 65%, transparent);
+}
+
+.code-more {
+	@apply w-full border-t border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground;
+}
+
+/* Without scripts the button can't work, so show every block in full. */
+@media (scripting: none) {
+	.code-block[data-collapsed] pre {
+		max-height: none;
+		mask-image: none;
+	}
+
+	.code-more {
+		display: none;
+	}
+}
+
 pre code {
 	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
 	counter-reset: line;
@@ -258,4 +296,20 @@ pre code span {
 
 .dark pre code {
 	@apply bg-transparent;
+}
+
+/*
+ * Theme changes (see changeTheme in ThemeSwitch): the new look is drawn on top
+ * through a soft radial mask that grows out of the switch, so the browser's
+ * default cross-fade is off. The mask's size and position are animated in JS.
+ */
+html[data-theme-fx="bloom"]::view-transition-old(root),
+html[data-theme-fx="bloom"]::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+html[data-theme-fx="bloom"]::view-transition-new(root) {
+	mask-image: radial-gradient(circle closest-side, #000 70%, transparent 100%);
+	mask-repeat: no-repeat;
+	mask-size: 0 0;
 }
