@@ -59,7 +59,7 @@ export function HoverList() {
 								<span className={`relative ${open ? "text-[#0c0c0d]" : ""}`}>{item.label}</span>
 							</span>
 							{/* Wide screens: the note, or the line while it's lit. Narrower: always the note. */}
-							<Grow className={`${mono} hidden max-w-[13rem] text-right text-xs text-[var(--dim)] lg:block ${open ? "" : "uppercase tracking-widest"}`}>
+							<Grow className={`${mono} hidden max-w-[13rem] text-right text-xs text-balance text-[var(--dim)] lg:block ${open ? "" : "uppercase tracking-widest"}`}>
 								{open ? item.line : item.note}
 							</Grow>
 							<span className={`${mono} text-right text-xs uppercase tracking-widest text-[var(--dim)] lg:hidden`}>{item.note}</span>
@@ -87,7 +87,7 @@ export function HoverList() {
 									exit={{ height: 0, opacity: 0 }}
 									className="overflow-hidden lg:hidden"
 								>
-									<p className="pb-4 text-[var(--dim)]">{item.line}</p>
+									<p className="pb-4 text-balance text-[var(--dim)]">{item.line}</p>
 									{item.pictures.length > 0 && (
 										<div className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-1 pb-6">
 											{item.pictures.map((pic, i) => (
