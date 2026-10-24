@@ -25,8 +25,6 @@ export type Afk = {
 	pictures: Pic[];
 	/** On the wall of his own work (art and photos), not just in the list. */
 	onWall?: true;
-	/** Not one of his stated interests: suggested from his photos. */
-	suggested?: true;
 };
 
 const art = (file: string, alt: string, caption: string, contain = false): Pic => ({
@@ -81,28 +79,27 @@ export const afk: Afk[] = [
 	{
 		key: "travel",
 		label: "Travel",
-		note: "Japan, lately",
-		line: "Tokyo in the snow, and Fuji from the lake.",
+		note: "Manali, lately",
+		line: "Most recently Manali. These snaps are from Japan.",
 		pictures: [
 			{ src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower" },
 			{ src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow" },
 			{ src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat" },
 		],
 		onWall: true,
-		suggested: true,
 	},
 	{
 		key: "badminton",
 		label: "Badminton",
 		note: "On court",
-		line: "Draft: how often you play, and with whom.",
+		line: "Racquet fun, anyone?",
 		pictures: [],
 	},
 	{
 		key: "fitness",
 		label: "Fitness",
 		note: "Training",
-		line: "Draft: what training looks like for you.",
+		line: "See you in the gym. Started your winter arc yet?",
 		pictures: [],
 	},
 	{
@@ -111,10 +108,10 @@ export const afk: Afk[] = [
 		note: "Films & series",
 		line: "Draft: the films and shows you go back to.",
 		pictures: [
-			poster("display-movies", "znmd-poster.webp", "Zindagi Na Milegi Dobara", "ZNMD"),
 			poster("display-movies", "spiderman-poster.jpg", "Spider-Man"),
 			poster("display-movies", "suits-poster.webp", "Suits"),
 			poster("display-movies", "himym-poster.webp", "How I Met Your Mother", "HIMYM"),
+			poster("display-movies", "znmd-poster.webp", "Zindagi Na Milegi Dobara", "ZNMD"),
 		],
 	},
 ];
