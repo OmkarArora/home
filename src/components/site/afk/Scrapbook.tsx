@@ -9,22 +9,25 @@ import { afk, extras } from "./data";
 const tilt = [-3, 2, -1.5, 3, -2.5, 1.5, -2, 2.5];
 
 /**
- * 3. A loose wall: photos and art as polaroids, interests as small notes, all
- * a little crooked. Hovering one straightens and lifts it.
+ * A loose wall: photos and art as polaroids, interests as small notes, all a
+ * little crooked. Hovering one straightens and lifts it. `picturesOnly` leaves
+ * the notes out, for when the interests are listed elsewhere.
  */
-export function Scrapbook() {
+export function Scrapbook({ picturesOnly = false }: { picturesOnly?: boolean }) {
 	const pieces = [
-		...afk.map((item) => ({ kind: "note" as const, item })),
+		...(picturesOnly ? [] : afk.map((item) => ({ kind: "note" as const, item }))),
 		...afk.filter((item) => item.image).map((item) => ({ kind: "photo" as const, src: item.image!.src, alt: item.image!.alt, caption: item.label, contain: item.image!.contain })),
 		...extras.map((extra) => ({ kind: "photo" as const, ...extra, contain: false })),
 	];
 	// Interleave notes and photos so neither clumps.
 	const notes = pieces.filter((p) => p.kind === "note");
 	const photos = pieces.filter((p) => p.kind === "photo");
-	const wall = notes.flatMap((note, i) => (photos[i] ? [note, photos[i]] : [note]));
+	const wall = picturesOnly
+		? photos
+		: [...notes.flatMap((note, i) => (photos[i] ? [note, photos[i]] : [note])), ...photos.slice(notes.length)];
 
 	return (
-		<div className="columns-2 gap-4 md:columns-4">
+		<div className={`columns-2 gap-4 ${picturesOnly ? "md:columns-3" : "md:columns-4"}`}>
 			{wall.map((piece, i) => (
 				<motion.div
 					key={i}

@@ -8,7 +8,7 @@ import { mono } from "../ui";
 import { type Afk, afk } from "./data";
 
 /**
- * 1. A stack of big words. Pointing at one brings up its picture beside the
+ * A stack of big words. Pointing at one brings up its picture beside the
  * pointer; on a phone (or by keyboard) a row opens to show it inline.
  */
 export function HoverList() {

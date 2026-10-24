@@ -1,28 +1,39 @@
 import type { Metadata } from "next";
 
-import { Achievements } from "@/components/site/afk/Achievements";
-import { CharacterSelect } from "@/components/site/afk/CharacterSelect";
 import { HoverList } from "@/components/site/afk/HoverList";
 import { Scrapbook } from "@/components/site/afk/Scrapbook";
 import { PageHead, label } from "@/components/site/ui";
 
-/** Four takes on About's AFK section, side by side. Temporary: delete once one is picked. */
+/** Takes on About's AFK section, side by side. Temporary: delete once one is picked. */
 export const metadata: Metadata = {
-	title: "AFK, four ways",
+	title: "AFK, three ways",
 	robots: { index: false, follow: false },
 };
 
+function Combo() {
+	return (
+		<>
+			<HoverList />
+			<p className={`${label} mt-12 mb-6`}>Sketchbook & snapshots</p>
+			<Scrapbook picturesOnly />
+		</>
+	);
+}
+
 const options = [
 	{ name: "Hover-reveal list", note: "Big words; point at one and its picture follows. Tap on a phone.", View: HoverList },
-	{ name: "Character select", note: "Hover or arrow-key through the tiles; the panel shows the pick.", View: CharacterSelect },
-	{ name: "Scrapbook wall", note: "Photos, art and notes, a little crooked. Hover to straighten one.", View: Scrapbook },
-	{ name: "Achievements", note: "Each interest as an unlocked badge, with a stat you'd supply.", View: Achievements },
+	{ name: "Scrapbook wall", note: "Photos, art and notes, a little crooked. Hover to straighten one.", View: () => <Scrapbook /> },
+	{
+		name: "Both: the list, then the wall",
+		note: "The interests as the hover list, then a wall of just the art and photos underneath.",
+		View: Combo,
+	},
 ];
 
 export default function AfkOptions() {
 	return (
 		<>
-			<PageHead kicker="About · comparing layouts" title="AFK, four ways.">
+			<PageHead kicker="About · comparing layouts" title="AFK, three ways.">
 				Same content in each: Art and Travel added (Travel suggested from your photos). Lines marked Draft are yours to
 				write.
 			</PageHead>
