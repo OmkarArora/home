@@ -48,7 +48,7 @@ export default function History() {
 
 			<Trace className="pb-8">
 				{versions.map((version) => (
-					<section key={version.key} className="pb-16">
+					<section key={version.key} id={version.key} className="scroll-mt-8 pb-16">
 						<h2 data-trace-node className={`${stop} flex flex-wrap gap-x-3`}>
 							<span className="text-[var(--accent-ink)]">{version.label}</span>
 							<span>{version.when}</span>
