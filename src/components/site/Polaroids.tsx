@@ -27,7 +27,6 @@ export type Snap =
 	| { kind: "work"; title: string; meta: string; caption: string; href: string };
 
 const tilt = [-4, 3, -2, 5, -3, 2];
-const every = 4000;
 
 /** Where a card goes when it's pulled aside, like the end of a drag: to the right (1) or the left (-1). */
 const aside = (side: 1 | -1) =>
@@ -37,7 +36,17 @@ const aside = (side: 1 | -1) =>
 const showControls = false;
 const showOpen = false;
 
-export function Polaroids({ snaps }: { snaps: Snap[] }) {
+export function Polaroids({
+	snaps,
+	every = 4000,
+	alternate = true,
+}: {
+	snaps: Snap[];
+	/** How long each card stays on top before the next, in ms. */
+	every?: number;
+	/** Whether each move goes out the other side from the last, or always to the right. */
+	alternate?: boolean;
+}) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
 	// A drag ends with a click; this keeps that click from opening the card.
 	const dragged = useRef(false);
@@ -83,7 +92,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 		const timer = setTimeout(() => go("next"), every);
 		return () => clearTimeout(timer);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- `go` only reads state this already keys on
-	}, [order, reduced, paused, holding, hidden]);
+	}, [order, reduced, paused, holding, hidden, every]);
 
 	return (
 		<div
@@ -114,7 +123,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								if (!pulled) return;
 								(moving === "next" ? next : back)();
 								setMoving(null);
-								setSide((s) => (s === 1 ? -1 : 1));
+								if (alternate) setSide((s) => (s === 1 ? -1 : 1));
 							}}
 							transition={{ type: "spring", stiffness: 300, damping: 24 }}
 							className="absolute inset-0"

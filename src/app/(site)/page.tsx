@@ -12,6 +12,7 @@ import { PlaceholderTag, SectionHead, label, mono, riseAt } from "@/components/s
 import { allPosts } from "@/components/site/data";
 import { productLabel, shipped } from "@/content/ixigo";
 import { identity, projects, roles, yearsOfExperience } from "@/content/profile";
+import { snaps } from "@/content/snaps";
 import { graph, pageMetadata, person, website } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
@@ -19,13 +20,6 @@ export const metadata: Metadata = {
 		title: `${identity.name} — ${identity.title}`,
 		description: `${identity.name}, ${identity.title.toLowerCase()} at ${identity.company}: fast, careful web interfaces. ${yearsOfExperience()}+ years in frontend.`,
 	}),
-};
-
-/** His Instagram posts, for the art and photos in the polaroid stack. */
-const instagram = {
-	goku: "https://www.instagram.com/p/Dd_YAZ3Cjir/",
-	asta: "https://www.instagram.com/p/Ddehb0NvvOB/",
-	tokyo: "https://www.instagram.com/p/DVBEx_8ESHa3v4I3TBbGSrBN6xAGJKwhJ1cxDY0/",
 };
 
 /** What the headline says the web feels like, the first one most of all. */
@@ -73,12 +67,12 @@ export default async function PatchNotes() {
 					<Polaroids
 						snaps={[
 							...(latest ? [{ kind: "post" as const, title: latest.title, meta: `${latest.minutes} min read`, caption: "Latest post", href: `/blog/${latest.slug}` }] : []),
-							{ kind: "art", src: "/images/display-art/kid-goku.jpeg", alt: "Drawing of Kid Goku in a fighting stance", caption: "Kid Goku", href: instagram.goku, contain: true },
-							{ kind: "photo", src: "/images/display-pics/tokyo-tower.jpeg", alt: "Tokyo Tower through snowy trees", caption: "Tokyo Tower", href: instagram.tokyo },
+							snaps.goku,
+							snaps.tower,
 							...(highlights[0] ? [{ kind: "work" as const, title: highlights[0].title, meta: `${identity.company} · ${highlights[0].when}`, caption: "Latest work", href: "/work" }] : []),
-							{ kind: "art", src: "/images/display-art/asta-demon.jpeg", alt: "Painting of Asta raising his demon sword against a red sky", caption: "Asta", href: instagram.asta },
-							{ kind: "photo", src: "/images/display-pics/black-cat.jpeg", alt: "A black cat sitting on moss", caption: "A garden cat", href: instagram.tokyo },
-							{ kind: "photo", src: "/images/display-pics/tokyo-castle.jpeg", alt: "A Japanese castle tower under snow", caption: "Tokyo in snow", href: instagram.tokyo },
+							snaps.asta,
+							snaps.cat,
+							snaps.castle,
 						]}
 					/>
 				</aside>

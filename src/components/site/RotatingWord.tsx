@@ -16,10 +16,19 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
  * - The letters flip over one after another, like a departure board.
  */
 
-const every = 2800;
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function RotatingWord({ words }: { words: string[] }) {
+export function RotatingWord({
+	words,
+	every = 2800,
+	stagger = 0.045,
+}: {
+	words: string[];
+	/** How long each word stays, in ms. */
+	every?: number;
+	/** The delay between one letter's flip and the next, in s. */
+	stagger?: number;
+}) {
 	const reduced = useReducedMotion();
 	const [index, setIndex] = useState(0);
 	const [paused, setPaused] = useState(false);
@@ -36,7 +45,7 @@ export function RotatingWord({ words }: { words: string[] }) {
 		const measure = () => setWidths(sizers.current.map((el) => el?.offsetWidth ?? 0));
 		measure();
 		const observer = new ResizeObserver(measure);
-		const headline = sizers.current[0]?.closest("h1");
+		const headline = sizers.current[0]?.closest("h1") ?? sizers.current[0]?.parentElement?.parentElement;
 		if (headline) observer.observe(headline);
 		document.fonts?.ready.then(measure);
 		return () => observer.disconnect();
@@ -58,7 +67,7 @@ export function RotatingWord({ words }: { words: string[] }) {
 			window.clearInterval(timer);
 			document.removeEventListener("visibilitychange", onVisibility);
 		};
-	}, [reduced, paused, words.length]);
+	}, [reduced, paused, words.length, every]);
 
 	return (
 		<span
@@ -86,7 +95,7 @@ export function RotatingWord({ words }: { words: string[] }) {
 			>
 				<span className="absolute inset-x-[-0.08em] bottom-[0.08em] top-[0.18em] -skew-x-6 bg-[var(--lime)]" />
 				<span className="relative block text-[#0c0c0d]">
-					<Flap word={word} />
+					<Flap word={word} stagger={stagger} />
 				</span>
 			</motion.span>
 		</span>
@@ -94,7 +103,7 @@ export function RotatingWord({ words }: { words: string[] }) {
 }
 
 /** The word, its letters flipping in one after another. */
-function Flap({ word }: { word: string }) {
+function Flap({ word, stagger }: { word: string; stagger: number }) {
 	return (
 		<span className="relative block [perspective:600px]">
 			<AnimatePresence mode="popLayout" initial={false}>
@@ -106,7 +115,7 @@ function Flap({ word }: { word: string }) {
 							initial={{ rotateX: 90, opacity: 0 }}
 							animate={{ rotateX: 0, opacity: 1 }}
 							exit={{ rotateX: -90, opacity: 0 }}
-							transition={{ duration: 0.3, delay: i * 0.045, ease }}
+							transition={{ duration: 0.3, delay: i * stagger, ease }}
 						>
 							{letter}
 						</motion.span>
