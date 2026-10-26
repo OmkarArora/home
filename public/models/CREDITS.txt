@@ -1,0 +1,24 @@
+The Arcade's 3D models are from Sketchfab, licensed under CC BY 4.0
+(http://creativecommons.org/licenses/by/4.0/). Each was optimised for the web
+(scaled, textures shrunk, geometry compressed) by scripts/arcade-model.mjs and
+scripts/arcade-props.mjs; the cabinet was also split into parts and recoloured.
+
+arcade-cabinet.glb
+  "Arcade Cabinet" by JewelPodd
+  https://sketchfab.com/3d-models/arcade-cabinet-21ee4868e8f14bca979f24df1276b770
+  https://sketchfab.com/JewelPodd
+
+crt-tv.glb
+  "Sony PVM-14L2 CRT TV" by Poring
+  https://sketchfab.com/3d-models/sony-pvm-14l2-crt-tv-ab19c2419c2647299ce96d027b3e7f5e
+  https://sketchfab.com/poring
+
+playstation.glb
+  "SONY PlayStation One" by Vladimir_Sofyanov
+  https://sketchfab.com/3d-models/sony-playstation-one-4afd87cc153346f8a8400a1e8517a6c9
+  https://sketchfab.com/vladimirsoufl
+
+record-player.glb
+  "Yamaha TT-300 Record Player" by AleixoAlonso
+  https://sketchfab.com/3d-models/yamaha-tt-300-record-player-3577a2a1a0c24218bd5d768beccf218e
+  https://sketchfab.com/AleixoAlonso
