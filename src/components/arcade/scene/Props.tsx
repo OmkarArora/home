@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	AdditiveBlending,
 	BufferAttribute,
@@ -9,7 +9,9 @@ import {
 	CanvasTexture,
 	Color,
 	type Group,
+	type InstancedMesh,
 	type Mesh,
+	Object3D,
 	type MeshBasicMaterial,
 	type MeshStandardMaterial,
 	type PointLight,
@@ -355,49 +357,106 @@ export function StringLights() {
 	);
 }
 
-/** A neon heart behind the cabinet, the alien's mirror on the other side: a 1UP, drawn in pixels. */
-export function NeonHeart() {
-	const [glow, core] = usePalette().heart;
-	const [texture, setTexture] = useState<CanvasTexture | null>(null);
-	useEffect(() => {
-		const heart = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"];
-		setTexture(
-			canvasTexture(256, 256, (ctx) => {
-				ctx.fillStyle = "#000";
-				ctx.fillRect(0, 0, 256, 256);
-				const cell = 30;
-				const x0 = (256 - 7 * cell) / 2;
-				const y0 = (256 - 6 * cell) / 2;
-				for (const [blur, colour, width] of [
-					[30, glow, 6],
-					[10, glow, 4],
-					[0, core, 2],
-				] as const) {
-					ctx.shadowColor = colour;
-					ctx.shadowBlur = blur;
-					ctx.strokeStyle = colour;
-					ctx.lineWidth = width;
-					heart.forEach((row, y) => [...row].forEach((on, x) => on === "1" && ctx.strokeRect(x0 + x * cell + 4, y0 + y * cell + 4, cell - 8, cell - 8)));
-				}
-			}),
-		);
-	}, [glow, core]);
-	// The same bad-neon stutter as the alien, but on its own beat.
-	const material = useRef<MeshBasicMaterial>(null);
+/**
+ * A neon sign in 3D, from a pixel sprite: every lit pixel a heavy block (one instanced mesh for the
+ * lot), shaded on its sides and faintly lit from within, with a glowing face on the front brighter
+ * than white so the bloom haloes it. It stutters now and then like a tired neon, on its own beat.
+ */
+function NeonSign({
+	sprite,
+	colour,
+	width,
+	position,
+	stutter,
+}: {
+	sprite: string[];
+	colour: string;
+	/** How wide the sprite is, in metres. */
+	width: number;
+	position: [number, number, number];
+	/** When it cuts out: given the time in s, true while dark. */
+	stutter: (t: number) => boolean;
+}) {
+	const [cols, rows] = [sprite[0].length, sprite.length];
+	const cell = width / cols;
+	const [block, depth] = [cell * 0.88, cell * 0.9];
+	const cells = useMemo(
+		() =>
+			sprite.flatMap((row, y) =>
+				[...row].flatMap((on, x) => (on === "1" ? [[(x - (cols - 1) / 2) * cell, ((rows - 1) / 2 - y) * cell] as const] : [])),
+			),
+		[sprite, cell, cols, rows],
+	);
+	const blocks = useRef<InstancedMesh>(null);
+	const faces = useRef<InstancedMesh>(null);
+	useLayoutEffect(() => {
+		const o = new Object3D();
+		cells.forEach(([x, y], i) => {
+			o.position.set(x, y, 0);
+			o.scale.set(block, block, depth);
+			o.updateMatrix();
+			blocks.current?.setMatrixAt(i, o.matrix);
+			// The face sits just proud of the block's front, a little inset from its edges.
+			o.position.set(x, y, depth / 2 + 0.0006);
+			o.scale.set(block * 0.9, block * 0.9, 1);
+			o.updateMatrix();
+			faces.current?.setMatrixAt(i, o.matrix);
+		});
+		for (const m of [blocks.current, faces.current]) if (m) m.instanceMatrix.needsUpdate = true;
+	}, [cells, block, depth]);
+	const bright = useMemo(() => new Color(colour).multiplyScalar(2.6), [colour]);
+	const body = useRef<MeshStandardMaterial>(null);
+	const face = useRef<MeshBasicMaterial>(null);
 	useFrame(({ clock }) => {
-		if (!material.current || still()) return;
-		const t = ((clock.elapsedTime + 2.3) % 5.1) / 5.1;
-		const cut = (t > 0.41 && t < 0.425) || (t > 0.44 && t < 0.452) || (t > 0.83 && t < 0.838);
-		material.current.color.setScalar(cut ? 0.35 : 1.45);
+		const level = !still() && stutter(clock.elapsedTime) ? 0.15 : 1;
+		face.current?.color.copy(bright).multiplyScalar(level);
+		if (body.current) body.current.emissiveIntensity = 0.55 * level;
 	});
-	if (!texture) return null;
 	return (
-		<group position={[neonPair.x, neonPair.y, neonPair.z]} rotation={[0, facingWide(neonPair.x, neonPair.z), 0]}>
-			<mesh>
-				<planeGeometry args={[neonPair.size * 0.92, neonPair.size * 0.92]} />
-				<meshBasicMaterial ref={material} map={texture} transparent blending={AdditiveBlending} depthWrite={false} toneMapped={false} color={[1.45, 1.45, 1.45]} />
-			</mesh>
+		<group position={position} rotation={[0, facingWide(position[0], position[2]), 0]}>
+			<instancedMesh ref={blocks} args={[undefined, undefined, cells.length]} castShadow>
+				<boxGeometry />
+				<meshStandardMaterial ref={body} color={colour} emissive={colour} emissiveIntensity={0.55} roughness={0.45} metalness={0.1} />
+			</instancedMesh>
+			<instancedMesh ref={faces} args={[undefined, undefined, cells.length]}>
+				<planeGeometry />
+				<meshBasicMaterial ref={face} color={bright} toneMapped={false} />
+			</instancedMesh>
 		</group>
+	);
+}
+
+const alienSprite = ["00010001000", "00001010000", "00111111100", "01111111110", "11011011011", "11111111111", "01101010110", "11000000011"];
+const heartSprite = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"];
+
+/** The neon pair behind the cabinet, either side of the hologram: an alien on the left, a heart (a 1UP) on the right. */
+export function NeonPair() {
+	const { sign, heart } = usePalette();
+	return (
+		<>
+			<NeonSign
+				sprite={alienSprite}
+				colour={sign[0]}
+				width={neonPair.size}
+				position={[-neonPair.x, neonPair.y, neonPair.z]}
+				// Two quick cuts every 6.4 s.
+				stutter={(t) => {
+					const f = (t % 6.4) / 6.4;
+					return (f > 0.586 && f < 0.598) || (f > 0.612 && f < 0.624);
+				}}
+			/>
+			<NeonSign
+				sprite={heartSprite}
+				colour={heart[0]}
+				width={neonPair.size * 0.66}
+				position={[neonPair.x, neonPair.y, neonPair.z]}
+				// Its own beat: a double cut, and a single one later.
+				stutter={(t) => {
+					const f = ((t + 2.3) % 5.1) / 5.1;
+					return (f > 0.41 && f < 0.425) || (f > 0.44 && f < 0.452) || (f > 0.83 && f < 0.838);
+				}}
+			/>
+		</>
 	);
 }
 

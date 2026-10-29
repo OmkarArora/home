@@ -4,19 +4,18 @@ import { ContactShadows, MeshReflectorMaterial, OrbitControls, useProgress } fro
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ACESFilmicToneMapping, AdditiveBlending, CanvasTexture, type MeshStandardMaterial } from "three";
+import { ACESFilmicToneMapping, AdditiveBlending, CanvasTexture } from "three";
 
 import { pixel } from "../pixelFont";
 import type { Pressed } from "../useArcade";
 import { Cabinet } from "./Cabinet";
 import { CameraRig, ViewContext } from "./CameraRig";
-import { Hologram, Sandwich, NeonHeart, StringLights, Underglow } from "./Props";
+import { Hologram, NeonPair, Sandwich, StringLights, Underglow } from "./Props";
 import { BackWall, NightSky, OpenSky, RecordCorner, TvCorner } from "./Room";
 import { fitScreen } from "./screenFit";
 import { Stickers } from "./Stickers";
-import { drawInvader } from "./marquee";
 import { type Palette, PaletteContext, usePalette } from "./palette";
-import { type ViewKey, facingWide, neonPair, views } from "./views";
+import { type ViewKey, views } from "./views";
 
 /**
  * The Arcade at night: the cabinet on a dark floor with a sheen, a neon
@@ -31,39 +30,6 @@ export type Setting = "open" | "room";
 
 type OrbitControlsImpl = React.ComponentRef<typeof OrbitControls>;
 
-/** The wall sign's flicker: on, except two brief cuts every 6.4 s (as `.neon-stutter`). */
-function neonLevel(seconds: number) {
-	const t = (seconds % 6.4) / 6.4;
-	return (t > 0.586 && t < 0.598) || (t > 0.612 && t < 0.624) ? 0.25 : 1;
-}
-
-function NeonWall() {
-	const { sign: colours } = usePalette();
-	const [texture, setTexture] = useState<CanvasTexture | null>(null);
-	const sign = useRef<MeshStandardMaterial>(null);
-	const still = useRef(false);
-
-	useEffect(() => {
-		still.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-		setTexture(drawInvader(colours));
-	}, [colours]);
-
-	useFrame(({ clock }) => {
-		const level = still.current ? 1 : neonLevel(clock.elapsedTime);
-		if (sign.current) sign.current.emissiveIntensity = 2.4 * level;
-	});
-
-	return (
-		<group position={[-neonPair.x, neonPair.y, neonPair.z]} rotation={[0, facingWide(-neonPair.x, neonPair.z), 0]}>
-			{texture && (
-				<mesh>
-					<planeGeometry args={[neonPair.size, (neonPair.size * 8) / 11 + 0.08]} />
-					<meshStandardMaterial ref={sign} color="#000" emissive="#ffffff" emissiveMap={texture} transparent alphaMap={texture} toneMapped={false} />
-				</mesh>
-			)}
-		</group>
-	);
-}
 
 /** A soft round pool of light, painted (white, tinted by its material's colour). */
 const poolTexture = () => {
@@ -280,12 +246,11 @@ export default function ArcadeScene({
 						<Ready onReady={() => setReady(true)} />
 						<Cabinet title={title} pressed={pressed} tilt={tilt} on={on} live={live} />
 						<ScreenTracker screen={screen} interactive={view === "cabinet"} />
-						<NeonWall />
 						<Stickers />
 						<Underglow />
 						<Hologram bump={pressed === "coin"} />
 						{setting === "room" && <StringLights />}
-						<NeonHeart />
+						<NeonPair />
 						<Sandwich />
 						{setting === "room" ? (
 							<>

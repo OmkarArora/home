@@ -55,34 +55,6 @@ export async function drawMarquee(texture: CanvasTexture | null, family: string,
 }
 
 /** The wall sign: "ARCADE" as a lime neon tube, a pale core inside a wide glow, on black. */
-/**
- * A neon pixel alien for the wall (our own sprite): each pixel a little glowing tube, like the
- * heart. Wordless, so it doesn't repeat the marquee.
- */
-export function drawInvader([glow, core]: [string, string]) {
-	const sprite = ["00010001000", "00001010000", "00111111100", "01111111110", "11011011011", "11111111111", "01101010110", "11000000011"];
-	const cell = 40;
-	const canvas = Object.assign(document.createElement("canvas"), { width: 11 * cell + 80, height: 8 * cell + 80 });
-	const ctx = canvas.getContext("2d");
-	if (ctx) {
-		ctx.fillStyle = "#000";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		for (const [blur, colour, width] of [
-			[30, glow, 6],
-			[10, glow, 4],
-			[0, core, 2],
-		] as const) {
-			ctx.shadowColor = colour;
-			ctx.shadowBlur = blur;
-			ctx.strokeStyle = colour;
-			ctx.lineWidth = width;
-			sprite.forEach((row, y) => [...row].forEach((on, x) => on === "1" && ctx.strokeRect(40 + x * cell + 5, 40 + y * cell + 5, cell - 10, cell - 10)));
-		}
-	}
-	const texture = new CanvasTexture(canvas);
-	texture.colorSpace = SRGBColorSpace;
-	return texture;
-}
 
 /**
  * The attract screen, drawn on the cabinet's glass: what the screen shows
