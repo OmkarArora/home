@@ -3,36 +3,63 @@
 import type { OrbitControls } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useEffect, useRef } from "react";
-import { Spherical, Vector3 } from "three";
+import { type Camera, type PerspectiveCamera, Spherical, Vector3 } from "three";
 
-import { play } from "@/components/site/sound";
 
-import { type ViewKey, intro, views } from "./views";
+import { whoosh } from "./ambience";
+import { type ViewKey, views } from "./views";
 
 /**
  * Takes the camera from view to view (`views.ts`): position and look-at point
  * move together for 1.4 s, easing in and out, swinging round what's in front
  * rather than cutting through it. Looking about is off while it flies, then
- * held to the new view's limits. The first view is flown into from far off.
- * Left alone in the wide view, it drifts a hair side to side.
+ * held to the new view's limits. The scene opens on the first view, no flight.
+ * Left alone in the wide view, it drifts a hair side to side. Says when it
+ * lands (`onArrive`), so a sequence can follow on.
  */
 
 type OrbitControlsImpl = React.ComponentRef<typeof OrbitControls>;
 
 /** What a thing in the scene needs to send you somewhere, and to say where on hover. */
-export const ViewContext = createContext<{ view: ViewKey; go: (view: ViewKey) => void; hover: (view: ViewKey | null) => void }>({
-	view: "wide",
-	go: () => {},
-	hover: () => {},
-});
+export const ViewContext = createContext<{
+	view: ViewKey;
+	go: (view: ViewKey) => void;
+	hover: (view: ViewKey | null) => void;
+	/** What a hovered control does, for the HUD (null when nothing's hovered). */
+	say: (text: string | null) => void;
+	/** Whether the record player is playing, and how to start or stop it. */
+	record: boolean;
+	toggleRecord: () => void;
+	/** Drop a coin in: a credit (the hologram's coin gives one when clicked). */
+	coin: () => void;
+}>({ view: "wide", go: () => {}, hover: () => {}, say: () => {}, record: false, toggleRecord: () => {}, coin: () => {} });
 export const useView = () => useContext(ViewContext);
 
 const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** How much further back to stand on a portrait screen so a view's width still fits (1 on a landscape one). */
+const reach = (camera: Camera) => {
+	const aspect = (camera as PerspectiveCamera).aspect ?? 1.6;
+	return aspect >= 1.2 ? 1 : Math.min(1.8, (1.2 / aspect) ** 0.8);
+};
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 type Flight = { from: { target: Vector3; offset: Spherical }; to: { target: Vector3; offset: Spherical }; t: number; seconds: number };
 
-export function CameraRig({ view, controls, panel }: { view: ViewKey; controls: React.RefObject<OrbitControlsImpl | null>; panel: boolean }) {
+export function CameraRig({
+	view,
+	controls,
+	panel,
+	slow = false,
+	onArrive,
+}: {
+	view: ViewKey;
+	controls: React.RefObject<OrbitControlsImpl | null>;
+	panel: boolean;
+	/** Take this flight slowly (the reveal at the end of the intro). */
+	slow?: boolean;
+	/** Called as the camera lands on a view. */
+	onArrive?: (view: ViewKey) => void;
+}) {
 	const camera = useThree((s) => s.camera);
 	const flight = useRef<Flight | null>(null);
 	const first = useRef(true);
@@ -56,15 +83,25 @@ export function CameraRig({ view, controls, panel }: { view: ViewKey; controls: 
 		const c = controls.current;
 		if (!c) return;
 		const goal = views[view];
-		// With the panel open the cabinet slides left of centre, to sit in the space beside it.
-		const shift = panel && goal.shift && window.innerWidth >= 768 ? goal.shift : 0;
-		const target = new Vector3(...goal.target).setX(goal.target[0] + shift);
-		const position = new Vector3(...goal.position).setX(goal.position[0] + shift);
+		const wide = window.innerWidth >= 768;
+		// With the panel open the cabinet slides left of centre, to sit in the space beside it; on a
+		// phone the panel is a sheet along the bottom, so the view drops a little to lift it above.
+		const shift = panel && goal.shift && wide ? goal.shift : 0;
+		const lift = panel && !wide ? 0.32 : 0;
+		const target = new Vector3(...goal.target).add(new Vector3(shift, -lift, 0));
+		const position = new Vector3(...goal.position).add(new Vector3(shift, -lift, 0));
 		const offset = new Spherical().setFromVector3(position.clone().sub(target));
+		// A tall, narrow screen sees less across: step back so the same width fits.
+		offset.radius *= reach(camera);
 
-		if (first.current) camera.position.set(...intro);
-		const seconds = first.current ? 2.4 : 1.4;
-		if (!first.current) play("glide");
+		// The first view is where the scene opens: the camera starts there, no flight.
+		const opening = first.current;
+		if (opening) {
+			camera.position.copy(position);
+			c.target.copy(target);
+		}
+		const seconds = slow ? 2.6 : 1.4;
+		if (!opening) whoosh(seconds);
 		first.current = false;
 
 		// Free while flying, so the limits of the last view don't snag the move.
@@ -73,7 +110,7 @@ export function CameraRig({ view, controls, panel }: { view: ViewKey; controls: 
 		// Round the short way.
 		const turn = offset.theta - from.offset.theta;
 		offset.theta = from.offset.theta + Math.atan2(Math.sin(turn), Math.cos(turn));
-		flight.current = { from, to: { target, offset }, t: still() ? 1 : 0, seconds };
+		flight.current = { from, to: { target, offset }, t: still() || opening ? 1 : 0, seconds };
 		c.enabled = false;
 	}, [view, panel, camera, controls]);
 
@@ -102,11 +139,12 @@ export function CameraRig({ view, controls, panel }: { view: ViewKey; controls: 
 					maxAzimuthAngle: goal.swing === null ? Infinity : home + goal.swing,
 					minPolarAngle: goal.polar[0],
 					maxPolarAngle: goal.polar[1],
-					minDistance: goal.distance[0],
-					maxDistance: goal.distance[1],
+					minDistance: goal.distance[0] * reach(camera),
+					maxDistance: goal.distance[1] * reach(camera),
 				});
 				flight.current = null;
 				c.enabled = true;
+				onArrive?.(view);
 				c.update();
 				touched.current = performance.now();
 			}

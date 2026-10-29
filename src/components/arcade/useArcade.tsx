@@ -13,8 +13,9 @@ export type Pressed = "prev" | "next" | "start" | "coin" | null;
 
 /**
  * Everything a cabinet does, whatever draws it: which machine is on (kept in
- * the hash), ◀ ▶ and the arrow keys to change it, START for the pause menu,
- * the coin slot, and which control is moving for a moment so it can be drawn
+ * the hash), ◀ ▶ and the arrow keys to change it, `start` for the pause menu
+ * (the list of machines), coins and credits (`coin`, `begin` spends one and
+ * bumps `game`), the coin slot, and which control is moving for a moment so it can be drawn
  * pressed. `menu` is the pause menu to render; `startRef` goes on the START
  * button focus returns to when the menu closes.
  */
@@ -51,10 +52,30 @@ export function useArcade() {
 		press("start");
 		setPaused(true);
 	}, [press]);
+	// Credits, like a real cabinet: a coin adds one, START spends one and the machine plays its
+	// "game start". With none, the marquee flashes INSERT COIN instead.
+	const [credits, setCredits] = useState(0);
+	const [game, setGame] = useState(0);
+	const [broke, setBroke] = useState(false);
+	const brokeTimer = useRef<number | undefined>(undefined);
 	const coin = useCallback(() => {
 		play("coin");
 		press("coin", 0, 400);
+		setCredits((c) => Math.min(9, c + 1));
 	}, [press]);
+	const begin = useCallback(() => {
+		press("start");
+		if (credits === 0) {
+			play("off");
+			window.clearTimeout(brokeTimer.current);
+			setBroke(true);
+			brokeTimer.current = window.setTimeout(() => setBroke(false), 1800);
+			return;
+		}
+		play("start");
+		setCredits((c) => c - 1);
+		setGame((g) => g + 1);
+	}, [credits, press]);
 
 	// After the pause menu, focus goes back to START. Picking a machine can redraw the cabinet,
 	// so the START to focus may be a new one: it takes focus as it mounts.
@@ -101,5 +122,5 @@ export function useArcade() {
 		/>
 	);
 
-	return { at, machine, pressed, tilt, move, start, coin, startRef, menu, paused };
+	return { at, machine, pressed, tilt, move, start, coin, startRef, menu, paused, credits, begin, game, broke };
 }

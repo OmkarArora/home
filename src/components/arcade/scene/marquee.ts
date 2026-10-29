@@ -55,30 +55,29 @@ export async function drawMarquee(texture: CanvasTexture | null, family: string,
 }
 
 /** The wall sign: "ARCADE" as a lime neon tube, a pale core inside a wide glow, on black. */
-export async function drawNeon(family: string) {
-	const canvas = Object.assign(document.createElement("canvas"), { width: 1024, height: 256 });
+/**
+ * A neon pixel alien for the wall (our own sprite): each pixel a little glowing tube, like the
+ * heart. Wordless, so it doesn't repeat the marquee.
+ */
+export function drawInvader([glow, core]: [string, string]) {
+	const sprite = ["00010001000", "00001010000", "00111111100", "01111111110", "11011011011", "11111111111", "01101010110", "11000000011"];
+	const cell = 40;
+	const canvas = Object.assign(document.createElement("canvas"), { width: 11 * cell + 80, height: 8 * cell + 80 });
 	const ctx = canvas.getContext("2d");
-	await ready(family, 120);
 	if (ctx) {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
-		ctx.font = `120px ${family}`;
-		for (const [blur, colour] of [
-			[40, lime],
-			[18, lime],
-			[6, "#e9ffb0"],
+		for (const [blur, colour, width] of [
+			[30, glow, 6],
+			[10, glow, 4],
+			[0, core, 2],
 		] as const) {
 			ctx.shadowColor = colour;
 			ctx.shadowBlur = blur;
 			ctx.strokeStyle = colour;
-			ctx.lineWidth = 6;
-			ctx.strokeText("ARCADE", canvas.width / 2, canvas.height / 2);
+			ctx.lineWidth = width;
+			sprite.forEach((row, y) => [...row].forEach((on, x) => on === "1" && ctx.strokeRect(40 + x * cell + 5, 40 + y * cell + 5, cell - 10, cell - 10)));
 		}
-		ctx.shadowBlur = 0;
-		ctx.fillStyle = "#f6ffd9";
-		ctx.fillText("ARCADE", canvas.width / 2, canvas.height / 2);
 	}
 	const texture = new CanvasTexture(canvas);
 	texture.colorSpace = SRGBColorSpace;

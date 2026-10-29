@@ -22,12 +22,15 @@ export function RotatingWord({
 	words,
 	every = 2800,
 	stagger = 0.045,
+	pick,
 }: {
 	words: string[];
 	/** How long each word stays, in ms. */
 	every?: number;
 	/** The delay between one letter's flip and the next, in s. */
 	stagger?: number;
+	/** Jump straight to a word (the Arcade's buttons): each new `n` flips to word `index`. */
+	pick?: { index: number; n: number };
 }) {
 	const reduced = useReducedMotion();
 	const [index, setIndex] = useState(0);
@@ -38,6 +41,12 @@ export function RotatingWord({
 	const word = words[index];
 
 	useEffect(() => setMounted(true), []);
+
+	// Picked from outside: flip to that word, and let it stay a full turn before moving on.
+	useEffect(() => {
+		if (pick) setIndex(pick.index % words.length);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- a new pick is a new `n`
+	}, [pick?.n]);
 
 	// Each word's width at the headline's current size, which changes with the window.
 	useLayoutEffect(() => {
@@ -67,7 +76,7 @@ export function RotatingWord({
 			window.clearInterval(timer);
 			document.removeEventListener("visibilitychange", onVisibility);
 		};
-	}, [reduced, paused, words.length, every]);
+	}, [reduced, paused, words.length, every, pick?.n]);
 
 	return (
 		<span

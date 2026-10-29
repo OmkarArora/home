@@ -40,12 +40,18 @@ export function Polaroids({
 	snaps,
 	every = 4000,
 	alternate = true,
+	command,
+	links = true,
 }: {
 	snaps: Snap[];
 	/** How long each card stays on top before the next, in ms. */
 	every?: number;
 	/** Whether each move goes out the other side from the last, or always to the right. */
 	alternate?: boolean;
+	/** Moves asked for from outside (the Arcade's buttons): each new `n` is one more. */
+	command?: { go: "next" | "back" | "pause"; n: number };
+	/** Whether a card opens what it's of; off where a stray click shouldn't take you away (the Arcade). */
+	links?: boolean;
 }) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
 	// A drag ends with a click; this keeps that click from opening the card.
@@ -76,6 +82,13 @@ export function Polaroids({
 		setTouched(true);
 		go(way);
 	};
+
+	useEffect(() => {
+		if (!command) return;
+		if (command.go === "pause") setPaused((p) => !p);
+		else manual(command.go);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- a new command is a new `n`
+	}, [command?.n]);
 
 	// Whether the tab is out of sight. Coming back starts a fresh wait.
 	const [hidden, setHidden] = useState(false);
@@ -154,7 +167,7 @@ export function Polaroids({
 									caption={
 										<>
 											<span className="truncate">{snap.caption}</span>
-											{showOpen && (
+											{showOpen && links && (
 												<a
 													href={snap.href}
 													{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
@@ -171,18 +184,24 @@ export function Polaroids({
 									}
 								>
 									{/* The picture opens it. With the Open button shown, that button is the one for keyboards and screen readers. */}
-									<a
-										href={snap.href}
-										{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-										tabIndex={showOpen || !isTop ? -1 : 0}
-										aria-hidden={showOpen || undefined}
-										aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
-										onClick={(event) => dragged.current && event.preventDefault()}
-										draggable={false}
-										className="flex min-h-0 flex-1 flex-col"
-									>
-										<Face snap={snap} />
-									</a>
+									{links ? (
+										<a
+											href={snap.href}
+											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+											tabIndex={showOpen || !isTop ? -1 : 0}
+											aria-hidden={showOpen || undefined}
+											aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+											onClick={(event) => dragged.current && event.preventDefault()}
+											draggable={false}
+											className="flex min-h-0 flex-1 flex-col"
+										>
+											<Face snap={snap} />
+										</a>
+									) : (
+										<div className="flex min-h-0 flex-1 flex-col">
+											<Face snap={snap} />
+										</div>
+									)}
 								</Polaroid>
 							</motion.div>
 						</motion.div>

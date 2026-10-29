@@ -24,6 +24,7 @@ import {
 import { useView } from "./CameraRig";
 import { lime } from "./marquee";
 import { cyan } from "./Props";
+import { tvBlip } from "./ambience";
 import { startRecord } from "./recordMusic";
 import { anchors, isTap, stand } from "./views";
 
@@ -219,7 +220,7 @@ export function NightSky() {
 }
 
 /** Where the moon hangs in the open: low over the horizon behind the cabinet, off to the left. */
-const moonrise = new Vector3(-12, 1.3, -24);
+const moonrise = new Vector3(-17, 2.4, -22);
 
 /**
  * The night with no walls: stars all over the sky, and a big full moon
@@ -337,7 +338,10 @@ function useTvGame() {
 			s.x += s.vx * dt;
 			s.y += s.vy * dt;
 			if (s.y < 6 || s.y > 114) s.vy *= -1;
-			if (s.x < 14 || s.x > 146) s.vx *= -1;
+			if (s.x < 14 || s.x > 146) {
+				s.vx *= -1;
+				tvBlip(s.x > 80);
+			}
 			s.left += (s.y - s.left) * Math.min(1, dt * 5);
 			s.right += (s.y - s.right) * Math.min(1, dt * 4);
 		}
@@ -488,14 +492,15 @@ function buildRig(deck: Object3D) {
 
 export function RecordCorner() {
 	const deck = useModel("/models/record-player.glb");
-	// The model's parts all share one see-through material, so the clear dust cover (drawn first) could
-	// hide the platter under it. Make every part solid but the cover, and keep the cover out of the depth test's way.
+	// The model's parts all share one see-through material, so parts drawn first could hide the
+	// platter under them: make them all solid.
 	useMemo(() => {
 		deck.traverse((o) => {
 			const mesh = o as Mesh;
 			if (!mesh.isMesh) return;
 			const material = (mesh.material as MeshStandardMaterial).clone();
-			if (mesh.name.includes("Cover")) material.depthWrite = false;
+			// The clear dust cover stands open behind it, and only its handle shows, floating: leave it off.
+			if (mesh.name.includes("Cover")) mesh.visible = false;
 			// (The loader also turns depth writing off for see-through materials: turn it back on.)
 			else Object.assign(material, { transparent: false, depthWrite: true, opacity: 1, alphaTest: 0.5 });
 			mesh.material = material;
@@ -510,9 +515,12 @@ export function RecordCorner() {
 
 	// Playing: the platter spins up, the arm lifts, swings over the record and sets down, and the music
 	// starts as the needle lands (if sound is on). Stopping runs it all backwards.
-	const playing = useRef(false);
-	const arm = useRef({ turn: 0, lift: 0 });
-	const speed = useRef(0);
+	const { record, toggleRecord } = useView();
+	const playing = useRef(record);
+	playing.current = record;
+	// Playing when the scene opens: open mid-song, the needle already down and the platter at speed.
+	const arm = useRef({ turn: record ? rig.swing : 0, lift: 0 });
+	const speed = useRef(record ? 1 : 0);
 	const music = useRef<(() => void) | null>(null);
 	const sound = useRef(false);
 	sound.current = useSoundOn();
@@ -538,15 +546,17 @@ export function RecordCorner() {
 		rig.platter.rotation.y -= dt * speed.current * ((33.33 / 60) * Math.PI * 2);
 
 		const landed = playing.current && Math.abs(a.turn - goal) < 0.002 && a.lift < 0.02;
-		if (landed && sound.current && !music.current) music.current = startRecord();
-		if ((!landed || !sound.current) && music.current) {
+		// Browsers won't play sound before the visitor's first click or key: wait for it, then join in.
+		const heard = sound.current && (navigator.userActivation?.hasBeenActive ?? true);
+		if (landed && heard && !music.current) music.current = startRecord();
+		if ((!landed || !heard) && music.current) {
 			music.current();
 			music.current = null;
 		}
 	});
 
 	return (
-		<group position={anchors.records.at} rotation={[0, anchors.records.turn, 0]} {...useVisit("records", () => (playing.current = !playing.current))}>
+		<group position={anchors.records.at} rotation={[0, anchors.records.turn, 0]} {...useVisit("records", toggleRecord)}>
 			<mesh position={[0, 0.27, 0]}>
 				<cylinderGeometry args={[0.32, 0.3, 0.54, 32]} />
 				<meshStandardMaterial color="#141418" roughness={0.5} metalness={0.2} />

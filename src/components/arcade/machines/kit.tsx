@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 
 import { mono } from "@/components/site/ui";
 
@@ -126,3 +126,36 @@ export const stack: Layout = (screen, knobs) => (
  * leave its knobs out, and how to lay out its screen and knobs.
  */
 export type MachineProps = { active?: boolean; compact?: boolean; layout?: Layout };
+
+/**
+ * A cabinet's coloured buttons, handed to the machine on its screen: up to twelve, player 1's
+ * six then player 2's. Each says what it does (shown when the button's hovered) and does it.
+ */
+export type Button = { label: string; press: () => void } | null;
+
+/** Where a machine hands its buttons; a frame without a cabinet ignores them. */
+export const ButtonsContext = createContext<(buttons: Button[] | null) => void>(() => {});
+
+/** Gives the cabinet's buttons to this machine for as long as it's showing. */
+export function useButtons(buttons: Button[]) {
+	const give = useContext(ButtonsContext);
+	// Handed over every render, so the buttons always act on the machine's latest state.
+	useEffect(() => give(buttons));
+	useEffect(() => () => give(null), [give]);
+}
+
+/** How many games have been started on the cabinet: each new one, the machine plays its "game start". */
+export const GameContext = createContext(0);
+
+/** Runs `flourish` each time a game starts (a credit spent on START). */
+export function useGameStart(flourish: () => void) {
+	const game = useContext(GameContext);
+	const seen = useRef(game);
+	const latest = useRef(flourish);
+	latest.current = flourish;
+	useEffect(() => {
+		if (game === seen.current) return;
+		seen.current = game;
+		latest.current();
+	}, [game]);
+}

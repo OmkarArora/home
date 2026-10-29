@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Polaroids } from "@/components/site/Polaroids";
 import { snaps } from "@/content/snaps";
 
-import { Choice, Knob, Knobs, type MachineProps, Screen, stack } from "./kit";
+import { Choice, Knob, Knobs, type MachineProps, Screen, stack, useButtons, useGameStart } from "./kit";
 
 /**
  * The home page's polaroid stack: it flicks through on its own, out one side
@@ -15,6 +15,20 @@ import { Choice, Knob, Knobs, type MachineProps, Screen, stack } from "./kit";
 export function PolaroidShuffle({ compact = false, layout = stack }: MachineProps) {
 	const [every, setEvery] = useState(4000);
 	const [sides, setSides] = useState<"alternate" | "right">("alternate");
+	// On a cabinet: next card, previous card, pause or play; the rest flick on.
+	const [command, setCommand] = useState<{ go: "next" | "back" | "pause"; n: number }>();
+	const send = (go: "next" | "back" | "pause") => setCommand((c) => ({ go, n: (c?.n ?? 0) + 1 }));
+	const buttons = [
+		{ label: "next card", press: () => send("next") },
+		{ label: "previous card", press: () => send("back") },
+		{ label: "pause / play", press: () => send("pause") },
+		{ label: "next card", press: () => send("next") },
+		{ label: "next card", press: () => send("next") },
+		{ label: "next card", press: () => send("next") },
+	];
+	useButtons([...buttons, ...buttons]);
+	// A game starts: the stack deals three cards, quickly.
+	useGameStart(() => [0, 350, 700].forEach((ms) => setTimeout(() => send("next"), ms)));
 
 	// The stack is drawn at the home page's size (about 25rem tall with its tilt); a shorter
 	// screen, like an arcade cabinet's, shrinks it to fit.
@@ -31,7 +45,7 @@ export function PolaroidShuffle({ compact = false, layout = stack }: MachineProp
 	return layout(
 		<Screen ref={screen} className="flex min-h-[28rem] items-center justify-center overflow-hidden">
 			<div style={{ scale: fit }}>
-				<Polaroids snaps={Object.values(snaps)} every={every} alternate={sides === "alternate"} />
+				<Polaroids snaps={Object.values(snaps)} every={every} alternate={sides === "alternate"} command={command} links={false} />
 			</div>
 		</Screen>,
 		compact ? null : (

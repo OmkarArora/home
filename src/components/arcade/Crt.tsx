@@ -11,7 +11,8 @@ import { motion, useReducedMotion } from "motion/react";
  * to the dark theme's here, so the machines draw as they do on dark.
  */
 
-const darkTheme = {
+/** The site's dark colours, which a machine's screen always plays in. */
+export const darkTheme = {
 	"--bg": "#0b0b0c",
 	"--ink": "#ededE6",
 	"--dim": "#8a8a84",
@@ -22,12 +23,23 @@ const darkTheme = {
 	color: "#ededE6",
 } as React.CSSProperties;
 
-export function Crt({ channel, children, className = "" }: { channel: string; children: React.ReactNode; className?: string }) {
+export function Crt({
+	channel,
+	children,
+	className = "",
+	corners = "9% / 12%",
+}: {
+	channel: string;
+	children: React.ReactNode;
+	className?: string;
+	/** How round the tube's corners are (a CSS border-radius); a cabinet's opening may want less. */
+	corners?: string;
+}) {
 	const reduced = useReducedMotion();
 	return (
 		<div
-			style={darkTheme}
-			className={`relative isolate overflow-hidden rounded-[9%/12%] bg-[#0b0b0c] shadow-[0_0_24px_rgb(198_240_58/0.18),inset_0_0_0_2px_#000] ${className}`}
+			style={{ ...darkTheme, borderRadius: corners }}
+			className={`relative isolate overflow-hidden bg-[#0b0b0c] shadow-[0_0_24px_rgb(198_240_58/0.18),inset_0_0_0_2px_#000] ${className}`}
 		>
 			{/* The machine fills the tube, whatever height it asked for. */}
 			<motion.div

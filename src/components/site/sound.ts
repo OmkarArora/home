@@ -184,6 +184,15 @@ const key = "sfx";
 const listeners = new Set<() => void>();
 let audio: AudioContext | null = null;
 
+/** Whether the visitor has ever switched sound off themselves (not just never turned it on). */
+export function soundTurnedOff() {
+	try {
+		return localStorage.getItem(key) === "off";
+	} catch {
+		return false;
+	}
+}
+
 function read() {
 	try {
 		return localStorage.getItem(key) === "on";
@@ -193,6 +202,9 @@ function read() {
 }
 
 let enabled = typeof window !== "undefined" && read();
+
+/** Whether sound is on, right now (for sounds made outside React, like the Arcade's). */
+export const isSoundOn = () => enabled;
 
 export function setSoundOn(on: boolean) {
 	enabled = on;
@@ -217,7 +229,18 @@ export function useSoundOn() {
 }
 
 function context() {
-	audio ??= new AudioContext();
+	if (!audio) {
+		audio = new AudioContext();
+		// Leave the tab and everything goes quiet; come back and it carries on where it was.
+		let wasRunning = false;
+		document.addEventListener("visibilitychange", () => {
+			if (!audio) return;
+			if (document.hidden) {
+				wasRunning = audio.state === "running";
+				if (wasRunning) void audio.suspend();
+			} else if (wasRunning) void audio.resume();
+		});
+	}
 	// Browsers start audio suspended until a gesture; every call here follows one.
 	if (audio.state === "suspended") void audio.resume();
 	return audio;

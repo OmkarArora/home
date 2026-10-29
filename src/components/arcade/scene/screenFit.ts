@@ -104,14 +104,21 @@ function facing(camera: Camera) {
 	return toCamera.copy(camera.position).sub(centre).normalize().dot(normal);
 }
 
-/** Fits `el` to the screen as seen by `camera` on a canvas `width`×`height` pixels. */
-export function fitScreen(el: HTMLElement, camera: Camera, width: number, height: number) {
+/** How visible the live screen is from `camera`: 1 head on, fading to 0 as the glass turns away. */
+export function liveOpacity(camera: Camera) {
+	return Math.min(1, Math.max(0, (facing(camera) - 0.5) / 0.2));
+}
+
+/**
+ * Fits `el` to the screen as seen by `camera` on a canvas `width`×`height` pixels. Unless
+ * `interactive`, clicks go through it to the glass (which takes you up to the cabinet).
+ */
+export function fitScreen(el: HTMLElement, camera: Camera, width: number, height: number, interactive = true) {
 	// The controls and the sway have moved the camera this frame; project from where it is now.
 	camera.updateMatrixWorld();
-	const face = facing(camera);
-	const opacity = Math.min(1, Math.max(0, (face - 0.5) / 0.2));
+	const opacity = liveOpacity(camera);
 	el.style.opacity = String(opacity);
-	el.style.pointerEvents = opacity > 0.5 ? "" : "none";
+	el.style.pointerEvents = interactive && opacity > 0.5 ? "" : "none";
 	if (opacity === 0) {
 		el.style.visibility = "hidden";
 		return;

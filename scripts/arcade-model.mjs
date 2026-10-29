@@ -137,7 +137,7 @@ function classify(p, body) {
 	if (y > 1.45) return "speakers";
 	if (y > 1.05 && y < 1.2 && z > 0.12) {
 		if (w > 0.04 && w < 0.045 && h > 0.035) return `${side}-stick`;
-		if (h > 0.04) return "stick-shafts";
+		if (h > 0.04) return `${side}-shaft`;
 		if (w > 0.045) return "stick-bases";
 		// The start buttons sit further back on the deck, one per player.
 		if (z < 0.18) return w < 0.037 ? `${side}-start` : "button-rings";

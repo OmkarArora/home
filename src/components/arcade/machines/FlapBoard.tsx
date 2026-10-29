@@ -5,7 +5,7 @@ import { useState } from "react";
 import { RotatingWord } from "@/components/site/RotatingWord";
 import { mono } from "@/components/site/ui";
 
-import { Knob, Knobs, type MachineProps, Screen, stack } from "./kit";
+import { Knob, Knobs, type MachineProps, Screen, stack, useButtons, useGameStart } from "./kit";
 
 /**
  * The home headline's rotating word, with your own words: each letter flips
@@ -28,7 +28,18 @@ export function FlapBoard({ compact = false, layout = stack }: MachineProps) {
 	const [every, setEvery] = useState(2800);
 	const [stagger, setStagger] = useState(45);
 	const words = wordsOf(text);
-	const shown = words.length > 1 ? words : start;
+	// A game starts: the board flips to PLAYER 1, then back to your words.
+	const [ready, setReady] = useState(false);
+	useGameStart(() => {
+		setReady(true);
+		setTimeout(() => setReady(false), 2600);
+	});
+	const yours = words.length > 1 ? words : start;
+	const shown = ready ? ["player 1", ...yours] : yours;
+	// On a cabinet, each player's buttons flip straight to word 1–6.
+	const [pick, setPick] = useState<{ index: number; n: number }>();
+	const flipTo = (index: number) => setPick((p) => ({ index, n: (p?.n ?? 0) + 1 }));
+	useButtons(Array.from({ length: 12 }, (_, i) => (shown[i % 6] ? { label: shown[i % 6], press: () => flipTo(i % 6) } : null)));
 
 	return layout(
 		<Screen className="flex aspect-[4/3] items-center justify-center p-6">
@@ -36,7 +47,7 @@ export function FlapBoard({ compact = false, layout = stack }: MachineProps) {
 				<span className="sr-only">Web that feels {shown[0]}</span>
 				<span aria-hidden>Web that feels </span>
 				{/* A new set of words starts the board over. */}
-				<RotatingWord key={shown.join()} words={shown} every={every} stagger={stagger / 1000} />
+				<RotatingWord key={shown.join()} words={shown} every={every} stagger={stagger / 1000} pick={pick} />
 			</p>
 		</Screen>,
 		compact ? null : (

@@ -72,8 +72,10 @@ export const views: Record<ViewKey, View> = {
 	records: { label: "The records", position: before(anchors.records, recordsTarget, 0.8, 0.55), target: recordsTarget, swing: 0.4, polar: [0.5, 1.25], distance: [0.6, 1.3] },
 };
 
-/** Where the camera starts, far off and high, before it flies in to the wide view. */
-export const intro: Triple = [1.5, 3.4, 8.5];
+/** The neon pair behind the cabinet, either side of the hologram: same height, same size, mirrored. */
+export const neonPair = { x: 1.05, y: 2.0, z: -1.38, size: 0.6 };
+/** Turned to face the wide view, so neither reads as skewed. */
+export const facingWide = (x: number, z: number) => Math.atan2(views.wide.position[0] - x, views.wide.position[2] - z);
 
 /** What each thing in the scene takes you to, and what hovering it says. */
 export const hints: Record<Exclude<ViewKey, "wide">, string> = { cabinet: "Play", tv: "Watch TV", records: "Records" };

@@ -1,5 +1,3 @@
-import { Bloom } from "./Bloom";
-import { Fireflies } from "./Fireflies";
 import { FlapBoard } from "./FlapBoard";
 import type { MachineProps } from "./kit";
 import { PolaroidShuffle } from "./PolaroidShuffle";
@@ -7,7 +5,8 @@ import { SoundBoard } from "./SoundBoard";
 
 /**
  * The Arcade's machines: each one is a trick this site uses, made playable.
- * `how` is the one-line explanation shown beside it.
+ * `how` is the one-line explanation shown beside it. (Fireflies and Bloom are
+ * built too, but didn't earn a place on the cabinet.)
  */
 export type Machine = {
 	key: string;
@@ -19,20 +18,6 @@ export type Machine = {
 };
 
 export const machines: Machine[] = [
-	{
-		key: "fireflies",
-		name: "Fireflies",
-		tag: "Particles that part",
-		how: "Move through them. Each speck is pushed out of a circle around the pointer, and a damped spring draws it back to where it was drifting.",
-		Play: Fireflies,
-	},
-	{
-		key: "bloom",
-		name: "Bloom",
-		tag: "The theme switch",
-		how: "Click anywhere. The other theme grows out of that point under a radial-gradient mask, so its edge stays soft instead of the hard line a clip-path draws.",
-		Play: Bloom,
-	},
 	{
 		key: "flap",
 		name: "Flap board",
