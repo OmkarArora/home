@@ -9,12 +9,14 @@ import { ACESFilmicToneMapping, AdditiveBlending, CanvasTexture } from "three";
 import { pixel } from "../pixelFont";
 import type { Pressed } from "../useArcade";
 import { Cabinet } from "./Cabinet";
+import { DragonBalls, type Stage, type SummonApi, type WishKind } from "./DragonBalls";
 import { CameraRig, ViewContext } from "./CameraRig";
 import { Hologram, NeonPair, Sandwich, StringLights, Underglow } from "./Props";
 import { BackWall, NightSky, OpenSky, RecordCorner, TvCorner } from "./Room";
 import { fitScreen } from "./screenFit";
 import { Stickers } from "./Stickers";
-import { type Palette, PaletteContext, usePalette } from "./palette";
+import { Wish } from "./Wish";
+import { type Palette, PaletteContext, palettes, usePalette } from "./palette";
 import { type ViewKey, views } from "./views";
 
 /**
@@ -146,6 +148,7 @@ export default function ArcadeScene({
 	onHover,
 	onSay,
 	onCoin,
+	onWish,
 	record = false,
 	onRecord,
 	onArrive,
@@ -167,6 +170,8 @@ export default function ArcadeScene({
 	onSay: (text: string | null) => void;
 	/** A coin in: from the hologram's coin, grabbed. */
 	onCoin: () => void;
+	/** A wish the dragon granted. */
+	onWish: (kind: WishKind) => void;
 	/** Whether the record player is playing, and the switch for it. */
 	record?: boolean;
 	onRecord: () => void;
@@ -192,6 +197,11 @@ export default function ArcadeScene({
 }) {
 	const box = useRef<HTMLDivElement>(null);
 	const controls = useRef<OrbitControlsImpl | null>(null);
+	// The dragon takes the camera while he flies, then hands it back to fly home.
+	const cinematic = useRef(false);
+	const [again, setAgain] = useState(0);
+	const [stage, setStage] = useState<Stage>("off");
+	const summonApi = useRef<SummonApi | null>(null);
 	const [ready, setReady] = useState(false);
 
 	const ways = useMemo(
@@ -242,7 +252,7 @@ export default function ArcadeScene({
 				<Suspense fallback={null}>
 					<PaletteContext.Provider value={palette}>
 					<ViewContext.Provider value={ways}>
-						<CameraRig view={view} controls={controls} panel={panel} slow={slow} onArrive={onArrive} />
+						<CameraRig view={view} controls={controls} panel={panel} slow={slow} onArrive={onArrive} hold={cinematic} again={again} />
 						<Ready onReady={() => setReady(true)} />
 						<Cabinet title={title} pressed={pressed} tilt={tilt} on={on} live={live} />
 						<ScreenTracker screen={screen} interactive={view === "cabinet"} />
@@ -252,6 +262,17 @@ export default function ArcadeScene({
 						{setting === "room" && <StringLights />}
 						<NeonPair />
 						<Sandwich />
+						<DragonBalls
+							controls={controls}
+							hold={cinematic}
+							onStage={setStage}
+							api={summonApi}
+							onWish={onWish}
+							onDone={() => {
+								onView("wide");
+								setAgain((n) => n + 1);
+							}}
+						/>
 						{setting === "room" ? (
 							<>
 								<BackWall />
@@ -275,7 +296,9 @@ export default function ArcadeScene({
 					<Vignette offset={0.3} darkness={0.55} />
 				</EffectComposer>
 			</Canvas>
-			{children}
+			{/* The HUD steps aside while the dragon's here. */}
+			<div className={`transition-opacity duration-700 ${stage === "off" ? "" : "pointer-events-none opacity-0"}`}>{children}</div>
+			<Wish stage={stage} api={summonApi} neon={palette === palettes.synthwave} />
 			<Gate ready={ready} entered={entered} onEnter={onEnter} />
 		</div>
 	);

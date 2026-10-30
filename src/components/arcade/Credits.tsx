@@ -14,6 +14,8 @@ const models = [
 	{ what: "Arcade cabinet", by: "JewelPodd", model: "https://sketchfab.com/3d-models/arcade-cabinet-21ee4868e8f14bca979f24df1276b770", author: "https://sketchfab.com/JewelPodd" },
 	{ what: "CRT TV", by: "Poring", model: "https://sketchfab.com/3d-models/sony-pvm-14l2-crt-tv-ab19c2419c2647299ce96d027b3e7f5e", author: "https://sketchfab.com/poring" },
 	{ what: "Games console", by: "Vladimir_Sofyanov", model: "https://sketchfab.com/3d-models/sony-playstation-one-4afd87cc153346f8a8400a1e8517a6c9", author: "https://sketchfab.com/vladimirsoufl" },
+	{ what: "Wish dragon", by: "placebo_vscure", model: "https://sketchfab.com/3d-models/dragon-ball-z-shenlong-ee561e95bd9642f193fd09e8058f6c2f", author: "https://sketchfab.com/placebo_vscure" },
+	{ what: "Seven glass balls", by: "Anthony Yanez", model: "https://sketchfab.com/3d-models/the-dragon-balls-77baebec10d940f08d09b5f9059d4066", author: "https://sketchfab.com/paulyanez" },
 	{ what: "Record player", by: "AleixoAlonso", model: "https://sketchfab.com/3d-models/yamaha-tt-300-record-player-3577a2a1a0c24218bd5d768beccf218e", author: "https://sketchfab.com/AleixoAlonso" },
 ];
 

@@ -51,7 +51,13 @@ export function CameraRig({
 	panel,
 	slow = false,
 	onArrive,
+	hold,
+	again = 0,
 }: {
+	/** While true, something else (the dragon's flight) has the camera; the rig keeps its hands off. */
+	hold?: React.RefObject<boolean>;
+	/** Bump to fly to the current view again from wherever the camera's been taken. */
+	again?: number;
 	view: ViewKey;
 	controls: React.RefObject<OrbitControlsImpl | null>;
 	panel: boolean;
@@ -112,11 +118,11 @@ export function CameraRig({
 		offset.theta = from.offset.theta + Math.atan2(Math.sin(turn), Math.cos(turn));
 		flight.current = { from, to: { target, offset }, t: still() || opening ? 1 : 0, seconds };
 		c.enabled = false;
-	}, [view, panel, camera, controls]);
+	}, [view, panel, camera, controls, again]);
 
 	useFrame(({ clock }, dt) => {
 		const c = controls.current;
-		if (!c) return;
+		if (!c || hold?.current) return;
 		const f = flight.current;
 		const { offset, sphere } = scratch.current;
 		if (f) {

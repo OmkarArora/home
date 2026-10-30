@@ -77,6 +77,10 @@ const props = [
 	{ source: "yamaha_tt-300_record_player", out: "record-player", axis: 0, size: 0.43 },
 	{ source: "sony_pvm-14l2_crt_tv", out: "crt-tv", axis: 1, size: 0.34 },
 	{ source: "sony_playstation_one", out: "playstation", axis: 2, size: 0.193 },
+	// The easter egg: Shenlong (rigged, with his idle animation) and the seven balls. Sized in the
+	// scene, so here just a unit length; Shenlong's own pile of dragon balls is left out.
+	{ source: "dragon_ball_z_shenlong", out: "shenlong", axis: 2, size: 1, drop: ["dragonballs_DRAGONBALL_0"] },
+	{ source: "the_dragon_balls", out: "dragon-balls", axis: 0, size: 1 },
 ];
 
 await MeshoptEncoder.ready;
@@ -96,6 +100,8 @@ for (const prop of props) {
 		root.addChild(child);
 	}
 	scene.addChild(root);
+
+	for (const node of doc.getRoot().listNodes()) if (prop.drop?.includes(node.getName())) node.dispose();
 
 	// Brand marks and borrowed artwork out, before the textures are shrunk.
 	for (const texture of doc.getRoot().listTextures()) {

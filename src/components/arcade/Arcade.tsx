@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -119,7 +120,7 @@ function Controls({
 }
 
 function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting }) {
-	const { at, machine, pressed, tilt, move, start, coin, startRef, menu, paused, credits, begin, game, broke } = useArcade();
+	const { at, machine, pressed, tilt, move, start, coin, fill, startRef, menu, paused, credits, begin, game, broke } = useArcade();
 	// The marquee's last line: the machine, and the credits (or INSERT COIN, flashing, when START had none).
 	const marquee = broke ? "insert coin" : credits > 0 ? `${machine.name} · ${credits === 1 ? "credit" : "credits"} ${credits}` : machine.name;
 	// The way in is an Enter button: its click lets the browser play sound, and it turns the site's
@@ -195,6 +196,7 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 	const [paletteName, setPaletteName] = useState<PaletteName>(startPalette);
 	const palette = palettes[paletteName];
 	const { sky } = palette;
+	const router = useRouter();
 	const switchPalette = () => {
 		const next = paletteName === "twilight" ? "synthwave" : "twilight";
 		setPaletteName(next);
@@ -233,7 +235,7 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 
 	return (
 		<div className={full ? "fixed inset-0 z-[70]" : "pb-16"} style={full ? { background: sky } : undefined}>
-			<ArcadeScene full={full} setting={setting} view={view} panel={panel} onView={go} onHover={setHint} onSay={setSaid} onCoin={coin} record={record} onRecord={toggleRecord} slow={intro} entered={entered} onEnter={enter} live={!expanded} palette={palette} title={marquee} pressed={pressed} tilt={tilt} on={{
+			<ArcadeScene full={full} setting={setting} view={view} panel={panel} onView={go} onHover={setHint} onSay={setSaid} onCoin={coin} onWish={(kind) => (kind === "credits" ? fill() : kind === "sky" ? switchPalette() : kind === "maker" ? router.push("/about") : undefined)} record={record} onRecord={toggleRecord} slow={intro} entered={entered} onEnter={enter} live={!expanded} palette={palette} title={marquee} pressed={pressed} tilt={tilt} on={{
 					prev: () => move(-1),
 					next: () => move(1),
 					start: begin,

@@ -61,8 +61,14 @@ export function useArcade() {
 	const coin = useCallback(() => {
 		play("coin");
 		press("coin", 0, 400);
-		setCredits((c) => Math.min(9, c + 1));
+		// A coin never takes you down from more than nine (after a wish for endless credits).
+		setCredits((c) => (c >= 9 ? c : c + 1));
 	}, [press]);
+	/** The dragon's wish: as good as endless credits. */
+	const fill = useCallback(() => {
+		play("coin");
+		setCredits(99);
+	}, []);
 	const begin = useCallback(() => {
 		press("start");
 		if (credits === 0) {
@@ -122,5 +128,5 @@ export function useArcade() {
 		/>
 	);
 
-	return { at, machine, pressed, tilt, move, start, coin, startRef, menu, paused, credits, begin, game, broke };
+	return { at, machine, pressed, tilt, move, start, coin, fill, startRef, menu, paused, credits, begin, game, broke };
 }

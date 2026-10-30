@@ -31,13 +31,18 @@ function loop(ctx: AudioContext, buffer: AudioBuffer, out: AudioNode) {
 	return src;
 }
 
+/** The bed playing now, so something can hush it for a while (`hushAmbience`). */
+let bed: GainNode | null = null;
+let hushed = false;
+
 /** Starts the bed, fading in; returns a stop that fades it out. */
 export function startAmbience() {
 	const ctx = audioContext();
 	const master = ctx.createGain();
 	master.gain.setValueAtTime(0.0001, ctx.currentTime);
-	master.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 2);
+	if (!hushed) master.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 2);
 	master.connect(ctx.destination);
+	bed = master;
 	const stops: (() => void)[] = [];
 
 	// Room tone: low brown noise.
@@ -101,6 +106,7 @@ export function startAmbience() {
 	stops.push(() => window.clearTimeout(timer));
 
 	return () => {
+		if (bed === master) bed = null;
 		const now = ctx.currentTime;
 		master.gain.cancelScheduledValues(now);
 		master.gain.setValueAtTime(Math.max(master.gain.value, 0.0001), now);
@@ -110,6 +116,16 @@ export function startAmbience() {
 			master.disconnect();
 		}, 700);
 	};
+}
+
+/** Fades the bed away (for the dragon), or back in. */
+export function hushAmbience(quiet: boolean) {
+	hushed = quiet;
+	if (!bed) return;
+	const now = bed.context.currentTime;
+	bed.gain.cancelScheduledValues(now);
+	bed.gain.setValueAtTime(Math.max(bed.gain.value, 0.0001), now);
+	bed.gain.exponentialRampToValueAtTime(quiet ? 0.0001 : 1, now + (quiet ? 1.5 : 3));
 }
 
 /** The TV's game: a soft blip when the ball meets a paddle (higher off the right one). */
@@ -150,4 +166,199 @@ export function whoosh(seconds: number) {
 	src.connect(band).connect(gain).connect(ctx.destination);
 	src.start(t);
 	src.stop(t + length + 0.05);
+}
+
+/** A long low rumble building under the summon: brown noise swelling and falling over `seconds`. */
+export function rumble(seconds: number) {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	const src = ctx.createBufferSource();
+	src.buffer = noise(ctx, seconds + 0.2, true);
+	const low = ctx.createBiquadFilter();
+	low.type = "lowpass";
+	low.frequency.value = 140;
+	const gain = ctx.createGain();
+	gain.gain.setValueAtTime(0.0001, t);
+	gain.gain.exponentialRampToValueAtTime(0.5, t + seconds * 0.6);
+	gain.gain.exponentialRampToValueAtTime(0.0001, t + seconds);
+	src.connect(low).connect(gain).connect(ctx.destination);
+	src.start(t);
+	src.stop(t + seconds + 0.1);
+}
+
+/** A crack of thunder: a bright burst of noise falling away into a rolling tail. */
+export function thunder() {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	const src = ctx.createBufferSource();
+	src.buffer = noise(ctx, 2.6, true);
+	const filter = ctx.createBiquadFilter();
+	filter.type = "lowpass";
+	filter.frequency.setValueAtTime(2400, t);
+	filter.frequency.exponentialRampToValueAtTime(160, t + 2.2);
+	const gain = ctx.createGain();
+	gain.gain.setValueAtTime(0.0001, t);
+	gain.gain.exponentialRampToValueAtTime(0.7, t + 0.02);
+	gain.gain.exponentialRampToValueAtTime(0.25, t + 0.4);
+	gain.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+	src.connect(filter).connect(gain).connect(ctx.destination);
+	src.start(t);
+	src.stop(t + 2.6);
+}
+
+/** A dragon's roar: a growling saw sliding down in pitch, roughened with noise. */
+export function roar() {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	const length = 1.8;
+	const out = ctx.createGain();
+	out.gain.setValueAtTime(0.0001, t);
+	out.gain.exponentialRampToValueAtTime(0.22, t + 0.15);
+	out.gain.exponentialRampToValueAtTime(0.0001, t + length);
+	const filter = ctx.createBiquadFilter();
+	filter.type = "lowpass";
+	filter.frequency.setValueAtTime(1400, t);
+	filter.frequency.exponentialRampToValueAtTime(380, t + length);
+	filter.connect(out).connect(ctx.destination);
+	for (const detune of [0, 7, -9]) {
+		const osc = ctx.createOscillator();
+		osc.type = "sawtooth";
+		osc.frequency.setValueAtTime(180 + detune, t);
+		osc.frequency.exponentialRampToValueAtTime(70 + detune, t + length);
+		osc.connect(filter);
+		osc.start(t);
+		osc.stop(t + length);
+	}
+	// A wobble, for the growl.
+	const lfo = ctx.createOscillator();
+	lfo.frequency.value = 26;
+	const depth = ctx.createGain();
+	depth.gain.value = 0.08;
+	lfo.connect(depth).connect(out.gain);
+	lfo.start(t);
+	lfo.stop(t + length);
+	const grit = ctx.createBufferSource();
+	grit.buffer = noise(ctx, length);
+	const band = ctx.createBiquadFilter();
+	band.type = "bandpass";
+	band.frequency.value = 600;
+	grit.connect(band).connect(filter);
+	grit.start(t);
+	grit.stop(t + length);
+}
+
+/** Recorded sounds (CC0, in public/sounds), decoded once; until one loads, the synthesised version plays. */
+const samples = new Map<string, AudioBuffer | null>();
+function sample(name: string) {
+	if (!samples.has(name)) {
+		samples.set(name, null);
+		fetch(`/sounds/${name}.ogg`)
+			.then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
+			.then((data) => audioContext().decodeAudioData(data))
+			.then((buffer) => samples.set(name, buffer))
+			.catch(() => {});
+	}
+	return samples.get(name) ?? null;
+}
+/** Starts fetching the summon's recordings, so they're ready when it comes. */
+export function preloadSummon() {
+	for (const name of ["dragon-roar", "thunder", "storm-wind"]) sample(name);
+}
+
+function playSample(buffer: AudioBuffer, gain: number, rate = 1) {
+	const ctx = audioContext();
+	const src = ctx.createBufferSource();
+	src.buffer = buffer;
+	src.playbackRate.value = rate;
+	const g = ctx.createGain();
+	g.gain.value = gain;
+	src.connect(g).connect(ctx.destination);
+	src.start();
+	return src;
+}
+
+/** The dragon's roar: the recording, slowed a little to make him bigger; else the synthesised one. */
+export function bigRoar() {
+	if (!isSoundOn()) return;
+	const buffer = sample("dragon-roar");
+	if (buffer) playSample(buffer, 0.9, 0.82);
+	else {
+		roar();
+		window.setTimeout(roar, 350);
+	}
+}
+
+/** Thunder: the recording if it's here, else the synthesised crack. */
+export function bigThunder() {
+	if (!isSoundOn()) return;
+	const buffer = sample("thunder");
+	if (buffer) playSample(buffer, 0.85);
+	else thunder();
+}
+
+/** The storm wind under the summon, rising in and falling away; returns a stop. */
+export function stormWind() {
+	if (!isSoundOn()) return () => {};
+	const ctx = audioContext();
+	const out = ctx.createGain();
+	out.gain.setValueAtTime(0.0001, ctx.currentTime);
+	out.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + 4);
+	out.connect(ctx.destination);
+	const buffer = sample("storm-wind");
+	let src: AudioBufferSourceNode;
+	if (buffer) {
+		src = ctx.createBufferSource();
+		src.buffer = buffer;
+		src.loop = true;
+		src.connect(out);
+	} else {
+		// Synthesised: noise through a slowly wandering band-pass, like wind round a building.
+		src = ctx.createBufferSource();
+		src.buffer = noise(ctx, 4, true);
+		src.loop = true;
+		const band = ctx.createBiquadFilter();
+		band.type = "bandpass";
+		band.Q.value = 0.7;
+		band.frequency.value = 420;
+		const lfo = ctx.createOscillator();
+		lfo.frequency.value = 0.13;
+		const depth = ctx.createGain();
+		depth.gain.value = 260;
+		lfo.connect(depth).connect(band.frequency);
+		lfo.start();
+		const boost = ctx.createGain();
+		boost.gain.value = 0.6;
+		src.connect(band).connect(boost).connect(out);
+	}
+	src.start();
+	return () => {
+		const now = ctx.currentTime;
+		out.gain.cancelScheduledValues(now);
+		out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), now);
+		out.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
+		window.setTimeout(() => {
+			src.stop();
+			out.disconnect();
+		}, 2700);
+	};
+}
+
+/** The balls' heartbeat as they glow up: a deep soft thump. */
+export function heartbeat(level: number) {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	const osc = ctx.createOscillator();
+	osc.frequency.setValueAtTime(70, t);
+	osc.frequency.exponentialRampToValueAtTime(38, t + 0.25);
+	const g = ctx.createGain();
+	g.gain.setValueAtTime(0.0001, t);
+	g.gain.exponentialRampToValueAtTime(0.15 + level * 0.3, t + 0.02);
+	g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+	osc.connect(g).connect(ctx.destination);
+	osc.start(t);
+	osc.stop(t + 0.4);
 }

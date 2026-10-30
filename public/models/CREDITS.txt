@@ -22,3 +22,13 @@ record-player.glb
   "Yamaha TT-300 Record Player" by AleixoAlonso
   https://sketchfab.com/3d-models/yamaha-tt-300-record-player-3577a2a1a0c24218bd5d768beccf218e
   https://sketchfab.com/AleixoAlonso
+
+shenlong.glb
+  "Dragon Ball Z SHENLONG" by placebo_vscure
+  https://sketchfab.com/3d-models/dragon-ball-z-shenlong-ee561e95bd9642f193fd09e8058f6c2f
+  https://sketchfab.com/placebo_vscure
+
+dragon-balls.glb
+  "The Dragon Balls" by Anthony Yanez
+  https://sketchfab.com/3d-models/the-dragon-balls-77baebec10d940f08d09b5f9059d4066
+  https://sketchfab.com/paulyanez
