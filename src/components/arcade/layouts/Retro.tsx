@@ -18,7 +18,7 @@ export function Retro() {
 	const { Play } = machine;
 
 	return (
-		<div className="pb-16">
+		<div className="pt-10 pb-16 md:pt-14">
 			<Play
 				key={machine.key}
 				layout={(screen, knobs) => (
