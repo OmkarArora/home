@@ -42,9 +42,13 @@ export function RotatingWord({
 
 	useEffect(() => setMounted(true), []);
 
-	// Picked from outside: flip to that word, and let it stay a full turn before moving on.
+	// Picked from outside: flip to that word, and let it stay a full turn before moving on. Only picks
+	// made after mounting: a fresh set of words (the board re-keyed) starts at its first word.
+	const lastPick = useRef(pick?.n);
 	useEffect(() => {
-		if (pick) setIndex(pick.index % words.length);
+		if (!pick || pick.n === lastPick.current) return;
+		lastPick.current = pick.n;
+		setIndex(pick.index % words.length);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- a new pick is a new `n`
 	}, [pick?.n]);
 

@@ -231,6 +231,16 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 	}, [entered, paused, view, go, expanded, closeExpanded]);
 	const screen = useRef<HTMLDivElement>(null);
 	const [screenSlot, setScreenSlot] = useState<HTMLDivElement | null>(null);
+	// Stable callback refs: an inline one is called again on every render, which would set state each
+	// time and pull focus back into the expand box from whatever was pressed.
+	const screenRef = useCallback((el: HTMLDivElement | null) => {
+		screen.current = el;
+		setScreenSlot(el);
+	}, []);
+	const expandRef = useCallback((el: HTMLDivElement | null) => {
+		setExpandSlot(el);
+		el?.focus();
+	}, []);
 	const [knobSlot, setKnobSlot] = useState<HTMLDivElement | null>(null);
 	const { Play } = machine;
 
@@ -246,10 +256,7 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 				}} screen={screen}>
 				{/* The live screen: laid out flat at the glass's size, then pinned onto it each frame. */}
 				<div
-					ref={(el) => {
-						screen.current = el;
-						setScreenSlot(el);
-					}}
+					ref={screenRef}
 					className="absolute top-0 left-0 origin-top-left"
 					// Hidden until the first frame pins it to the glass (`fitScreen` shows it), so it never flashes up flat.
 					style={{ width: size.w, height: size.h, visibility: "hidden" }}
@@ -362,10 +369,7 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 					</header>
 					{/* The machine fills the box, whatever height it asked for. */}
 					<div
-						ref={(el) => {
-							setExpandSlot(el);
-							el?.focus();
-						}}
+						ref={expandRef}
 						tabIndex={-1}
 						className="relative min-h-0 flex-1 outline-none [&>*]:!aspect-auto [&>*]:size-full [&>*]:!min-h-0"
 					/>

@@ -133,6 +133,8 @@ export function Cabinet({
 	}, [title, family]);
 
 	const mats = useMemo(() => materials(marquee, attract, palette, gold), [marquee, attract, palette, gold]);
+	// A new palette or the gold wish makes a new set: let the GPU drop the old one (not the textures, kept).
+	useEffect(() => () => Object.values(mats).forEach((m) => m.dispose()), [mats]);
 	const sticks = useMemo(() => (scene.userData.sticks ??= buildSticks(scene)) as ReturnType<typeof buildSticks>, [scene]);
 	// Where each button sits, so a pressed one can sink and come back.
 	const home = useRef(new Map<string, number>());

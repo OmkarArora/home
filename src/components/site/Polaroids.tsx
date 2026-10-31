@@ -83,8 +83,12 @@ export function Polaroids({
 		go(way);
 	};
 
+	// Only commands sent after mounting: remounting (as the Arcade does when a machine is expanded)
+	// mustn't replay the last one.
+	const lastCommand = useRef(command?.n);
 	useEffect(() => {
-		if (!command) return;
+		if (!command || command.n === lastCommand.current) return;
+		lastCommand.current = command.n;
 		if (command.go === "pause") setPaused((p) => !p);
 		else manual(command.go);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- a new command is a new `n`

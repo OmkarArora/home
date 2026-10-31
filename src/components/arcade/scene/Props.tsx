@@ -213,6 +213,13 @@ export function Hologram({ bump = false }: { bump?: boolean }) {
 	const cloud = useMemo(coinCloud, []);
 	const coinMaterial = useMemo(() => hologramMaterial(colour, 12), [colour]);
 	const speckMaterial = useMemo(() => hologramMaterial(colour, 7), [colour]);
+	useEffect(
+		() => () => {
+			coinMaterial.dispose();
+			speckMaterial.dispose();
+		},
+		[coinMaterial, speckMaterial],
+	);
 	const beam = useMemo(beamTexture, []);
 
 	useEffect(() => {

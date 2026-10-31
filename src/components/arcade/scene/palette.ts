@@ -72,7 +72,7 @@ export type PaletteName = keyof typeof palettes;
 export const PaletteContext = createContext<Palette>(palettes.twilight);
 export const usePalette = () => useContext(PaletteContext);
 
-const isName = (name: string | null): name is PaletteName => name !== null && name in palettes;
+const isName = (name: string | null): name is PaletteName => name !== null && Object.hasOwn(palettes, name);
 const key = "arcade-palette";
 
 /** The palette to start with: the link's `?palette=`, else the one chosen before here, else Twilight. */

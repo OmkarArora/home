@@ -82,6 +82,12 @@ export function startAmbience() {
 	// Crickets: now and then a little train of chirps, each a quick pulse of a high tone.
 	let timer = 0;
 	const chirp = () => {
+		// Suspended (the tab hidden): its clock has stopped, so chirps would pile up at one moment and all
+		// sound together when it resumes. Skip this one.
+		if (ctx.state !== "running") {
+			timer = window.setTimeout(chirp, 1500 + Math.random() * 4500);
+			return;
+		}
 		const at = ctx.currentTime + 0.05;
 		const pitch = 4200 + Math.random() * 600;
 		const count = 3 + Math.floor(Math.random() * 4);
@@ -382,6 +388,7 @@ export function stormWind() {
 	out.connect(ctx.destination);
 	const buffer = sample("storm-wind");
 	let src: AudioBufferSourceNode;
+	let lfo: OscillatorNode | undefined;
 	if (buffer) {
 		src = ctx.createBufferSource();
 		src.buffer = buffer;
@@ -396,7 +403,7 @@ export function stormWind() {
 		band.type = "bandpass";
 		band.Q.value = 0.7;
 		band.frequency.value = 420;
-		const lfo = ctx.createOscillator();
+		lfo = ctx.createOscillator();
 		lfo.frequency.value = 0.13;
 		const depth = ctx.createGain();
 		depth.gain.value = 260;
@@ -414,6 +421,7 @@ export function stormWind() {
 		out.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
 		window.setTimeout(() => {
 			src.stop();
+			lfo?.stop();
 			out.disconnect();
 		}, 2700);
 	};
