@@ -233,9 +233,11 @@ export function Hologram({ bump = false }: { bump?: boolean }) {
 		return g;
 	}, []);
 
-	useFrame(({ clock: c }, dt) => {
-		const t = c.elapsedTime;
-		clock.current = t;
+	useFrame((_, dt) => {
+		// Its own clock, which only goes forward: three's restarts from 0 whenever the scene stops
+		// drawing (a hidden tab), and the last coin's time would then be in the future, read as a
+		// spin that never settles.
+		const t = (clock.current += Math.min(dt, 0.1));
 		for (const material of [coinMaterial, speckMaterial]) material.uniforms.uTime.value = t;
 		if (still()) return;
 		const u = coinMaterial.uniforms;
