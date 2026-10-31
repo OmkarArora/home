@@ -138,6 +138,12 @@ function Ready({ onReady }: { onReady: () => void }) {
 	const { gl, scene, camera } = useThree();
 	useEffect(() => {
 		let live = true;
+		let done = false;
+		const finish = () => {
+			if (!live || done) return;
+			done = true;
+			onReady();
+		};
 		// Everything shown and nothing culled, just for the length of a call (no frame draws in between).
 		const reveal = () => {
 			const changed: { o: { visible: boolean; frustumCulled: boolean }; visible: boolean; culled: boolean }[] = [];
@@ -150,23 +156,41 @@ function Ready({ onReady }: { onReady: () => void }) {
 				for (const { o, visible, culled } of changed) Object.assign(o, { visible, frustumCulled: culled });
 			};
 		};
-		// First the shaders, in the background where the browser can...
-		let hide = reveal();
-		const built = gl.compileAsync(scene, camera);
-		hide();
-		built
-			.catch(() => {})
-			.finally(() => {
-				if (!live) return;
-				// ...then one real draw, shadows and all, for the rest (meshes, textures, shadow shaders).
-				hide = reveal();
+		const warm = async () => {
+			// First the shaders, in the background where the browser can (not on iOS: there it's all at once)...
+			let hide = reveal();
+			let built: Promise<unknown> = Promise.resolve();
+			try {
+				built = gl.compileAsync(scene, camera);
+			} finally {
+				hide();
+			}
+			await Promise.race([built, new Promise((wait) => window.setTimeout(wait, 4000))]);
+			if (!live) return;
+			// ...then one real draw, shadows and all, for the rest (meshes, textures, shadow shaders).
+			hide = reveal();
+			try {
 				gl.shadowMap.needsUpdate = true;
 				gl.render(scene, camera);
+			} finally {
 				hide();
-				onReady();
-			});
+			}
+		};
+		// Whatever happens, in it goes: a stall later is better than never getting in. A browser that
+		// throws partway, or takes too long, still opens the scene.
+		const fallback = window.setTimeout(finish, 8000);
+		// A frame first, so the gate's "Getting ready" is on screen before the browser gets busy.
+		const frame = requestAnimationFrame(() => {
+			window.setTimeout(() => {
+				warm()
+					.catch(() => {})
+					.finally(finish);
+			}, 0);
+		});
 		return () => {
 			live = false;
+			cancelAnimationFrame(frame);
+			window.clearTimeout(fallback);
 		};
 	}, [gl, scene, camera]);
 	return null;
@@ -177,10 +201,24 @@ function Ready({ onReady }: { onReady: () => void }) {
  * models have come, then it fades and the scene opens by itself once the GPU has everything.
  */
 function Gate({ ready, entered, onEnter }: { ready: boolean; entered: boolean; onEnter: () => void }) {
-	const { progress } = useProgress();
+	const { progress, active } = useProgress();
+	// Only ever up: files found later (a texture inside a model) would otherwise pull it back down.
+	const shown = useRef(0);
+	shown.current = Math.max(shown.current, Number.isFinite(progress) ? progress : 0);
+	// And once everything's in, it stays "Getting ready" (a straggler starting late mustn't flip it back).
+	const settled = useRef(false);
+	settled.current ||= shown.current >= 100 && !active;
+	const loaded = settled.current;
 	useEffect(() => {
 		if (ready && !entered) onEnter();
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, when ready
+	}, [ready]);
+	// A download that stalls (a dropped connection) would leave it here for good: after a while, offer a reload.
+	const [slow, setSlow] = useState(false);
+	useEffect(() => {
+		if (ready) return;
+		const timer = window.setTimeout(() => setSlow(true), 25000);
+		return () => window.clearTimeout(timer);
 	}, [ready]);
 	return (
 		<div
@@ -188,7 +226,19 @@ function Gate({ ready, entered, onEnter }: { ready: boolean; entered: boolean; o
 			inert={entered}
 			className={`absolute inset-0 grid place-items-center bg-[#08080a] transition-opacity duration-700 motion-reduce:transition-none ${entered ? "pointer-events-none opacity-0" : "opacity-100"}`}
 		>
-			<p className={`${pixel.className} text-xs text-[#c6f03a]`}>Loading {Math.round(progress)}%</p>
+			{/* Downloaded, the GPU's turn: on a phone that can take a few seconds, so say so. */}
+			<div className="flex flex-col items-center gap-5 px-4 text-center">
+				<p className={`${pixel.className} text-xs text-[#c6f03a]`}>{loaded ? "Getting ready…" : `Loading ${Math.round(shown.current)}%`}</p>
+				{slow && !ready && (
+					<button
+						type="button"
+						onClick={() => window.location.reload()}
+						className={`${pixel.className} border border-[rgb(237_237_230/0.3)] px-4 py-2 text-[10px] text-[#ededE6] hover:border-[#c6f03a] hover:text-[#c6f03a]`}
+					>
+						Taking a while? Reload
+					</button>
+				)}
+			</div>
 		</div>
 	);
 }
