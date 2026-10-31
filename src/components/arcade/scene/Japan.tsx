@@ -2,11 +2,12 @@
 
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
 	Box3,
 	BufferAttribute,
 	BufferGeometry,
+	AdditiveBlending,
 	CanvasTexture,
 	Color,
 	DoubleSide,
@@ -15,6 +16,8 @@ import {
 	LatheGeometry,
 	type Mesh,
 	MeshStandardMaterial,
+	type PointLight,
+	type Points,
 	Object3D,
 	QuadraticBezierCurve3,
 	Shape,
@@ -24,7 +27,8 @@ import {
 	Vector3,
 } from "three";
 
-import type { Stage } from "./DragonBalls";
+import { firework } from "./ambience";
+import { type Granted, softDot, type Stage } from "./DragonBalls";
 import { layout } from "./layout";
 import { NeonSign } from "./Props";
 import { usePalette } from "./palette";
@@ -355,10 +359,18 @@ const small = () => typeof window !== "undefined" && window.matchMedia("(max-wid
  * The sakura over the dragon's pedestal, swaying from its foot (a breath at night, hard in the
  * storm), with its own pink light on the pedestal and the floor, and its petals falling.
  */
-export function Sakura({ stage }: { stage: Stage }) {
+export function Sakura({ stage, granted }: { stage: Stage; granted: Granted | null }) {
 	const { blossom } = usePalette();
 	const tree = useRef<Group>(null);
 	const storm = useRef(0);
+	// The wish for spring: a minute's flurry of extra petals blowing across the street, then they settle.
+	const [flurry, setFlurry] = useState<number | null>(null);
+	useEffect(() => {
+		if (granted?.kind !== "spring") return;
+		setFlurry(granted.n);
+		const done = window.setTimeout(() => setFlurry(null), (spring.seconds + 25) * 1000);
+		return () => window.clearTimeout(done);
+	}, [granted]);
 	useFrame(({ clock }, dt) => {
 		if (still()) return;
 		storm.current += ((stormy(stage) ? 1 : 0) - storm.current) * Math.min(1, dt * 0.8);
@@ -376,9 +388,13 @@ export function Sakura({ stage }: { stage: Stage }) {
 			<pointLight position={[layout.pedestal[0] - 0.05, 0.75, layout.pedestal[1] + 0.18]} color={blossom[0]} intensity={1.1} distance={2.4} decay={1.8} />
 			<pointLight position={[sakura.foot.x + 1.1 * grown, 3.4 * grown, sakura.foot.z + 1.9]} color="#ffe6f0" intensity={4} distance={4.5} decay={1.6} />
 			<Petals count={small() ? 110 : 240} stage={stage} storm={storm} />
+			{flurry !== null && <Petals key={flurry} count={small() ? 160 : 360} stage={stage} storm={storm} gust={spring.gust} lasts={spring.seconds} />}
 		</group>
 	);
 }
+
+/** The spring flurry: how long it keeps coming (s), and the breeze carrying it across (m/s, to the right). */
+const spring = { seconds: 60, gust: 0.55 } as const;
 
 /** One petal: a little rounded blade with a notch at its tip, 3.5 cm long. */
 const petal = (() => {
@@ -403,7 +419,11 @@ const crown = {
  * while, shrinks away and starts again from the top. The storm lifts them all up and away; they come
  * back once it's cleared. With reduced motion they're only lying on the floor, still.
  */
-function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: React.RefObject<number> }) {
+/**
+ * The petals. `gust` is a steady breeze to the right (m/s); with `lasts` (s) they're a passing flurry:
+ * they come in from above the crown, keep coming that long, then each lands and is gone.
+ */
+function Petals({ count, stage, storm, gust = 0, lasts }: { count: number; stage: Stage; storm: React.RefObject<number>; gust?: number; lasts?: number }) {
 	const { blossom } = usePalette();
 	const mesh = useRef<InstancedMesh>(null);
 	const random = useMemo(() => seeded(23), []);
@@ -413,16 +433,22 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 		const phase = new Float32Array(count);
 		// How long it's been on the floor (s); below zero, still falling.
 		const down = new Float32Array(count);
+		// Done with, for a flurry that's over.
+		const gone = new Uint8Array(count);
 		for (let i = 0; i < count; i++) {
 			phase[i] = random() * 100;
 			spin.set([random() * 3, random() * 3, random() * 3], i * 3);
-			// Start mid-fall, everywhere between the crown and the floor, so it doesn't begin as one sheet.
-			at.set([lerp(crown.x, random()), random() * crown.y[1], lerp(crown.z, random())], i * 3);
+			// Start mid-fall, everywhere between the crown and the floor, so it doesn't begin as one sheet;
+			// a flurry comes in from above it instead, staggered, so it builds.
+			if (lasts) at.set([lerp(crown.x, random()) - 1, crown.y[1] + random() * 3, lerp(crown.z, random())], i * 3);
+			else at.set([lerp(crown.x, random()), random() * crown.y[1], lerp(crown.z, random())], i * 3);
 			down[i] = -1;
 		}
-		return { at, spin, phase, down };
-	}, [count, random]);
+		return { at, spin, phase, down, gone };
+	}, [count, random, lasts]);
 	const o = useMemo(() => new Object3D(), []);
+	// When it came (wall clock: three's own restarts after a hidden tab).
+	const bornWall = useRef(performance.now() / 1000);
 	useLayoutEffect(() => {
 		const m = mesh.current;
 		if (!m) return;
@@ -457,14 +483,20 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 		// After a stall (a hidden tab), don't jump.
 		const step = Math.min(dt, 1 / 20);
 		const wind = storm.current;
-		const { at, spin, phase, down } = state;
+		const { at, spin, phase, down, gone } = state;
 		for (let i = 0; i < count; i++) {
 			const k = i * 3;
 			let shrink = 1;
+			if (gone[i]) {
+				o.scale.setScalar(0);
+				o.updateMatrix();
+				m.setMatrixAt(i, o.matrix);
+				continue;
+			}
 			if (down[i] < 0) {
 				const f = phase[i];
 				// Falling slowly with a flutter, carried on the breeze; the storm lifts and blows them off.
-				at[k] += (0.06 + Math.sin(t * 1.1 + f) * 0.14 + wind * 2.4) * step;
+				at[k] += (0.06 + gust * (0.7 + (f % 0.6)) + Math.sin(t * 1.1 + f) * 0.14 + wind * 2.4) * step;
 				at[k + 1] += (-0.13 + Math.sin(t * 1.5 + f * 1.3) * 0.05 + wind * (2.2 + (f % 1))) * step;
 				at[k + 2] += (0.03 + Math.cos(t * 0.9 + f) * 0.1 + wind * 0.6) * step;
 				o.rotation.set(t * spin[k] + f, t * spin[k + 1], t * spin[k + 2]);
@@ -497,6 +529,11 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 		m.instanceMatrix.needsUpdate = true;
 	});
 	function respawn(i: number) {
+		// A flurry that's had its time: this one's done.
+		if (lasts && performance.now() / 1000 - bornWall.current > lasts) {
+			state.gone[i] = 1;
+			return;
+		}
 		state.at.set([lerp(crown.x, random()), lerp(crown.y, random()), lerp(crown.z, random())], i * 3);
 		state.down[i] = -1;
 	}
@@ -508,3 +545,115 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 }
 
 const lerp = ([a, b]: readonly number[], f: number) => a + (b - a) * f;
+
+/** How long the fireworks go on (s), and where they go up: far off behind the cabinet, low enough to show over it. */
+// Up over the cabinet, where the sky view looks (`views.sky`).
+const show = { seconds: 22, x: [-6, 10], z: [-30, -24], burst: [7, 11.5] } as const;
+
+type Shell = { at: Vector3; v: Vector3; fuse: number; colour: Color };
+
+/**
+ * The wish for fireworks: hanabi over the street for twenty-odd seconds, shells climbing on a faint
+ * trail and bursting into stars in the night's own colours (the lanterns, the blossom), quicker for
+ * a finale. Each burst thumps and crackles and washes the scene in its colour for a moment.
+ */
+export function Fireworks({ granted }: { granted: Granted | null }) {
+	const { lanterns, blossom, pools } = usePalette();
+	const n = small() ? 1400 : 2800;
+	const dot = useMemo(softDot, []);
+	const points = useRef<Points>(null);
+	const flash = useRef<PointLight>(null);
+	const sky = useMemo(() => {
+		const geometry = new BufferGeometry();
+		geometry.setAttribute("position", new BufferAttribute(new Float32Array(n * 3), 3));
+		geometry.setAttribute("color", new BufferAttribute(new Float32Array(n * 3), 3));
+		return { geometry, v: new Float32Array(n * 3), life: new Float32Array(n), span: new Float32Array(n), hue: new Float32Array(n * 3), next: 0 };
+	}, [n]);
+	const run = useRef<{ n: number; from: number | null; launch: number; shells: Shell[] }>({ n: 0, from: null, launch: 0, shells: [] });
+	const colours = useMemo(() => [lanterns[0], lanterns[1], blossom[0], blossom[3], pools[1], "#ffd27a"].map((c) => new Color(c)), [lanterns, blossom, pools]);
+
+	/** One star: where, how fast, how long it burns, its colour (bright: it blooms). */
+	const star = (at: Vector3, v: Vector3, life: number, colour: Color, bright: number) => {
+		const i = sky.next;
+		sky.next = (sky.next + 1) % n;
+		(sky.geometry.attributes.position as BufferAttribute).setXYZ(i, at.x, at.y, at.z);
+		sky.v.set([v.x, v.y, v.z], i * 3);
+		sky.life[i] = sky.span[i] = life;
+		sky.hue.set([colour.r * bright, colour.g * bright, colour.b * bright], i * 3);
+	};
+
+	useFrame(({ clock }, dt) => {
+		const r = run.current;
+		const t = clock.elapsedTime;
+		const step = Math.min(dt, 1 / 20);
+		if (granted?.kind === "fireworks" && granted.n !== r.n) {
+			r.n = granted.n;
+			r.from = t;
+			r.launch = t;
+		}
+		const going = r.from !== null && t - r.from < show.seconds;
+		// A shell up every so often, quicker in the last few seconds.
+		if (going && t >= r.launch) {
+			const left = show.seconds - (t - (r.from as number));
+			r.launch = t + (left < 4 ? 0.12 + Math.random() * 0.25 : 0.45 + Math.random() * 0.9);
+			const at = new Vector3(lerp(show.x, Math.random()), 0, lerp(show.z, Math.random()));
+			const high = lerp(show.burst, Math.random());
+			r.shells.push({ at, v: new Vector3((Math.random() - 0.5) * 0.6, high / 1.6, 0), fuse: 1.6, colour: colours[Math.floor(Math.random() * colours.length)] });
+		}
+		const v = new Vector3();
+		r.shells = r.shells.filter((shell) => {
+			shell.fuse -= step;
+			shell.at.addScaledVector(shell.v, step);
+			// A faint trail of sparks behind it as it climbs.
+			star(shell.at, v.set((Math.random() - 0.5) * 0.3, -0.4, (Math.random() - 0.5) * 0.3), 0.35, shell.colour, 0.9);
+			if (shell.fuse > 0) return true;
+			// Burst: a ball of stars, the first instant white-hot.
+			const count = small() ? 60 : 110;
+			const speed = 5.2 + Math.random() * 1.6;
+			for (let k = 0; k < count; k++) {
+				v.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().multiplyScalar(speed * (0.85 + Math.random() * 0.15));
+				star(shell.at, v, 1.5 + Math.random() * 0.7, shell.colour, 2.6);
+			}
+			if (flash.current) {
+				flash.current.color.copy(shell.colour);
+				flash.current.intensity = 6;
+			}
+			firework(0.5 + Math.random() * 0.4);
+			return false;
+		});
+		// The stars: slowed by the air, falling, fading as they burn out.
+		const position = sky.geometry.attributes.position as BufferAttribute;
+		const colour = sky.geometry.attributes.color as BufferAttribute;
+		const drag = Math.exp(-1.7 * step);
+		for (let i = 0; i < n; i++) {
+			if (sky.life[i] <= 0) {
+				colour.setXYZ(i, 0, 0, 0);
+				continue;
+			}
+			sky.life[i] -= step;
+			const k = i * 3;
+			sky.v[k] *= drag;
+			sky.v[k + 1] = sky.v[k + 1] * drag - 1.4 * step;
+			sky.v[k + 2] *= drag;
+			position.setXYZ(i, position.getX(i) + sky.v[k] * step, position.getY(i) + sky.v[k + 1] * step, position.getZ(i) + sky.v[k + 2] * step);
+			const left = Math.max(0, sky.life[i] / sky.span[i]);
+			// Bright as it bursts, then dimming, with a last flicker before it's gone.
+			const glow = left * left * (left < 0.3 ? 0.6 + Math.random() * 0.4 : 1);
+			colour.setXYZ(i, sky.hue[k] * glow, sky.hue[k + 1] * glow, sky.hue[k + 2] * glow);
+		}
+		position.needsUpdate = true;
+		colour.needsUpdate = true;
+		if (flash.current) flash.current.intensity *= Math.exp(-4 * step);
+		if (points.current) points.current.visible = going || r.shells.length > 0 || sky.life.some((l) => l > 0);
+	});
+
+	return (
+		<group>
+			<points ref={points} geometry={sky.geometry} frustumCulled={false} visible={false}>
+				<pointsMaterial map={dot} size={0.55} vertexColors transparent blending={AdditiveBlending} depthWrite={false} toneMapped={false} fog={false} />
+			</points>
+			{/* Each burst lights the street a moment, from up behind the cabinet. */}
+			<pointLight ref={flash} position={[0.5, 5, -5]} intensity={0} distance={18} decay={1.4} />
+		</group>
+	);
+}

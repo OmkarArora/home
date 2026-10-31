@@ -43,6 +43,7 @@ import {
 	type SpriteMaterial,
 	Vector2,
 	Vector3,
+	Vector4,
 } from "three";
 
 import { play } from "@/components/site/sound";
@@ -336,6 +337,13 @@ type Look = {
 	time: { value: number };
 	/** How far he's gone to dust, from the tail (0, all there, to 1, gone). */
 	dust: { value: number };
+	/**
+	 * The column of light he comes up as (its axis x and z, foot y, height), and how far he's in it:
+	 * 2 while his head is (nothing of him shows outside it, or his whiskers and mane would poke out),
+	 * 1 while the column's still bright behind him (nothing beside it), 0 once he's clear.
+	 */
+	column: { value: Vector4 };
+	inColumn: { value: number };
 };
 
 /** His length in the sky, in metres: big enough that you only ever see part of him at once. */
@@ -346,7 +354,16 @@ const dragonLength = 50;
  * arrives and leaves as, cream and yellow in drifting blotches, like the show's.
  */
 function lookOf(scene: Object3D, rig: Rig): Look {
-	const look: Look = { eyes: undefined as unknown as MeshStandardMaterial, rim: { value: 0 }, light: { value: 0 }, edge: { value: 0 }, time: { value: 0 }, dust: { value: 0 } };
+	const look: Look = {
+		eyes: undefined as unknown as MeshStandardMaterial,
+		rim: { value: 0 },
+		light: { value: 0 },
+		edge: { value: 0 },
+		time: { value: 0 },
+		dust: { value: 0 },
+		column: { value: new Vector4() },
+		inColumn: { value: 0 },
+	};
 	const meshes: SkinnedMesh[] = [];
 	scene.traverse((o) => (o as SkinnedMesh).isSkinnedMesh && meshes.push(o as SkinnedMesh));
 	for (const mesh of meshes) {
@@ -371,14 +388,25 @@ function lookOf(scene: Object3D, rig: Rig): Look {
 			return i < 0 ? 0 : rig.spine[rig.follows[i]].s / rig.length;
 		});
 		material.onBeforeCompile = (shader) => {
-			Object.assign(shader.uniforms, { rim: look.rim, light: look.light, edge: look.edge, time: look.time, dust: look.dust, along: { value: along }, grain: { value: dragonLength / rig.length } });
-			shader.vertexShader = `uniform float along[${along.length}];\nuniform float grain;\nvarying float vAlong;\nvarying vec3 vRest;\n${shader.vertexShader}`.replace(
+			Object.assign(shader.uniforms, {
+				rim: look.rim,
+				light: look.light,
+				edge: look.edge,
+				time: look.time,
+				dust: look.dust,
+				column: look.column,
+				inColumn: look.inColumn,
+				along: { value: along },
+				grain: { value: dragonLength / rig.length },
+			});
+			shader.vertexShader = `uniform float along[${along.length}];\nuniform float grain;\nvarying float vAlong;\nvarying vec3 vRest;\nvarying vec3 vWorld;\n${shader.vertexShader}`.replace(
 				"#include <skinning_vertex>",
 				`#include <skinning_vertex>
 				vAlong = dot(skinWeight, vec4(along[int(skinIndex.x)], along[int(skinIndex.y)], along[int(skinIndex.z)], along[int(skinIndex.w)]));
-				vRest = position * grain;`,
+				vRest = position * grain;
+				vWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;`,
 			);
-			shader.fragmentShader = `uniform float rim;\nuniform float light;\nuniform float edge;\nuniform float time;\nuniform float dust;\nvarying float vAlong;\nvarying vec3 vRest;
+			shader.fragmentShader = `uniform float rim;\nuniform float light;\nuniform float edge;\nuniform float time;\nuniform float dust;\nuniform vec4 column;\nuniform float inColumn;\nvarying float vAlong;\nvarying vec3 vRest;\nvarying vec3 vWorld;
 				float dbHash(vec3 p) { return fract(sin(dot(p, vec3(17.1, 113.7, 41.3))) * 43758.5453); }
 				float dbNoise(vec3 p) {
 					vec3 i = floor(p), f = fract(p);
@@ -402,6 +430,13 @@ function lookOf(scene: Object3D, rig: Rig): Look {
 				glow = mix(glow, vec3(1.0, 0.68, 0.05), fres);
 				float seam = light * (1.0 - smoothstep(0.0, 0.025, abs(vAlong - edge)));
 				gl_FragColor.rgb = mix(gl_FragColor.rgb, glow * 1.6, lit) + vec3(1.0, 0.85, 0.35) * seam * 3.0;
+				// Coming up the column: nothing of him beside it (the column's shape: straight, then a point);
+				// and while his head is still in it (2), nothing above it either.
+				if (inColumn > 0.0) {
+					float h = (vWorld.y - column.z) / column.w;
+					float wide = h < 0.88 ? 1.1 : h < 0.95 ? mix(1.1, 0.75, (h - 0.88) / 0.07) : mix(0.75, 0.0, (h - 0.95) / 0.05);
+					if ((h > 1.0 && inColumn > 1.5) || (h <= 1.0 && length(vWorld.xz - column.xy) > wide * 0.92)) discard;
+				}
 				// Going to dust: eaten away from the tail, ragged, with a bright, burning edge.
 				if (dust > 0.0) {
 					float front = 1.0 - dust * 1.15;
@@ -676,8 +711,13 @@ const faceHim = { at: 7, over: 4 };
  */
 const exit = { light: 1.6, burst: 1.8, gone: 4.4, rise: 5.6, launch: 7.2, scatter: 9 };
 /** The wishes on offer. Fixing all your bugs is beyond even him. */
-export type WishKind = "credits" | "sky" | "bugs" | "maker";
-export type SummonApi = { wish: (kind: WishKind) => void; skip: () => void };
+export type WishKind = "credits" | "sky" | "bugs" | "maker" | SceneWish;
+/** The wishes granted in the scene itself, once he's gone. */
+export type SceneWish = "fireworks" | "spring" | "stars" | "moon" | "gold";
+export const sceneWishes: SceneWish[] = ["fireworks", "spring", "stars", "moon", "gold"];
+/** A scene wish as granted, numbered so the same one granted again starts over. */
+export type Granted = { kind: SceneWish; n: number };
+export type SummonApi = { wish: (kind: WishKind) => void; skip: () => void; summon: () => void };
 
 type Summon = {
 	stage: Exclude<Stage, "off">;
@@ -762,7 +802,7 @@ const columnShader = {
 const streak = new ConeGeometry(1, 1, 10, 1, true).translate(0, 0.5, 0);
 
 /** A soft round glow, white in the middle and fading out, for the sparks and the bursts of light. */
-function softDot() {
+export function softDot() {
 	const canvas = document.createElement("canvas");
 	canvas.width = canvas.height = 64;
 	const g = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -829,7 +869,7 @@ export function DragonBalls({
 		return { n, geometry, velocity: new Float32Array(n * 3), life: new Float32Array(n), bright: new Float32Array(n) };
 	}, []);
 	const sparkPoints = useRef<Points>(null);
-	const scratch = useMemo(() => ({ v: new Vector3(), w: new Vector3(), look: new Vector3(), eye: new Vector3(), cluster: new Vector3() }), []);
+	const scratch = useMemo(() => ({ v: new Vector3(), w: new Vector3(), look: new Vector3(), eye: new Vector3(), cluster: new Vector3(), aim: new Vector3() }), []);
 
 	const collect = (i: number) => (event: ThreeEvent<MouseEvent>) => {
 		const ball = balls.current[i];
@@ -906,7 +946,7 @@ export function DragonBalls({
 		go(s, "grant");
 		bigRoar();
 	};
-	api.current = { wish: grant, skip };
+	api.current = { wish: grant, skip, summon: () => !summon.current && startSummon() };
 
 	// Leaving mid-summon (or for the wish that takes you away): the wind mustn't blow on after.
 	useEffect(() => () => summon.current?.wind?.(), []);
@@ -943,7 +983,7 @@ export function DragonBalls({
 
 	useFrame(({ clock }, dt) => {
 		const t = clock.elapsedTime;
-		const { v, w, look: target, eye, cluster } = scratch;
+		const { v, w, look: target, eye, cluster, aim } = scratch;
 		const s = summon.current;
 
 		// The balls: bobbing where they hide, arcing to their cups, sitting there, and flying off as he goes.
@@ -1093,7 +1133,11 @@ export function DragonBalls({
 			beam.current.visible = left > 0.001;
 			beam.current.scale.set(1, Math.max(0.001, Math.min(headArc, straightUp) + 2), 1);
 			beamLook.uniforms.opacity.value = left;
+			look.column.value.set(pedestalTop.x, pedestalTop.z, pedestalTop.y, beam.current.scale.y);
 		}
+		// While his head is still going straight up he's all inside the column; past its top his head is out,
+		// but nothing pokes from its sides until the column has mostly gone.
+		look.inColumn.value = s.stage !== "arrive" ? 0 : headArc < straightUp ? 2 : beamLook.uniforms.opacity.value > 0.35 ? 1 : 0;
 		const headNow = scratchRig.centres[0] ?? head;
 		look.time.value = t;
 		if (s.stage === "arrive") {
@@ -1213,7 +1257,22 @@ export function DragonBalls({
 						let j = 0;
 						while (j < dragon.spine.length - 1 && dragon.spine[j + 1].s <= at) j++;
 						const from = scratchRig.centres[j];
+						const next = scratchRig.centres[Math.min(j + 1, dragon.spine.length - 1)];
 						if (!from) continue;
+						// Where he's far off, or his body runs towards you (or away), a long stretch of him is one
+						// small patch of screen, and its dust would pile up there into a bright clump (it adds up):
+						// shed less of it there, so it stays about as thick on screen everywhere.
+						if (next && next !== from) {
+							const off = aim.subVectors(from, camera.position).length();
+							const endOn = Math.abs(w.subVectors(next, from).normalize().dot(aim.normalize()));
+							// (Measured against the middle of him, so only what's further off than most of him thins.)
+							const middle = scratchRig.centres[dragon.spine.length >> 1] ?? from;
+							const keep = Math.sqrt(1 - endOn * endOn) * Math.min(1, (middle.distanceTo(camera.position) / off) ** 1.5);
+							if (Math.random() > Math.max(0.08, keep)) {
+								col.setXYZ(i, 0, 0, 0);
+								continue;
+							}
+						}
 						v.randomDirection().multiplyScalar(Math.random() * 0.7).add(from);
 						pos.setXYZ(i, v.x, v.y, v.z);
 						// Mostly dust, slow and dim; now and then a spark, flung.

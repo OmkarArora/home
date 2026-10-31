@@ -7,24 +7,50 @@ import type { Stage, SummonApi, WishKind } from "./DragonBalls";
 
 /**
  * The words over the summon: a Skip while it builds, then the dragon's question and four
- * wishes to pick from, and his answer. One is beyond even him: he says so, and waits for another.
- * Esc skips ahead while it builds.
+ * wishes to pick from, and his answer. Three are drawn from the pool each time he comes, so the
+ * next summon offers others; the fourth is always the one beyond even him: he says so, and waits
+ * for another. Esc skips ahead while it builds.
  */
 
-const wishes = (neon: boolean): { kind: WishKind; label: string }[] => [
+type Offer = { kind: WishKind; label: string; open?: boolean };
+
+/** All he can grant. The ones marked `open` need the open sky (the sakura, the moon, room to burst). */
+const pool = (neon: boolean, gold: boolean): Offer[] => [
 	{ kind: "credits", label: "Endless credits" },
 	{ kind: "sky", label: neon ? "Give me back the twilight" : "Paint the night neon" },
-	{ kind: "bugs", label: "Fix all my bugs" },
 	{ kind: "maker", label: "Meet the one who made this" },
+	{ kind: "fireworks", label: "Light up the sky", open: true },
+	{ kind: "spring", label: "Bring the spring", open: true },
+	{ kind: "stars", label: "Send me a shooting star", open: true },
+	{ kind: "moon", label: "Bring the moon closer", open: true },
+	{ kind: "gold", label: gold ? "Give me back the black cabinet" : "Make the cabinet gold" },
 ];
+
+/** Three at random from what this setting can have, then the impossible one. */
+function draw(neon: boolean, open: boolean, gold: boolean): Offer[] {
+	const can = pool(neon, gold).filter((w) => open || !w.open);
+	for (let i = can.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[can[i], can[j]] = [can[j], can[i]];
+	}
+	return [...can.slice(0, 3), { kind: "bugs", label: "Fix all my bugs" }];
+}
 
 const glow = { textShadow: "0 0 12px rgb(255 170 60 / 0.9), 0 0 32px rgb(255 120 30 / 0.6)" };
 
-export function Wish({ stage, api, neon }: { stage: Stage; api: React.RefObject<SummonApi | null>; neon: boolean }) {
+export function Wish({ stage, api, neon, open, gold }: { stage: Stage; api: React.RefObject<SummonApi | null>; neon: boolean; open: boolean; gold: boolean }) {
 	const first = useRef<HTMLButtonElement>(null);
 	// Asked for the one he can't grant (it's struck off for the rest of this summon).
 	const [refused, setRefused] = useState(false);
 	if (stage === "off" && refused) setRefused(false);
+	// A fresh three each time he asks (kept while he waits, so they don't shuffle under you).
+	const [offers, setOffers] = useState<Offer[]>([]);
+	const [asked, setAsked] = useState(false);
+	if (stage === "stare" && !asked) {
+		setAsked(true);
+		setOffers(draw(neon, open, gold));
+	}
+	if (stage === "off" && asked) setAsked(false);
 	const building = stage === "hush" || stage === "glow" || stage === "strike" || stage === "arrive";
 
 	useEffect(() => {
@@ -68,7 +94,7 @@ export function Wish({ stage, api, neon }: { stage: Stage; api: React.RefObject<
 						{refused ? "Speak another wish." : "Speak your wish."}
 					</p>
 					<div className="pointer-events-auto absolute inset-x-4 bottom-[7%] flex flex-wrap justify-center gap-2">
-						{wishes(neon)
+						{offers
 							.filter((w) => !(refused && w.kind === "bugs"))
 							.map((w, i) => (
 							<button

@@ -9,10 +9,11 @@ import { ACESFilmicToneMapping, AdditiveBlending, CanvasTexture } from "three";
 import { pixel } from "../pixelFont";
 import type { Pressed } from "../useArcade";
 import { Cabinet } from "./Cabinet";
-import { DragonBalls, type Stage, type SummonApi, type WishKind } from "./DragonBalls";
+import { bigRoar, bigThunder, preloadSummon, setSynthSounds, stormWind } from "./ambience";
+import { DragonBalls, type Granted, type SceneWish, sceneWishes, type Stage, type SummonApi, type WishKind } from "./DragonBalls";
 import { CameraRig, ViewContext } from "./CameraRig";
 import { Hologram, NeonPair, Sandwich, StringLights, Underglow } from "./Props";
-import { KatakanaSign, Lanterns, Sakura } from "./Japan";
+import { Fireworks, KatakanaSign, Lanterns, Sakura } from "./Japan";
 import { BackWall, NightSky, OpenSky, RecordCorner, TvCorner } from "./Room";
 import { fitScreen } from "./screenFit";
 import { Stickers } from "./Stickers";
@@ -204,6 +205,24 @@ export default function ArcadeScene({
 	const [again, setAgain] = useState(0);
 	const [stage, setStage] = useState<Stage>("off");
 	const summonApi = useRef<SummonApi | null>(null);
+	// A wish granted in the scene (the fireworks, the spring…), numbered so the same one can come again;
+	// and the cabinet in gold, from the wish, for the rest of the visit.
+	const [granted, setGranted] = useState<Granted | null>(null);
+	const [gold, setGold] = useState(false);
+	// The ones in the sky take you to look up at it while they last, then back (unless you've gone elsewhere).
+	const looking = useRef(view);
+	looking.current = view;
+	const wish = (kind: WishKind) => {
+		if (kind === "gold") setGold((g) => !g);
+		else if (sceneWishes.includes(kind as SceneWish)) {
+			setGranted((g) => ({ kind: kind as SceneWish, n: (g?.n ?? 0) + 1 }));
+			const lasts = { fireworks: 24, stars: 15 }[kind as string];
+			if (lasts && setting === "open") {
+				onView("sky");
+				window.setTimeout(() => looking.current === "sky" && onView("wide"), lasts * 1000);
+			}
+		} else onWish(kind);
+	};
 	const [ready, setReady] = useState(false);
 
 	const ways = useMemo(
@@ -256,7 +275,7 @@ export default function ArcadeScene({
 					<ViewContext.Provider value={ways}>
 						<CameraRig view={view} controls={controls} panel={panel} slow={slow} onArrive={onArrive} hold={cinematic} again={again} />
 						<Ready onReady={() => setReady(true)} />
-						<Cabinet title={title} pressed={pressed} tilt={tilt} on={on} live={live} />
+						<Cabinet title={title} pressed={pressed} tilt={tilt} on={on} live={live} gold={gold} />
 						<ScreenTracker screen={screen} interactive={view === "cabinet"} />
 						<Stickers />
 						<Underglow />
@@ -266,14 +285,15 @@ export default function ArcadeScene({
 						{setting === "room" && <NeonPair />}
 						{setting === "open" && <KatakanaSign />}
 						{setting === "open" && <Lanterns stage={stage} />}
-						{setting === "open" && <Sakura stage={stage} />}
+						{setting === "open" && <Sakura stage={stage} granted={granted} />}
+						{setting === "open" && <Fireworks granted={granted} />}
 						<Sandwich />
 						<DragonBalls
 							controls={controls}
 							hold={cinematic}
 							onStage={setStage}
 							api={summonApi}
-							onWish={onWish}
+							onWish={wish}
 							open={setting === "open"}
 							onDone={() => {
 								onView("wide");
@@ -286,7 +306,7 @@ export default function ArcadeScene({
 								<NightSky />
 							</>
 						) : (
-							<OpenSky />
+							<OpenSky granted={granted} />
 						)}
 						<TvCorner />
 						<RecordCorner />
@@ -305,8 +325,92 @@ export default function ArcadeScene({
 			</Canvas>
 			{/* The HUD steps aside while the dragon's here. */}
 			<div className={`transition-opacity duration-700 ${stage === "off" ? "" : "pointer-events-none opacity-0"}`}>{children}</div>
-			<Wish stage={stage} api={summonApi} neon={palette === palettes.synthwave} />
+			{process.env.NODE_ENV === "development" && <DevWishes stage={stage} api={summonApi} wish={wish} open={setting === "open"} />}
+			<Wish stage={stage} api={summonApi} neon={palette === palettes.synthwave} open={setting === "open"} gold={gold} />
 			<Gate ready={ready} entered={entered} onEnter={onEnter} />
+		</div>
+	);
+}
+
+/**
+ * Development only (never in a build): summon him without the seven balls, or grant a scene wish
+ * straight away, to try them without the hunt.
+ */
+function DevWishes({ stage, api, wish, open }: { stage: Stage; api: React.RefObject<SummonApi | null>; wish: (kind: WishKind) => void; open: boolean }) {
+	const button = "border border-white/25 bg-black/60 px-2 py-1 text-left font-mono text-[10px] text-white/80 hover:border-white/70 hover:text-white";
+	const scene: [SceneWish, string][] = [
+		["fireworks", "Fireworks"],
+		["stars", "Shooting stars"],
+		["moon", "Moon closer"],
+		["spring", "Spring"],
+		["gold", "Gold cabinet"],
+	];
+	// The summon's sounds, the recordings (new) or the synthesised ones (old), to compare.
+	const [old, setOld] = useState(false);
+	// Fetched up front, or the first "new" would play the old one while the recording loads.
+	useEffect(preloadSummon, []);
+	const hear = (synth: boolean, play: () => void) => {
+		setSynthSounds(synth);
+		preloadSummon();
+		play();
+		setSynthSounds(old);
+	};
+	const sounds: [string, () => void][] = [
+		["Roar", bigRoar],
+		["Thunder", bigThunder],
+		[
+			"Wind",
+			() => {
+				const stop = stormWind();
+				window.setTimeout(stop, 6000);
+			},
+		],
+	];
+	return (
+		<div className="absolute top-1/2 right-3 z-30 flex -translate-y-1/2 flex-col gap-1">
+			<span className="font-mono text-[9px] text-white/40 uppercase">dev</span>
+			<button type="button" className={button} disabled={stage !== "off"} onClick={() => api.current?.summon()}>
+				Summon
+			</button>
+			<button
+				type="button"
+				className={button}
+				disabled={stage !== "off"}
+				onClick={() => {
+					api.current?.summon();
+					window.setTimeout(() => api.current?.skip(), 50);
+				}}
+			>
+				Summon → wish
+			</button>
+			{scene
+				.filter(([kind]) => open || kind === "gold")
+				.map(([kind, label]) => (
+					<button key={kind} type="button" className={button} disabled={stage !== "off"} onClick={() => wish(kind)}>
+						{label}
+					</button>
+				))}
+			<span className="mt-2 font-mono text-[9px] text-white/40 uppercase">sounds (needs sound on)</span>
+			{sounds.map(([label, play]) => (
+				<div key={label} className="flex gap-1">
+					<button type="button" className={button} onClick={() => hear(false, play)}>
+						{label} new
+					</button>
+					<button type="button" className={button} onClick={() => hear(true, play)}>
+						old
+					</button>
+				</div>
+			))}
+			<button
+				type="button"
+				className={button}
+				onClick={() => {
+					setOld(!old);
+					setSynthSounds(!old);
+				}}
+			>
+				Summon uses: {old ? "old" : "new"}
+			</button>
 		</div>
 	);
 }

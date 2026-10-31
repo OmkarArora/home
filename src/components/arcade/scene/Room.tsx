@@ -11,12 +11,14 @@ import {
 	BufferAttribute,
 	BufferGeometry,
 	CanvasTexture,
+	Color,
 	Group,
 	type Mesh,
 	type MeshStandardMaterial,
 	Object3D,
 	PlaneGeometry,
 	type PointLight,
+	type Points,
 	SRGBColorSpace,
 	Vector3,
 } from "three";
@@ -25,6 +27,7 @@ import { useView } from "./CameraRig";
 import { lime } from "./marquee";
 import { cyan } from "./Props";
 import { tvBlip } from "./ambience";
+import { type Granted, softDot } from "./DragonBalls";
 import { startRecord } from "./recordMusic";
 import { anchors, isTap, stand } from "./views";
 
@@ -224,14 +227,37 @@ export function NightSky() {
  * of the sakura). Beyond the summon's dome of cloud (26 m), so the storm covers it.
  */
 const moonrise = new Vector3(1.0, 2.7, -21).multiplyScalar(1.4);
+/** Where the wish brings it: in line with where it was from the wide view, low, just past the lanterns. */
+const closer = new Vector3(0.97, 1.75, -12);
 
 /**
  * The night with no walls: stars all over the sky, and a big full moon
  * rising behind, mirrored in the floor. Its cool light throws everything's
  * shadow forwards.
  */
-export function OpenSky() {
+export function OpenSky({ granted }: { granted: Granted | null }) {
 	const { moon } = useMoon();
+	const near = useRef<Group>(null);
+	// The wish for the moon closer: it comes in towards you, to just behind the lanterns, stays a while, then
+	// drifts back. Nearer rather than bigger: lower and further off it would sink behind the floor's far edge.
+	const swell = useRef<{ n: number; from: number | null }>({ n: 0, from: null });
+	useFrame(({ clock }) => {
+		const w = swell.current;
+		const t = clock.elapsedTime;
+		if (granted?.kind === "moon" && granted.n !== w.n) {
+			w.n = granted.n;
+			w.from = t;
+		}
+		if (!near.current) return;
+		let f = 0;
+		if (w.from !== null) {
+			const s = t - w.from;
+			const ease = (x: number) => x * x * (3 - 2 * x);
+			f = s < 4 ? ease(s / 4) : s < 16 ? 1 : s < 21 ? 1 - ease((s - 16) / 5) : 0;
+			if (s >= 21) w.from = null;
+		}
+		near.current.position.lerpVectors(moonrise, closer, f);
+	});
 	const stars = useMemo(() => {
 		const n = 1400;
 		const p = new Float32Array(n * 3);
@@ -252,13 +278,14 @@ export function OpenSky() {
 				<pointsMaterial color="#dfe6ff" size={1.6} sizeAttenuation={false} transparent opacity={0.8} fog={false} depthWrite={false} />
 			</points>
 			{/* Bright enough that the bloom gives it a glow; always turned to face you, so it stays round from any side. */}
-			<Billboard position={moonrise}>
+			<Billboard ref={near} position={moonrise}>
 				<mesh>
 					{/* As far again bigger as it is further off (it was 2.2 m at 21 m), so it looks the same size. */}
 					<planeGeometry args={[3.1, 3.1]} />
 					<meshBasicMaterial map={moon} transparent color={[1.9, 1.9, 1.85]} fog={false} toneMapped={false} />
 				</mesh>
 			</Billboard>
+			<ShootingStars granted={granted} />
 			{/* Moonlight: cool, from up behind, where the moon is, casting shadows. Higher than the moon looks, so it
 			    doesn't graze the floor, and its shadows reach past where the dark swallows the floor. */}
 			<directionalLight
@@ -277,6 +304,103 @@ export function OpenSky() {
 				shadow-normalBias={0.02}
 			/>
 		</group>
+	);
+}
+
+/** The wish for a shooting star: a shower of them for a dozen seconds, ending on one big and slow. */
+const shower = [0.4, 1.6, 2.3, 3.9, 5.2, 6.0, 7.6, 9.0, 10.1, 12.5];
+
+/** Their colours: icy blue to violet. Each star is one, white-hot at its head. */
+const meteorHues = ["#7fb2ff", "#9b8cff", "#c08bff", "#6fe0ff", "#5f7dff", "#e09bff"].map((c) => new Color(c));
+/** The way they all fall: left to right and down, at one slant (m/s). */
+const meteorWay = new Vector3(14, -4.6, 0);
+
+/**
+ * Each one a bright head shedding sparks that fade from white to its colour as they die, so it draws
+ * its own streak; a little glitter drifts off the tail.
+ */
+function ShootingStars({ granted }: { granted: Granted | null }) {
+	const n = 1400;
+	const dot = useMemo(softDot, []);
+	const points = useRef<Points>(null);
+	const sky = useMemo(() => {
+		const g = new BufferGeometry();
+		g.setAttribute("position", new BufferAttribute(new Float32Array(n * 3), 3));
+		g.setAttribute("color", new BufferAttribute(new Float32Array(n * 3), 3));
+		return { g, life: new Float32Array(n), span: new Float32Array(n), drift: new Float32Array(n * 3), hue: new Float32Array(n * 3), next: 0 };
+	}, []);
+	type Star = { at: Vector3; v: Vector3; left: number; big: boolean; hue: Color };
+	const run = useRef<{ n: number; from: number | null; sent: number; stars: Star[] }>({ n: 0, from: null, sent: 0, stars: [] });
+
+	useFrame(({ clock }, dt) => {
+		const r = run.current;
+		const t = clock.elapsedTime;
+		const step = Math.min(dt, 1 / 20);
+		if (granted?.kind === "stars" && granted.n !== r.n) {
+			r.n = granted.n;
+			r.from = t;
+			r.sent = 0;
+		}
+		if (r.from !== null) {
+			while (r.sent < shower.length && t - r.from >= shower[r.sent]) {
+				const big = r.sent === shower.length - 1;
+				// Across the sky over the cabinet, where the sky view looks (`views.sky`), starting off to the left.
+				const at = new Vector3(-8 + (Math.random() - 0.5) * 10, 9 + Math.random() * 5, -20 - Math.random() * 6);
+				const v = meteorWay.clone().multiplyScalar((big ? 0.5 : 1) * (0.9 + Math.random() * 0.2));
+				const hue = meteorHues[Math.floor(Math.random() * meteorHues.length)];
+				r.stars.push({ at, v, left: big ? 2.6 : 0.8 + Math.random() * 0.5, big, hue });
+				r.sent++;
+			}
+			if (r.sent >= shower.length && r.stars.length === 0) r.from = null;
+		}
+		const position = sky.g.attributes.position as BufferAttribute;
+		const colour = sky.g.attributes.color as BufferAttribute;
+		const spark = (x: number, y: number, z: number, life: number, hue: Color, drift: number) => {
+			const i = sky.next;
+			sky.next = (sky.next + 1) % n;
+			position.setXYZ(i, x, y, z);
+			sky.life[i] = sky.span[i] = life;
+			sky.hue.set([hue.r, hue.g, hue.b], i * 3);
+			sky.drift.set([(Math.random() - 0.5) * drift, (Math.random() - 0.5) * drift - drift * 0.4, (Math.random() - 0.5) * drift], i * 3);
+		};
+		r.stars = r.stars.filter((star) => {
+			star.left -= step;
+			star.at.addScaledVector(star.v, step);
+			// Sparks along the path since the last frame, so it's a line, not a dotted one.
+			const sparks = star.big ? 7 : 5;
+			for (let k = 0; k < sparks; k++) {
+				const back = (k / sparks) * step;
+				spark(star.at.x - star.v.x * back, star.at.y - star.v.y * back, star.at.z, star.big ? 1.0 : 0.55, star.hue, 0);
+			}
+			// Glitter: now and then a spark that lingers and drifts down off the tail.
+			if (Math.random() < (star.big ? 0.9 : 0.5)) spark(star.at.x, star.at.y, star.at.z, 1.2 + Math.random() * 0.6, star.hue, 0.9);
+			return star.left > 0;
+		});
+		let any = false;
+		for (let i = 0; i < n; i++) {
+			if (sky.life[i] <= 0) {
+				colour.setXYZ(i, 0, 0, 0);
+				continue;
+			}
+			any = true;
+			sky.life[i] -= step;
+			const k = i * 3;
+			position.setXYZ(i, position.getX(i) + sky.drift[k] * step, position.getY(i) + sky.drift[k + 1] * step, position.getZ(i) + sky.drift[k + 2] * step);
+			const left = Math.max(0, sky.life[i] / sky.span[i]);
+			// White at the head, its colour down the tail; glitter twinkles.
+			const white = left * left;
+			const glow = left * (sky.drift[k] !== 0 ? 1.6 * (0.5 + Math.random() * 0.5) : 3.2);
+			colour.setXYZ(i, (sky.hue[k] + (1 - sky.hue[k]) * white) * glow, (sky.hue[k + 1] + (1 - sky.hue[k + 1]) * white) * glow, (sky.hue[k + 2] + (1 - sky.hue[k + 2]) * white) * glow);
+		}
+		position.needsUpdate = true;
+		colour.needsUpdate = true;
+		if (points.current) points.current.visible = any;
+	});
+
+	return (
+		<points ref={points} geometry={sky.g} frustumCulled={false} visible={false}>
+			<pointsMaterial map={dot} size={0.5} vertexColors transparent blending={AdditiveBlending} depthWrite={false} toneMapped={false} fog={false} />
+		</points>
 	);
 }
 

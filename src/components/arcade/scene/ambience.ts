@@ -230,6 +230,51 @@ export function thunder() {
 	src.stop(t + 2.6);
 }
 
+/** When the last firework sounded: in the finale they come thick and fast, and stacked they'd roar. */
+let lastFirework = 0;
+
+/**
+ * A firework bursting far off: a deep boom rolling away, then a few faint pops as the stars burn
+ * (louder the nearer, 0–1).
+ */
+export function firework(near: number) {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	if (t - lastFirework < 0.18) return;
+	lastFirework = t;
+	const boom = ctx.createBufferSource();
+	boom.buffer = noise(ctx, 1.6, true);
+	const low = ctx.createBiquadFilter();
+	low.type = "lowpass";
+	low.frequency.setValueAtTime(380, t);
+	low.frequency.exponentialRampToValueAtTime(70, t + 1.2);
+	const g1 = ctx.createGain();
+	g1.gain.setValueAtTime(0.0001, t);
+	g1.gain.exponentialRampToValueAtTime(0.45 * near, t + 0.02);
+	g1.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+	boom.connect(low).connect(g1).connect(ctx.destination);
+	boom.start(t);
+	boom.stop(t + 1.6);
+	// The pops: a handful of clicks a few milliseconds long, soft, through a mid band (no hiss).
+	const pops = ctx.createBufferSource();
+	pops.buffer = noise(ctx, 1.4);
+	const band = ctx.createBiquadFilter();
+	band.type = "bandpass";
+	band.frequency.value = 1800;
+	band.Q.value = 0.8;
+	const g2 = ctx.createGain();
+	g2.gain.value = 0;
+	const at = Array.from({ length: 8 }, () => t + 0.35 + Math.random() * 0.9).sort((x, y) => x - y);
+	for (const p of at) {
+		g2.gain.setValueAtTime(0.03 * near, p);
+		g2.gain.setValueAtTime(0, p + 0.003);
+	}
+	pops.connect(band).connect(g2).connect(ctx.destination);
+	pops.start(t);
+	pops.stop(t + 1.4);
+}
+
 /** A dragon's roar: a growling saw sliding down in pitch, roughened with noise. */
 export function roar() {
 	if (!isSoundOn()) return;
@@ -274,7 +319,13 @@ export function roar() {
 
 /** Recorded sounds (CC0, in public/sounds), decoded once; until one loads, the synthesised version plays. */
 const samples = new Map<string, AudioBuffer | null>();
+/** Development only: play the synthesised versions instead, to compare. */
+let synthOnly = false;
+export function setSynthSounds(on: boolean) {
+	synthOnly = on;
+}
 function sample(name: string) {
+	if (synthOnly) return null;
 	if (!samples.has(name)) {
 		samples.set(name, null);
 		fetch(`/sounds/${name}.ogg`)

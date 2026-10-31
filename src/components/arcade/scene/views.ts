@@ -10,7 +10,7 @@ import { layout } from "./layout";
 
 type Triple = [number, number, number];
 
-export type ViewKey = "wide" | "cabinet" | "tv" | "records";
+export type ViewKey = "wide" | "cabinet" | "tv" | "records" | "sky";
 
 export type View = {
 	/** What the view is of, for the caption and the Back button. */
@@ -70,6 +70,8 @@ export const views: Record<ViewKey, View> = {
 	},
 	tv: { label: "The TV", position: before(anchors.tv, tvTarget, 0.85, 0.12), target: tvTarget, swing: 0.4, polar: [1.0, 1.55], distance: [0.5, 1.1] },
 	records: { label: "The records", position: before(anchors.records, recordsTarget, 0.8, 0.55), target: recordsTarget, swing: 0.4, polar: [0.5, 1.25], distance: [0.6, 1.3] },
+	// Low in front of the cabinet, looking up over it: for the wishes that happen in the sky.
+	sky: { label: "The sky", position: [0.55, 1.5, 4.6], target: [1.2, 5.5, -16], swing: 0.6, polar: [1.6, 2.1], distance: [18, 24] },
 };
 
 /** The neon pair behind the cabinet, either side of the hologram: same height, same size, mirrored. */
@@ -78,7 +80,7 @@ export const neonPair = { x: 1.05, y: 2.0, z: -1.38, size: 0.6 };
 export const facingWide = (x: number, z: number) => Math.atan2(views.wide.position[0] - x, views.wide.position[2] - z);
 
 /** What each thing in the scene takes you to, and what hovering it says. */
-export const hints: Record<Exclude<ViewKey, "wide">, string> = { cabinet: "Play", tv: "Watch TV", records: "Records" };
+export const hints: Record<Exclude<ViewKey, "wide">, string> = { cabinet: "Play", tv: "Watch TV", records: "Records", sky: "Look up" };
 
 /** A click that ends a drag isn't a click: anything over a few pixels of movement is ignored. */
 export const isTap = (event: { delta: number }) => event.delta <= 5;

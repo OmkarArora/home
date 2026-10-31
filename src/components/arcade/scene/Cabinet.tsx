@@ -28,15 +28,19 @@ const url = "/models/arcade-cabinet.glb";
 /** Bright enough to pass the glow's threshold: emissive colours are pushed over 1. */
 const glowing = (hex: string, strength: number) => new Color(hex).multiplyScalar(strength);
 
-function materials(marquee: CanvasTexture | null, attract: CanvasTexture | null, palette: Palette) {
+function materials(marquee: CanvasTexture | null, attract: CanvasTexture | null, palette: Palette, gold: boolean) {
+	// The wish for a golden cabinet: its body in polished gold. With nothing round it to mirror, metal
+	// alone would look dark, so it carries a warm glow of its own.
 	const matte = (hex: string, roughness = 0.6, metalness = 0.1) => new MeshStandardMaterial({ color: hex, roughness, metalness });
+	const shell = (hex: string, roughness?: number) =>
+		gold ? new MeshStandardMaterial({ color: "#f4d27a", roughness: 0.28, metalness: 0.5, emissive: "#8a6a1e", emissiveIntensity: 0.5 }) : matte(hex, roughness);
 	const lit = (hex: string, strength: number) => new MeshStandardMaterial({ color: hex, emissive: glowing(hex, strength), roughness: 0.35, toneMapped: false });
 	return {
-		body: matte("#0d0d10", 0.5),
-		sides: matte("#141418", 0.45),
-		deck: matte("#1a1a1f", 0.55),
-		back: matte("#0d0d10"),
-		trim: matte("#1a1a1f"),
+		body: shell("#0d0d10", 0.5),
+		sides: shell("#141418", 0.45),
+		deck: shell("#1a1a1f", 0.55),
+		back: shell("#0d0d10"),
+		trim: shell("#1a1a1f"),
 		speakers: matte("#09090b", 0.8, 0.4),
 		// Matte and as dark as the live screen's tube, so nothing lit shows past its corners.
 		screen: new MeshStandardMaterial({ color: "#0b0b0c", emissive: "#ffffff", emissiveMap: attract, emissiveIntensity: attract ? 0.9 : 0, roughness: 0.92, metalness: 0 }),
@@ -101,9 +105,12 @@ export function Cabinet({
 	tilt,
 	on,
 	live = true,
+	gold = false,
 }: {
 	/** Whether the live machine is on the glass (not while it's opened out in the expand panel). */
 	live?: boolean;
+	/** In gold, wished for. */
+	gold?: boolean;
 	title: string;
 	pressed: Pressed;
 	tilt: -1 | 0 | 1;
@@ -125,7 +132,7 @@ export function Cabinet({
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- redraw onto the same texture when the title changes
 	}, [title, family]);
 
-	const mats = useMemo(() => materials(marquee, attract, palette), [marquee, attract, palette]);
+	const mats = useMemo(() => materials(marquee, attract, palette, gold), [marquee, attract, palette, gold]);
 	const sticks = useMemo(() => (scene.userData.sticks ??= buildSticks(scene)) as ReturnType<typeof buildSticks>, [scene]);
 	// Where each button sits, so a pressed one can sink and come back.
 	const home = useRef(new Map<string, number>());
