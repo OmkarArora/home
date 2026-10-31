@@ -44,6 +44,32 @@ function Loading() {
 	);
 }
 
+/**
+ * The way in, before anything 3D has loaded: the page arrives light, and the scene (about 3 MB of
+ * code and models) is fetched only once the visitor presses Enter. Its click is also what lets the
+ * browser play sound, so the record is heard from its first note.
+ */
+function Door({ onEnter }: { onEnter: () => void }) {
+	return (
+		<div className="absolute inset-0 grid place-items-center bg-[#08080a]">
+			<div className="flex flex-col items-center gap-6 px-4 text-center">
+				<p className={`${pixel.className} text-[10px] tracking-widest text-[#8a8a84]`}>Omkar&apos;s</p>
+				<p className={`${pixel.className} -mt-3 text-2xl text-[#c6f03a] sm:text-3xl`}>Arcade</p>
+				<button
+					type="button"
+					data-sfx="none"
+					// The door is the whole page here: focus starts on the way in, so Enter just goes in.
+					autoFocus
+					onClick={onEnter}
+					className={`${pixel.className} border border-[#c6f03a] bg-[#c6f03a] px-6 py-3 text-[11px] tracking-wide text-[#0c0c0d] hover:bg-[#d6ff52] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c6f03a]`}
+				>
+					Enter
+				</button>
+			</div>
+		</div>
+	);
+}
+
 /** The buttons floating over the scene: dark glass, lime on hover. */
 const hud = "flex h-9 items-center border border-[rgb(237_237_230/0.2)] bg-[rgb(11_11_12/0.7)] text-[10px] text-[#ededE6] backdrop-blur-sm hover:border-[#c6f03a] hover:text-[#c6f03a]";
 
@@ -137,6 +163,9 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 			return false;
 		}
 	});
+	// Nothing 3D is fetched until the visitor asks for it (`Door`): then the scene's code and models
+	// load behind a progress count, and it opens by itself once everything's on the GPU.
+	const [started, setStarted] = useState(false);
 	const [entered, setEntered] = useState(false);
 	const [view, setView] = useState<ViewKey>(first ? "records" : "wide");
 	const [intro, setIntro] = useState(first);
@@ -168,8 +197,12 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 		endIntro();
 		setRecord((on) => !on);
 	}, [endIntro]);
-	const enter = () => {
+	// The click on the way in: sound has to be switched on inside it, for the browser to allow it.
+	const goIn = () => {
 		if (!soundTurnedOff()) setSoundOn(true);
+		setStarted(true);
+	};
+	const enter = () => {
 		setEntered(true);
 		try {
 			localStorage.setItem("arcade-visited", "1");
@@ -246,6 +279,7 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 
 	return (
 		<div className={full ? "fixed inset-0 z-[70]" : "pb-16"} style={full ? { background: sky } : undefined}>
+			{started ? (
 			<ArcadeScene full={full} setting={setting} view={view} panel={panel} onView={go} onHover={setHint} onSay={setSaid} onCoin={credit} onWish={(kind) => (kind === "credits" ? fill() : kind === "sky" ? switchPalette() : kind === "maker" ? router.push("/about") : undefined)} record={record} onRecord={toggleRecord} slow={intro} entered={entered} onEnter={enter} live={!expanded} palette={palette} title={marquee} pressed={pressed} tilt={tilt} on={{
 					prev: () => move(-1),
 					next: () => move(1),
@@ -327,6 +361,9 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 				)}
 				{entered && !panel && <Credits className="absolute top-4 right-4 sm:top-auto sm:bottom-[max(1rem,env(safe-area-inset-bottom))]" />}
 			</ArcadeScene>
+			) : (
+				<Door onEnter={goIn} />
+			)}
 			{/* The machine renders here, but its screen and knobs are portalled into the cabinet and the column. */}
 			<ButtonsContext.Provider value={giveButtons}>
 			<GameContext.Provider value={game}>

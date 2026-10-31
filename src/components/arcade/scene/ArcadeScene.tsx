@@ -173,35 +173,22 @@ function Ready({ onReady }: { onReady: () => void }) {
 }
 
 /**
- * The way in, over the scene: how far the models have loaded, then an Enter button. Its click is
- * also what lets the browser play sound, so the record is heard from its first note.
+ * Over the scene while it loads (the visitor has already pressed Enter, on `Door`): how far the
+ * models have come, then it fades and the scene opens by itself once the GPU has everything.
  */
 function Gate({ ready, entered, onEnter }: { ready: boolean; entered: boolean; onEnter: () => void }) {
 	const { progress } = useProgress();
+	useEffect(() => {
+		if (ready && !entered) onEnter();
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, when ready
+	}, [ready]);
 	return (
 		<div
 			aria-hidden={entered}
 			inert={entered}
 			className={`absolute inset-0 grid place-items-center bg-[#08080a] transition-opacity duration-700 motion-reduce:transition-none ${entered ? "pointer-events-none opacity-0" : "opacity-100"}`}
 		>
-			{ready ? (
-				<div className="flex flex-col items-center gap-6 px-4 text-center">
-					<p className={`${pixel.className} text-[10px] tracking-widest text-[#8a8a84]`}>Omkar&apos;s</p>
-					<p className={`${pixel.className} -mt-3 text-2xl text-[#c6f03a] sm:text-3xl`}>Arcade</p>
-					<button
-						type="button"
-						data-sfx="none"
-						// The gate is the whole page here: focus starts on the way in, so Enter just goes in.
-						autoFocus
-						onClick={onEnter}
-						className={`${pixel.className} border border-[#c6f03a] bg-[#c6f03a] px-6 py-3 text-[11px] tracking-wide text-[#0c0c0d] hover:bg-[#d6ff52] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c6f03a]`}
-					>
-						Enter
-					</button>
-				</div>
-			) : (
-				<p className={`${pixel.className} text-xs text-[#c6f03a]`}>Loading {Math.round(progress)}%</p>
-			)}
+			<p className={`${pixel.className} text-xs text-[#c6f03a]`}>Loading {Math.round(progress)}%</p>
 		</div>
 	);
 }
