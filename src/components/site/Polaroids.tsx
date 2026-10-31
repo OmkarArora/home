@@ -27,7 +27,6 @@ export type Snap =
 	| { kind: "work"; title: string; meta: string; caption: string; href: string };
 
 const tilt = [-4, 3, -2, 5, -3, 2];
-const every = 4000;
 
 /** Where a card goes when it's pulled aside, like the end of a drag: to the right (1) or the left (-1). */
 const aside = (side: 1 | -1) =>
@@ -37,7 +36,23 @@ const aside = (side: 1 | -1) =>
 const showControls = false;
 const showOpen = false;
 
-export function Polaroids({ snaps }: { snaps: Snap[] }) {
+export function Polaroids({
+	snaps,
+	every = 4000,
+	alternate = true,
+	command,
+	links = true,
+}: {
+	snaps: Snap[];
+	/** How long each card stays on top before the next, in ms. */
+	every?: number;
+	/** Whether each move goes out the other side from the last, or always to the right. */
+	alternate?: boolean;
+	/** Moves asked for from outside (the Arcade's buttons): each new `n` is one more. */
+	command?: { go: "next" | "back" | "pause"; n: number };
+	/** Whether a card opens what it's of; off where a stray click shouldn't take you away (the Arcade). */
+	links?: boolean;
+}) {
 	const [order, setOrder] = useState(snaps.map((_, i) => i));
 	// A drag ends with a click; this keeps that click from opening the card.
 	const dragged = useRef(false);
@@ -68,6 +83,17 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 		go(way);
 	};
 
+	// Only commands sent after mounting: remounting (as the Arcade does when a machine is expanded)
+	// mustn't replay the last one.
+	const lastCommand = useRef(command?.n);
+	useEffect(() => {
+		if (!command || command.n === lastCommand.current) return;
+		lastCommand.current = command.n;
+		if (command.go === "pause") setPaused((p) => !p);
+		else manual(command.go);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- a new command is a new `n`
+	}, [command?.n]);
+
 	// Whether the tab is out of sight. Coming back starts a fresh wait.
 	const [hidden, setHidden] = useState(false);
 	useEffect(() => {
@@ -83,7 +109,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 		const timer = setTimeout(() => go("next"), every);
 		return () => clearTimeout(timer);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- `go` only reads state this already keys on
-	}, [order, reduced, paused, holding, hidden]);
+	}, [order, reduced, paused, holding, hidden, every]);
 
 	return (
 		<div
@@ -114,7 +140,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 								if (!pulled) return;
 								(moving === "next" ? next : back)();
 								setMoving(null);
-								setSide((s) => (s === 1 ? -1 : 1));
+								if (alternate) setSide((s) => (s === 1 ? -1 : 1));
 							}}
 							transition={{ type: "spring", stiffness: 300, damping: 24 }}
 							className="absolute inset-0"
@@ -145,7 +171,7 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 									caption={
 										<>
 											<span className="truncate">{snap.caption}</span>
-											{showOpen && (
+											{showOpen && links && (
 												<a
 													href={snap.href}
 													{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
@@ -162,18 +188,24 @@ export function Polaroids({ snaps }: { snaps: Snap[] }) {
 									}
 								>
 									{/* The picture opens it. With the Open button shown, that button is the one for keyboards and screen readers. */}
-									<a
-										href={snap.href}
-										{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
-										tabIndex={showOpen || !isTop ? -1 : 0}
-										aria-hidden={showOpen || undefined}
-										aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
-										onClick={(event) => dragged.current && event.preventDefault()}
-										draggable={false}
-										className="flex min-h-0 flex-1 flex-col"
-									>
-										<Face snap={snap} />
-									</a>
+									{links ? (
+										<a
+											href={snap.href}
+											{...(snap.href.startsWith("http") && { target: "_blank", rel: "noopener noreferrer" })}
+											tabIndex={showOpen || !isTop ? -1 : 0}
+											aria-hidden={showOpen || undefined}
+											aria-label={showOpen ? undefined : `Open: ${snap.caption}${snap.href.startsWith("http") ? " (new tab)" : ""}`}
+											onClick={(event) => dragged.current && event.preventDefault()}
+											draggable={false}
+											className="flex min-h-0 flex-1 flex-col"
+										>
+											<Face snap={snap} />
+										</a>
+									) : (
+										<div className="flex min-h-0 flex-1 flex-col">
+											<Face snap={snap} />
+										</div>
+									)}
 								</Polaroid>
 							</motion.div>
 						</motion.div>
