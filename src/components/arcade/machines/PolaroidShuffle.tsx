@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Polaroids } from "@/components/site/Polaroids";
 import { snaps } from "@/content/snaps";
@@ -32,18 +32,20 @@ export function PolaroidShuffle({ compact = false, layout = stack }: MachineProp
 
 	// The stack is drawn at the home page's size (about 25rem tall with its tilt); a shorter
 	// screen, like an arcade cabinet's, shrinks it to fit.
-	const screen = useRef<HTMLDivElement>(null);
+	// Held as state, not a ref: expanding moves the screen into a new box (a new element), and the
+	// fit has to follow it there.
+	const [screen, setScreen] = useState<HTMLDivElement | null>(null);
 	const [fit, setFit] = useState(1);
 	useEffect(() => {
-		const el = screen.current;
-		if (!el) return;
-		const observer = new ResizeObserver(() => setFit(Math.min(1, el.clientHeight / 400)));
-		observer.observe(el);
+		if (!screen) return;
+		// A screen not laid out yet measures 0: wait for its real height rather than shrink to nothing.
+		const observer = new ResizeObserver(() => screen.clientHeight > 0 && setFit(Math.min(1, screen.clientHeight / 400)));
+		observer.observe(screen);
 		return () => observer.disconnect();
-	}, []);
+	}, [screen]);
 
 	return layout(
-		<Screen ref={screen} className="flex min-h-[28rem] items-center justify-center overflow-hidden">
+		<Screen ref={setScreen} className="flex min-h-[28rem] items-center justify-center overflow-hidden">
 			<div style={{ scale: fit }}>
 				<Polaroids snaps={Object.values(snaps)} every={every} alternate={sides === "alternate"} command={command} links={false} />
 			</div>
