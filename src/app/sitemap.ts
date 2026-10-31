@@ -2,8 +2,8 @@ import { getBlogPosts } from "@/lib/posts";
 
 export const baseUrl = "https://omkararora.com";
 
-/** Every page meant for search. The Arcade is left out until it has something in it. */
-const pages = ["", "/work", "/projects", "/blog", "/about", "/history"];
+/** Every page meant for search. */
+const pages = ["", "/work", "/projects", "/blog", "/about", "/history", "/arcade"];
 
 /**
  * Posts carry the date they were written. Pages carry no date: a build date

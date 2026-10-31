@@ -7,6 +7,7 @@ export const nav = [
 	{ href: "/projects", label: "Projects" },
 	{ href: "/blog", label: "Writing" },
 	{ href: "/about", label: "About" },
+	{ href: "/arcade", label: "Arcade" },
 ];
 
 /** For `.rise` elements: their place in the opening sequence. */
