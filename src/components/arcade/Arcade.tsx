@@ -49,7 +49,7 @@ function Loading() {
  * code and models) is fetched only once the visitor presses Enter. Its click is also what lets the
  * browser play sound, so the record is heard from its first note.
  */
-function Door({ onEnter }: { onEnter: () => void }) {
+function Door({ onEnter }: { onEnter?: () => void }) {
 	return (
 		<div className="absolute inset-0 grid place-items-center bg-[#08080a]">
 			<div className="flex flex-col items-center gap-6 px-4 text-center">
@@ -61,7 +61,9 @@ function Door({ onEnter }: { onEnter: () => void }) {
 					// The door is the whole page here: focus starts on the way in, so Enter just goes in.
 					autoFocus
 					onClick={onEnter}
-					className={`${pixel.className} border border-[#c6f03a] bg-[#c6f03a] px-6 py-3 text-[11px] tracking-wide text-[#0c0c0d] hover:bg-[#d6ff52] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c6f03a]`}
+					// Before the page knows it can run 3D (the server's copy), the button holds its place unseen.
+					disabled={!onEnter}
+					className={`${pixel.className} disabled:invisible border border-[#c6f03a] bg-[#c6f03a] px-6 py-3 text-[11px] tracking-wide text-[#0c0c0d] hover:bg-[#d6ff52] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c6f03a]`}
 				>
 					Enter
 				</button>
@@ -451,6 +453,16 @@ function Scene3d({ full = false, setting }: { full?: boolean; setting?: Setting 
 export function Arcade({ full = false, setting }: { full?: boolean; setting?: Setting }) {
 	const [mode, setMode] = useState<"3d" | "2d" | null>(null);
 	useEffect(() => setMode(canRun3d() ? "3d" : "2d"), []);
-	if (mode === null) return <Loading />;
+	// Full window, the server already sends the door over the whole window, so the site's nav doesn't
+	// show for a moment before the scene covers it. Not under reduced motion: that gets the 2D
+	// cabinet, on the page with its nav, and CSS can tell from the first paint.
+	if (mode === null)
+		return full ? (
+			<div className="fixed inset-0 z-[70] motion-reduce:hidden">
+				<Door />
+			</div>
+		) : (
+			<Loading />
+		);
 	return mode === "3d" ? <Scene3d full={full} setting={setting} /> : <Retro />;
 }
