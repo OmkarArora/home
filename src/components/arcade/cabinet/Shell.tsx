@@ -30,6 +30,8 @@ export type Art = {
 	height: number;
 	screen: Box;
 	hits: Record<"prev" | "next" | "start" | "coin", Box>;
+	/** The joystick: push its left half for the previous machine, its right half for the next. */
+	stick: Box;
 	Draw: (state: ArtState) => React.ReactNode;
 };
 
@@ -73,6 +75,19 @@ export function Shell({
 					onClick={on[key]}
 					className="absolute rounded-full outline-offset-2 focus-visible:outline-2 focus-visible:outline-[#c6f03a]"
 					style={place(art.hits[key], art)}
+				/>
+			))}
+			{/* The stick, for the pointer: its two halves do what ◀ and ▶ do (which keyboards already reach). */}
+			{(["prev", "next"] as const).map((key, side) => (
+				<button
+					key={`stick-${key}`}
+					type="button"
+					data-sfx="none"
+					tabIndex={-1}
+					aria-hidden
+					onClick={on[key]}
+					className="absolute"
+					style={place({ ...art.stick, x: art.stick.x + (side * art.stick.w) / 2, w: art.stick.w / 2 }, art)}
 				/>
 			))}
 		</div>

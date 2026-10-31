@@ -37,7 +37,8 @@ const ArcadeScene = dynamic(() => import("./scene/ArcadeScene"), {
 function Loading() {
 	return (
 		// Full screen (inside the fixed wrapper) it fills the window, so the words don't jump when the scene's own loader takes over.
-		<div className="grid aspect-[3/4] w-full place-items-center bg-[#08080a] sm:aspect-[16/10] in-[.fixed]:aspect-auto in-[.fixed]:h-full">
+		// With reduced motion the 2D cabinet is coming instead, on the light page: kept blank, so the dark box doesn't flash first.
+		<div className="grid aspect-[3/4] w-full place-items-center bg-[#08080a] motion-reduce:invisible sm:aspect-[16/10] in-[.fixed]:aspect-auto in-[.fixed]:h-full">
 			<p className={`${pixel.className} text-xs text-[#c6f03a]`}>Loading 0%</p>
 		</div>
 	);

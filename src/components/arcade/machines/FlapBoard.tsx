@@ -42,8 +42,9 @@ export function FlapBoard({ compact = false, layout = stack }: MachineProps) {
 	useButtons(Array.from({ length: 12 }, (_, i) => (shown[i % 6] ? { label: shown[i % 6], press: () => flipTo(i % 6) } : null)));
 
 	return layout(
-		<Screen className="flex aspect-[4/3] items-center justify-center p-6">
-			<p className="text-[clamp(1.75rem,6vw,3.5rem)] leading-[0.95] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
+		// Sized to the screen it's on, not the window: a twelve-letter word still fits a cabinet's small CRT.
+		<Screen className="flex aspect-[4/3] items-center justify-center p-6 [container-type:inline-size]">
+			<p className="text-center text-[clamp(1rem,9cqw,3.5rem)] leading-[1.2] font-extrabold tracking-[-0.035em] [font-stretch:85%]">
 				<span className="sr-only">Web that feels {shown[0]}</span>
 				<span aria-hidden>Web that feels </span>
 				{/* A new set of words starts the board over. */}

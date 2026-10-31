@@ -168,6 +168,7 @@ export const pixelArt: Art = {
 	width: 125,
 	height: 225,
 	screen: { x: 22, y: 49, w: 81, h: 61 },
+	stick: { x: 23, y: 115, w: 19, h: 24 },
 	hits: {
 		prev: { x: 60, y: 125, w: 13, h: 13 },
 		next: { x: 75, y: 123, w: 13, h: 13 },

@@ -180,6 +180,7 @@ export const illustrated: Art = {
 	width: 500,
 	height: 900,
 	screen: { x: 92, y: 196, w: 316, h: 237 },
+	stick: { x: 92, y: 460, w: 76, h: 92 },
 	hits: {
 		prev: { x: 240, y: 505, w: 50, h: 46 },
 		next: { x: 300, y: 495, w: 50, h: 46 },
