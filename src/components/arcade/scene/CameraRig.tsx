@@ -8,6 +8,7 @@ import { type Camera, type PerspectiveCamera, Spherical, Vector3 } from "three";
 
 import { whoosh } from "./ambience";
 import { type View, type ViewKey, views } from "./views";
+import { still } from "./tier";
 
 /**
  * Takes the camera from view to view (`views.ts`): position and look-at point
@@ -35,7 +36,6 @@ export const ViewContext = createContext<{
 }>({ view: "wide", go: () => {}, hover: () => {}, say: () => {}, record: false, toggleRecord: () => {}, coin: () => {} });
 export const useView = () => useContext(ViewContext);
 
-const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** How much further back to stand on a portrait screen so a view's width still fits (1 on a landscape one). */
 const reach = (camera: Camera, view: View) => {
 	if (view.stay) return 1;

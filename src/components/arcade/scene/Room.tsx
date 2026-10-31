@@ -30,7 +30,7 @@ import { tvBlip } from "./ambience";
 import { type Granted, softDot } from "./DragonBalls";
 import { startRecord } from "./recordMusic";
 import { anchors, isTap, stand } from "./views";
-import { small } from "./tier";
+import { small, still } from "./tier";
 
 /**
  * The rest of the room: the back wall with a window onto a night sky and a
@@ -40,7 +40,6 @@ import { small } from "./tier";
  * by `pnpm arcade:props`, credited on the page).
  */
 
-const still = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function canvasTexture(width: number, height: number, draw: (ctx: CanvasRenderingContext2D) => void) {
 	const canvas = Object.assign(document.createElement("canvas"), { width, height });

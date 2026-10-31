@@ -415,5 +415,5 @@ export function Arcade({ full = false, setting }: { full?: boolean; setting?: Se
 	const [mode, setMode] = useState<"3d" | "2d" | null>(null);
 	useEffect(() => setMode(canRun3d() ? "3d" : "2d"), []);
 	if (mode === null) return <Loading />;
-	return mode === "3d" ? <Scene3d full={full} setting={setting} /> : <Retro style="illustrated" />;
+	return mode === "3d" ? <Scene3d full={full} setting={setting} /> : <Retro />;
 }

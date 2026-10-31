@@ -1,7 +1,7 @@
 /**
  * The theme switch's bloom: a radial-gradient mask that grows out of a point,
- * so the new look spreads as a soft-edged circle over the old. Used on the
- * page's View Transition, and by the Arcade's Bloom machine on a plain element.
+ * so the new look spreads as a soft-edged circle over the old, on the page's
+ * View Transition.
  *
  * The element (or pseudo-element) needs the mask itself in CSS, e.g.
  * `mask-image: radial-gradient(circle closest-side, #000 70%, transparent 100%)`,
@@ -11,7 +11,7 @@ export function bloom(
 	target: Element,
 	origin: { x: number; y: number },
 	box: { w: number; h: number },
-	{ duration = 800, easing = "cubic-bezier(0.45, 0, 0.2, 1)", pseudoElement }: { duration?: number; easing?: string; pseudoElement?: string } = {},
+	{ pseudoElement }: { pseudoElement?: string } = {},
 ) {
 	const { x, y } = origin;
 	const { w, h } = box;
@@ -19,8 +19,8 @@ export function bloom(
 	const reach = Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) * 2.9;
 	const at = (size: number) => ({ maskSize: `${size}px ${size}px`, maskPosition: `${x - size / 2}px ${y - size / 2}px` });
 	return target.animate([at(0), at(reach)], {
-		duration,
-		easing,
+		duration: 800,
+		easing: "cubic-bezier(0.45, 0, 0.2, 1)",
 		// Hold the full size until the caller is done; otherwise the mask drops back to 0 for a
 		// frame or two first, and the old look flashes through.
 		fill: "forwards",

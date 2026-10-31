@@ -3,3 +3,6 @@
  * resolution, smaller shadow maps and a plain floor instead of the mirror.
  */
 export const small = () => typeof window !== "undefined" && window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
+
+/** Does the visitor ask for reduced motion? */
+export const still = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

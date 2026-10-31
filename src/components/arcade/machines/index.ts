@@ -5,8 +5,7 @@ import { SoundBoard } from "./SoundBoard";
 
 /**
  * The Arcade's machines: each one is a trick this site uses, made playable.
- * `how` is the one-line explanation shown beside it. (Fireflies and Bloom are
- * built too, but didn't earn a place on the cabinet.)
+ * `how` is the one-line explanation shown beside it.
  */
 export type Machine = {
 	key: string;

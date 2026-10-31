@@ -52,6 +52,7 @@ import { bigRoar, bigThunder, heartbeat, hushAmbience, preloadSummon, rumble, st
 import { useView } from "./CameraRig";
 import { layout } from "./layout";
 import { anchors, isTap, stand } from "./views";
+import { still } from "./tier";
 
 /**
  * An easter egg, after Dragon Ball: six of the seven balls hidden round the scene,
@@ -70,7 +71,6 @@ type OrbitControlsImpl = React.ComponentRef<typeof OrbitControls>;
 type V3 = [number, number, number];
 
 const r = 0.055;
-const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** A ball resting on a point in a corner's frame (grown by its scale, as in `views.ts`); the ball stays its size. */
 function place({ at, turn, scale = 1 }: { at: V3; turn: number; scale?: number }, [x, y, z]: V3): V3 {

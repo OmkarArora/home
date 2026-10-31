@@ -29,6 +29,7 @@ import { useView } from "./CameraRig";
 import { usePalette } from "./palette";
 import { layout } from "./layout";
 import { facingWide, isTap, neonPair } from "./views";
+import { still } from "./tier";
 
 /**
  * The things in the room that give off light, as in Jesse Zhou's ramen stall,
@@ -39,7 +40,6 @@ import { facingWide, isTap, neonPair } from "./views";
  */
 
 export const cyan = "#4fe3ff";
-const still = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * A strip of light under the kick plate, and the soft pool it spills on the floor. The pool is painted

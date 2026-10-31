@@ -32,7 +32,7 @@ import { type Granted, softDot, type Stage } from "./DragonBalls";
 import { layout } from "./layout";
 import { NeonSign } from "./Props";
 import { usePalette } from "./palette";
-import { small } from "./tier";
+import { small, still } from "./tier";
 
 /**
  * A Japanese arcade night round the cabinet: a tall katakana neon on a pole, the way the signs hang
@@ -40,7 +40,6 @@ import { small } from "./tier";
  * paper lanterns strung from the tree to the sign.
  */
 
-const still = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** While the summon's storm is up (the sky dark), the lanterns swing hard. */
 const stormy = (stage: Stage) => stage === "glow" || stage === "strike" || stage === "arrive" || stage === "stare" || stage === "grant";
 

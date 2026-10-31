@@ -97,19 +97,6 @@ export function Choice<T extends string>({
 	);
 }
 
-/** Whether the element is on screen, so a machine can rest while it isn't. */
-export function useInView<T extends Element>(ref: React.RefObject<T | null>) {
-	const [inView, setInView] = useState(false);
-	useEffect(() => {
-		const el = ref.current;
-		if (!el) return;
-		const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, [ref]);
-	return inView;
-}
-
 /** How a frame places a machine's screen and its knobs (`null` when compact). */
 export type Layout = (screen: React.ReactNode, knobs: React.ReactNode) => React.ReactNode;
 
