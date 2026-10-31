@@ -58,12 +58,16 @@ export function useArcade() {
 	const [game, setGame] = useState(0);
 	const [broke, setBroke] = useState(false);
 	const brokeTimer = useRef<number | undefined>(undefined);
-	const coin = useCallback(() => {
-		play("coin");
+	/** A credit, without a sound (the hologram's coin makes its own). */
+	const credit = useCallback(() => {
 		press("coin", 0, 400);
 		// A coin never takes you down from more than nine (after a wish for endless credits).
 		setCredits((c) => (c >= 9 ? c : c + 1));
 	}, [press]);
+	const coin = useCallback(() => {
+		play("coin");
+		credit();
+	}, [credit]);
 	/** The dragon's wish: as good as endless credits. */
 	const fill = useCallback(() => {
 		play("coin");
@@ -128,5 +132,5 @@ export function useArcade() {
 		/>
 	);
 
-	return { at, machine, pressed, tilt, move, start, coin, fill, startRef, menu, paused, credits, begin, game, broke };
+	return { at, machine, pressed, tilt, move, start, coin, credit, fill, startRef, menu, paused, credits, begin, game, broke };
 }

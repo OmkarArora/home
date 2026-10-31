@@ -145,6 +145,28 @@ export function tvBlip(right: boolean) {
 	osc.stop(t + 0.08);
 }
 
+/**
+ * The hologram's coin: the classic platformer "bling", made here on the spot to the NES sound chip's
+ * numbers (measured from a recording, not played from one): a plain square wave, B5 for five frames
+ * then E6, at the pitches the chip can reach (a touch flat: 981.2 and 1316.0 Hz). Its volume doesn't
+ * glide down, it steps: 15 levels, one every 14/240 s, from the first note to silence at 0.875 s.
+ */
+export function coinBling() {
+	if (!isSoundOn()) return;
+	const ctx = audioContext();
+	const t = ctx.currentTime;
+	const [steps, step, peak] = [15, 14 / 240, 0.05];
+	const osc = ctx.createOscillator();
+	osc.type = "square";
+	osc.frequency.setValueAtTime(981.2, t);
+	osc.frequency.setValueAtTime(1316.0, t + 5 / 60);
+	const gain = ctx.createGain();
+	for (let k = 0; k <= steps; k++) gain.gain.setValueAtTime((peak * (steps - k)) / steps, t + k * step);
+	osc.connect(gain).connect(ctx.destination);
+	osc.start(t);
+	osc.stop(t + steps * step + 0.02);
+}
+
 /** A whoosh for the camera flying to a new view: a band of noise sweeping up and back, as long as the flight. */
 export function whoosh(seconds: number) {
 	if (!isSoundOn()) return;

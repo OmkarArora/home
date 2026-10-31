@@ -30,7 +30,7 @@ export const ViewContext = createContext<{
 	/** Whether the record player is playing, and how to start or stop it. */
 	record: boolean;
 	toggleRecord: () => void;
-	/** Drop a coin in: a credit (the hologram's coin gives one when clicked). */
+	/** A credit, silently (the hologram's coin gives one when clicked, with its own bling). */
 	coin: () => void;
 }>({ view: "wide", go: () => {}, hover: () => {}, say: () => {}, record: false, toggleRecord: () => {}, coin: () => {} });
 export const useView = () => useContext(ViewContext);

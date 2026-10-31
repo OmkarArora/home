@@ -23,6 +23,7 @@ import {
 } from "three";
 
 import { pixel } from "../pixelFont";
+import { coinBling } from "./ambience";
 import { lime } from "./marquee";
 import { useView } from "./CameraRig";
 import { usePalette } from "./palette";
@@ -292,6 +293,7 @@ export function Hologram({ bump = false }: { bump?: boolean }) {
 				onClick={(event) => {
 					if (!isTap(event)) return;
 					event.stopPropagation();
+					coinBling();
 					grab();
 				}}
 				onPointerOver={(event) => {
