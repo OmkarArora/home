@@ -219,8 +219,11 @@ export function NightSky() {
 	);
 }
 
-/** Where the moon hangs in the open: behind the cabinet, a little to the right, up over the lanterns (clear of the sakura). */
-const moonrise = new Vector3(1.0, 2.7, -21);
+/**
+ * Where the moon hangs in the open: behind the cabinet, a little to the right, up over the lanterns (clear
+ * of the sakura). Beyond the summon's dome of cloud (26 m), so the storm covers it.
+ */
+const moonrise = new Vector3(1.0, 2.7, -21).multiplyScalar(1.4);
 
 /**
  * The night with no walls: stars all over the sky, and a big full moon
@@ -251,7 +254,8 @@ export function OpenSky() {
 			{/* Bright enough that the bloom gives it a glow; always turned to face you, so it stays round from any side. */}
 			<Billboard position={moonrise}>
 				<mesh>
-					<planeGeometry args={[2.2, 2.2]} />
+					{/* As far again bigger as it is further off (it was 2.2 m at 21 m), so it looks the same size. */}
+					<planeGeometry args={[3.1, 3.1]} />
 					<meshBasicMaterial map={moon} transparent color={[1.9, 1.9, 1.85]} fog={false} toneMapped={false} />
 				</mesh>
 			</Billboard>
