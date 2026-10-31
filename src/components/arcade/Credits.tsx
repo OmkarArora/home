@@ -8,6 +8,7 @@ import { pixel } from "./pixelFont";
  * Who made the Arcade's 3D models: each is from Sketchfab under CC BY 4.0,
  * which asks for the credit where the work is shown. A small button in the
  * corner of the scene opens the list (also in public/models/CREDITS.txt).
+ * The dragon's sounds are CC0, no credit asked; credited anyway.
  */
 
 const models = [
@@ -20,7 +21,35 @@ const models = [
 	{ what: "Record player", by: "AleixoAlonso", model: "https://sketchfab.com/3d-models/yamaha-tt-300-record-player-3577a2a1a0c24218bd5d768beccf218e", author: "https://sketchfab.com/AleixoAlonso" },
 ];
 
+const sounds = [
+	{ what: "Dragon's roar", by: "trazzz123", model: "https://opengameart.org/content/cc0-deep-monster-roar", author: "https://opengameart.org/users/trazzz123" },
+	{ what: "Thunder", by: "WuxiaScrub", model: "https://opengameart.org/content/rain-long-thunder", author: "https://opengameart.org/users/wuxiascrub" },
+	{ what: "Storm wind", by: "SketchMan3", model: "https://opengameart.org/content/wind-whoosh-loop", author: "https://opengameart.org/users/sketchman3" },
+];
+
 const licence = "https://creativecommons.org/licenses/by/4.0/";
+const cc0 = "https://creativecommons.org/publicdomain/zero/1.0/";
+
+const link = "underline decoration-[rgb(237_237_230/0.3)] underline-offset-2 hover:decoration-[#c6f03a]";
+
+/** One list of credits: what it is, linked, and who made it, linked. */
+function Made({ items }: { items: typeof models }) {
+	return (
+		<ul className="mt-4 grid gap-3 text-sm">
+			{items.map((m) => (
+				<li key={m.what}>
+					<a href={m.model} target="_blank" rel="noopener noreferrer" className={link}>
+						{m.what}
+					</a>{" "}
+					by{" "}
+					<a href={m.author} target="_blank" rel="noopener noreferrer" className={link}>
+						{m.by}
+					</a>
+				</li>
+			))}
+		</ul>
+	);
+}
 
 export function Credits({ className = "" }: { className?: string }) {
 	const [open, setOpen] = useState(false);
@@ -73,25 +102,21 @@ export function Credits({ className = "" }: { className?: string }) {
 							×
 						</button>
 					</div>
-					<ul className="mt-4 grid gap-3 text-sm">
-						{models.map((m) => (
-							<li key={m.what}>
-								<a href={m.model} target="_blank" rel="noopener noreferrer" className="underline decoration-[rgb(237_237_230/0.3)] underline-offset-2 hover:decoration-[#c6f03a]">
-									{m.what}
-								</a>{" "}
-								by{" "}
-								<a href={m.author} target="_blank" rel="noopener noreferrer" className="underline decoration-[rgb(237_237_230/0.3)] underline-offset-2 hover:decoration-[#c6f03a]">
-									{m.by}
-								</a>
-							</li>
-						))}
-					</ul>
+					<Made items={models} />
 					<p className="mt-4 text-xs leading-relaxed text-[#8a8a84]">
 						All from Sketchfab under{" "}
 						<a href={licence} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#ededE6]">
 							CC BY 4.0
 						</a>
-						, scaled, recoloured and compressed for the web. Brand marks removed. Everything else, from the scene to the machines and the music, was made for this page.
+						, scaled, recoloured and compressed for the web. Brand marks removed.
+					</p>
+					<Made items={sounds} />
+					<p className="mt-4 text-xs leading-relaxed text-[#8a8a84]">
+						From OpenGameArt, given away under{" "}
+						<a href={cc0} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#ededE6]">
+							CC0
+						</a>
+						, trimmed for the summon. Everything else, from the scene to the machines and the music, was made for this page.
 					</p>
 					<p className="mt-3 border-t border-[rgb(237_237_230/0.14)] pt-3 text-xs leading-relaxed text-[#8a8a84]">
 						Inspired by Jesse Zhou&apos;s ramen shop, the 3D portfolio that showed how a scene like this should feel.

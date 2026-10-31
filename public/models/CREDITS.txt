@@ -37,3 +37,19 @@ sakura.glb
   "Sakura Tree 01 - Low Poly Model" by Jogoss
   https://sketchfab.com/3d-models/sakura-tree-01-low-poly-model-147ae7d0d332456a99ec6195e9b0cd4f
   https://sketchfab.com/thejogoss9
+
+Sounds (public/sounds/), from OpenGameArt under CC0
+(https://creativecommons.org/publicdomain/zero/1.0/); no credit asked, given
+anyway. Trimmed, levelled and encoded to Opus.
+
+dragon-roar.ogg
+  "CC0 Deep Monster Roar" by trazzz123
+  https://opengameart.org/content/cc0-deep-monster-roar
+
+thunder.ogg
+  "Rain + Long Thunder" by WuxiaScrub (from 21.3 s, 9.5 s long)
+  https://opengameart.org/content/rain-long-thunder
+
+storm-wind.ogg
+  "wind whoosh loop" by SketchMan3
+  https://opengameart.org/content/wind-whoosh-loop
