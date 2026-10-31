@@ -1,0 +1,55 @@
+The Arcade's 3D models are from Sketchfab, licensed under CC BY 4.0
+(http://creativecommons.org/licenses/by/4.0/). Each was optimised for the web
+(scaled, textures shrunk, geometry compressed) by scripts/arcade-model.mjs and
+scripts/arcade-props.mjs; the cabinet was also split into parts and recoloured.
+
+arcade-cabinet.glb
+  "Arcade Cabinet" by JewelPodd
+  https://sketchfab.com/3d-models/arcade-cabinet-21ee4868e8f14bca979f24df1276b770
+  https://sketchfab.com/JewelPodd
+
+crt-tv.glb
+  "Sony PVM-14L2 CRT TV" by Poring
+  https://sketchfab.com/3d-models/sony-pvm-14l2-crt-tv-ab19c2419c2647299ce96d027b3e7f5e
+  https://sketchfab.com/poring
+
+playstation.glb
+  "SONY PlayStation One" by Vladimir_Sofyanov
+  https://sketchfab.com/3d-models/sony-playstation-one-4afd87cc153346f8a8400a1e8517a6c9
+  https://sketchfab.com/vladimirsoufl
+
+record-player.glb
+  "Yamaha TT-300 Record Player" by AleixoAlonso
+  https://sketchfab.com/3d-models/yamaha-tt-300-record-player-3577a2a1a0c24218bd5d768beccf218e
+  https://sketchfab.com/AleixoAlonso
+
+shenlong.glb
+  "Dragon Ball Z SHENLONG" by placebo_vscure
+  https://sketchfab.com/3d-models/dragon-ball-z-shenlong-ee561e95bd9642f193fd09e8058f6c2f
+  https://sketchfab.com/placebo_vscure
+
+dragon-balls.glb
+  "The Dragon Balls" by Anthony Yanez
+  https://sketchfab.com/3d-models/the-dragon-balls-77baebec10d940f08d09b5f9059d4066
+  https://sketchfab.com/paulyanez
+
+sakura.glb
+  "Sakura Tree 01 - Low Poly Model" by Jogoss
+  https://sketchfab.com/3d-models/sakura-tree-01-low-poly-model-147ae7d0d332456a99ec6195e9b0cd4f
+  https://sketchfab.com/thejogoss9
+
+Sounds (public/sounds/), from OpenGameArt under CC0
+(https://creativecommons.org/publicdomain/zero/1.0/); no credit asked, given
+anyway. Trimmed, levelled and encoded to Opus.
+
+dragon-roar.ogg
+  "CC0 Deep Monster Roar" by trazzz123
+  https://opengameart.org/content/cc0-deep-monster-roar
+
+thunder.ogg
+  "Rain + Long Thunder" by WuxiaScrub (from 21.3 s, 9.5 s long)
+  https://opengameart.org/content/rain-long-thunder
+
+storm-wind.ogg
+  "wind whoosh loop" by SketchMan3
+  https://opengameart.org/content/wind-whoosh-loop

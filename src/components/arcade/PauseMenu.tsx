@@ -18,12 +18,15 @@ import { mono } from "@/components/site/ui";
 export function PauseMenu({
 	open,
 	onClose,
+	onPick,
 	items,
 	current,
 	footer,
 }: {
 	open: boolean;
 	onClose: () => void;
+	/** Called with the item's href when one is picked, before the menu closes. */
+	onPick?: (href: string) => void;
 	items: Array<{ href: string; label: string }>;
 	/** The href to mark as the current one. */
 	current?: string;
@@ -87,7 +90,10 @@ export function PauseMenu({
 									>
 										<Link
 											href={item.href}
-											onClick={onClose}
+											onClick={() => {
+												onPick?.(item.href);
+												onClose();
+											}}
 											aria-current={active ? "page" : undefined}
 											className="group flex items-baseline gap-4 py-2"
 										>

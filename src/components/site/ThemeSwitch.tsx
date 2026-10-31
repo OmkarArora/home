@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useId, useState } from "react";
 
+import { bloom } from "./bloom";
 import { play } from "./sound";
 
 /**
@@ -25,8 +26,8 @@ import { play } from "./sound";
  * soft-edged circle over the old. Without View Transitions, or with reduced
  * motion, it just changes.
  *
- * The circle is a radial-gradient mask whose size grows, so its edge stays
- * feathered instead of the hard line a clip-path would draw.
+ * The circle is a radial-gradient mask whose size grows (`bloom.ts`), so its
+ * edge stays feathered instead of the hard line a clip-path would draw.
  *
  * next-themes puts the class on <html> after a render, too late for the
  * snapshot, so the class is set here first; next-themes then sets the same one.
@@ -51,19 +52,7 @@ function changeTheme(next: "light" | "dark", commit: () => void, origin?: { x: n
 
 	view.ready.then(() => {
 		const { innerWidth: w, innerHeight: h } = window;
-		const x = origin?.x ?? w;
-		const y = origin?.y ?? 0;
-		// Far enough to cover the furthest corner, with room for the soft edge (the gradient fades over its outer 30%).
-		const reach = Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) * 2.9;
-		const at = (size: number) => ({ maskSize: `${size}px ${size}px`, maskPosition: `${x - size / 2}px ${y - size / 2}px` });
-		page.animate([at(0), at(reach)], {
-			duration: 800,
-			easing: "cubic-bezier(0.45, 0, 0.2, 1)",
-			// Hold the full size until the transition ends; otherwise the mask drops back to 0 for a
-			// frame or two first, and the old theme flashes through.
-			fill: "forwards",
-			pseudoElement: "::view-transition-new(root)",
-		});
+		bloom(page, origin ?? { x: w, y: 0 }, { w, h }, { pseudoElement: "::view-transition-new(root)" });
 	});
 }
 

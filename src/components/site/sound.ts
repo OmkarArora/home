@@ -13,7 +13,7 @@ import { useSyncExternalStore } from "react";
  * did: a click, a drag, a hover. Nothing plays on its own.
  */
 
-export type Sfx = "click" | "on" | "off" | "chime" | "open" | "close" | "flip";
+export type Sfx = "click" | "on" | "off" | "chime" | "open" | "close" | "flip" | "coin" | "select" | "start" | "glide";
 
 /** A note: [frequency in Hz, start in s, length in s]. */
 type Note = [number, number, number];
@@ -46,6 +46,24 @@ export const sounds: Record<Sfx, Note[]> = {
 	flip: [
 		[440, 0, 0.03],
 		[880, 0.03, 0.04],
+	],
+	// The Arcade's. A coin: B5 up to E6, the classic two-note ding.
+	coin: [
+		[987.77, 0, 0.06],
+		[1318.51, 0.06, 0.16],
+	],
+	select: [[783.99, 0, 0.04]],
+	// Start: a C major arpeggio, C5 E5 G5 C6.
+	start: [
+		[523.25, 0, 0.06],
+		[659.25, 0.06, 0.06],
+		[783.99, 0.12, 0.06],
+		[1046.5, 0.18, 0.14],
+	],
+	// The camera flying to a new view: a soft step up, G4 to C5.
+	glide: [
+		[392, 0, 0.07],
+		[523.25, 0.07, 0.12],
 	],
 };
 
@@ -166,6 +184,15 @@ const key = "sfx";
 const listeners = new Set<() => void>();
 let audio: AudioContext | null = null;
 
+/** Whether the visitor has ever switched sound off themselves (not just never turned it on). */
+export function soundTurnedOff() {
+	try {
+		return localStorage.getItem(key) === "off";
+	} catch {
+		return false;
+	}
+}
+
 function read() {
 	try {
 		return localStorage.getItem(key) === "on";
@@ -175,6 +202,9 @@ function read() {
 }
 
 let enabled = typeof window !== "undefined" && read();
+
+/** Whether sound is on, right now (for sounds made outside React, like the Arcade's). */
+export const isSoundOn = () => enabled;
 
 export function setSoundOn(on: boolean) {
 	enabled = on;
@@ -199,10 +229,26 @@ export function useSoundOn() {
 }
 
 function context() {
-	audio ??= new AudioContext();
+	if (!audio) {
+		audio = new AudioContext();
+		// Leave the tab and everything goes quiet; come back and it carries on where it was.
+		let wasRunning = false;
+		document.addEventListener("visibilitychange", () => {
+			if (!audio) return;
+			if (document.hidden) {
+				wasRunning = audio.state === "running";
+				if (wasRunning) void audio.suspend();
+			} else if (wasRunning) void audio.resume();
+		});
+	}
 	// Browsers start audio suspended until a gesture; every call here follows one.
 	if (audio.state === "suspended") void audio.resume();
 	return audio;
+}
+
+/** The site's one audio context, for anything else that makes sound (the Arcade's record player). */
+export function audioContext() {
+	return context();
 }
 
 /** Notes in a voice, now, whether or not sound is switched on (the lab uses this). */

@@ -21,7 +21,7 @@ const pages: Record<string, Card> = {
 	blog: { kicker: "Writing", title: "Dev log.", sub: "Notes on building for the web, with demos." },
 	about: { kicker: `About · ${identity.location}`, title: "Off the clock.", sub: identity.name },
 	history: { kicker: "This site", title: "Version history.", sub: "Every version of this site, newest first." },
-	arcade: { kicker: "Arcade", title: "Under construction.", sub: "Playable experiments, coming soon." },
+	arcade: { kicker: "Arcade · insert coin", title: "Omkar's Arcade.", sub: "The site's tricks, playable on a cabinet under a night sky." },
 };
 
 const color = {
