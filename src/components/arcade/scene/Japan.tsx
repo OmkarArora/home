@@ -32,6 +32,7 @@ import { type Granted, softDot, type Stage } from "./DragonBalls";
 import { layout } from "./layout";
 import { NeonSign } from "./Props";
 import { usePalette } from "./palette";
+import { small } from "./tier";
 
 /**
  * A Japanese arcade night round the cabinet: a tall katakana neon on a pole, the way the signs hang
@@ -352,8 +353,6 @@ function SakuraModel() {
 
 useGLTF.preload("/models/sakura.glb", false);
 
-/** Is this a small screen, where fewer petals fall? */
-const small = () => typeof window !== "undefined" && window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
 
 /**
  * The sakura over the dragon's pedestal, swaying from its foot (a breath at night, hard in the
@@ -592,6 +591,8 @@ export function Fireworks({ granted }: { granted: Granted | null }) {
 			r.launch = t;
 		}
 		const going = r.from !== null && t - r.from < show.seconds;
+		// Nothing up there and nothing coming: no work (and nothing sent to the GPU) until the next wish.
+		if (!going && r.shells.length === 0 && !points.current?.visible) return;
 		// A shell up every so often, quicker in the last few seconds.
 		if (going && t >= r.launch) {
 			const left = show.seconds - (t - (r.from as number));

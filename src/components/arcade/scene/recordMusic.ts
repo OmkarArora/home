@@ -83,6 +83,13 @@ export function startRecord() {
 	let step = 0;
 	let next = ctx.currentTime + 0.1;
 	const tick = () => {
+		// After a stall (a long frame, or a phone holding back timers) the notes it missed are already in
+		// the past: skip them, or they all play at once in a stuttering burst.
+		if (next < ctx.currentTime) {
+			const missed = Math.ceil((ctx.currentTime - next) / eighth);
+			step += missed;
+			next += missed * eighth;
+		}
 		while (next < ctx.currentTime + 0.15) {
 			const bar = Math.floor(step / 8);
 			const inBar = step % 8;

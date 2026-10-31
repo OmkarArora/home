@@ -30,6 +30,7 @@ import { tvBlip } from "./ambience";
 import { type Granted, softDot } from "./DragonBalls";
 import { startRecord } from "./recordMusic";
 import { anchors, isTap, stand } from "./views";
+import { small } from "./tier";
 
 /**
  * The rest of the room: the back wall with a window onto a night sky and a
@@ -212,7 +213,7 @@ export function NightSky() {
 				distance={10}
 				decay={1.6}
 				castShadow
-				shadow-mapSize={[1024, 1024]}
+				shadow-mapSize={small() ? [512, 512] : [1024, 1024]}
 				shadow-bias={-0.0004}
 				shadow-normalBias={0.02}
 			/>
@@ -293,7 +294,7 @@ export function OpenSky({ granted }: { granted: Granted | null }) {
 				color="#b8ccff"
 				intensity={0.9}
 				castShadow
-				shadow-mapSize={[2048, 2048]}
+				shadow-mapSize={small() ? [1024, 1024] : [2048, 2048]}
 				shadow-camera-left={-10}
 				shadow-camera-right={10}
 				shadow-camera-top={10}
@@ -353,6 +354,8 @@ function ShootingStars({ granted }: { granted: Granted | null }) {
 			}
 			if (r.sent >= shower.length && r.stars.length === 0) r.from = null;
 		}
+		// Nothing in the sky and none coming: no work (and nothing sent to the GPU) until the next wish.
+		if (r.from === null && r.stars.length === 0 && !points.current?.visible) return;
 		const position = sky.g.attributes.position as BufferAttribute;
 		const colour = sky.g.attributes.color as BufferAttribute;
 		const spark = (x: number, y: number, z: number, life: number, hue: Color, drift: number) => {

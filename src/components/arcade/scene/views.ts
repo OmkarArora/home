@@ -23,6 +23,9 @@ export type View = {
 	polar: [number, number];
 	/** How near and far the scroll wheel goes. */
 	distance: [number, number];
+	/** Stand in the same place on a portrait screen too. For a view of something far off, stepping back
+	 *  shows hardly any more of it, and sinks everything near into the fog. */
+	stay?: boolean;
 	/** How far to slide sideways (metres) when the machine's panel covers the right of the screen. */
 	shift?: number;
 };
@@ -71,7 +74,7 @@ export const views: Record<ViewKey, View> = {
 	tv: { label: "The TV", position: before(anchors.tv, tvTarget, 0.85, 0.12), target: tvTarget, swing: 0.4, polar: [1.0, 1.55], distance: [0.5, 1.1] },
 	records: { label: "The records", position: before(anchors.records, recordsTarget, 0.8, 0.55), target: recordsTarget, swing: 0.4, polar: [0.5, 1.25], distance: [0.6, 1.3] },
 	// Low in front of the cabinet, looking up over it: for the wishes that happen in the sky.
-	sky: { label: "The sky", position: [0.55, 1.5, 4.6], target: [1.2, 5.5, -16], swing: 0.6, polar: [1.6, 2.1], distance: [18, 24] },
+	sky: { label: "The sky", position: [0.55, 1.5, 4.6], target: [1.2, 5.5, -16], swing: 0.6, polar: [1.6, 2.1], distance: [18, 24], stay: true },
 };
 
 /** The neon pair behind the cabinet, either side of the hologram: same height, same size, mirrored. */

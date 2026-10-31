@@ -7,7 +7,7 @@ import { type Camera, type PerspectiveCamera, Spherical, Vector3 } from "three";
 
 
 import { whoosh } from "./ambience";
-import { type ViewKey, views } from "./views";
+import { type View, type ViewKey, views } from "./views";
 
 /**
  * Takes the camera from view to view (`views.ts`): position and look-at point
@@ -37,7 +37,8 @@ export const useView = () => useContext(ViewContext);
 
 const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** How much further back to stand on a portrait screen so a view's width still fits (1 on a landscape one). */
-const reach = (camera: Camera) => {
+const reach = (camera: Camera, view: View) => {
+	if (view.stay) return 1;
 	const aspect = (camera as PerspectiveCamera).aspect ?? 1.6;
 	return aspect >= 1.2 ? 1 : Math.min(1.8, (1.2 / aspect) ** 0.8);
 };
@@ -98,7 +99,7 @@ export function CameraRig({
 		const position = new Vector3(...goal.position).add(new Vector3(shift, -lift, 0));
 		const offset = new Spherical().setFromVector3(position.clone().sub(target));
 		// A tall, narrow screen sees less across: step back so the same width fits.
-		offset.radius *= reach(camera);
+		offset.radius *= reach(camera, goal);
 
 		// The first view is where the scene opens: the camera starts there, no flight.
 		const opening = first.current;
@@ -145,8 +146,8 @@ export function CameraRig({
 					maxAzimuthAngle: goal.swing === null ? Infinity : home + goal.swing,
 					minPolarAngle: goal.polar[0],
 					maxPolarAngle: goal.polar[1],
-					minDistance: goal.distance[0] * reach(camera),
-					maxDistance: goal.distance[1] * reach(camera),
+					minDistance: goal.distance[0] * reach(camera, goal),
+					maxDistance: goal.distance[1] * reach(camera, goal),
 				});
 				flight.current = null;
 				c.enabled = true;

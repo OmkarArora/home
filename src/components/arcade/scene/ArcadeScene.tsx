@@ -1,7 +1,7 @@
 "use client";
 
 import { ContactShadows, MeshReflectorMaterial, OrbitControls, useProgress } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ACESFilmicToneMapping, AdditiveBlending, CanvasTexture } from "three";
@@ -20,6 +20,7 @@ import { Stickers } from "./Stickers";
 import { Wish } from "./Wish";
 import { type Palette, PaletteContext, palettes, usePalette } from "./palette";
 import { layout } from "./layout";
+import { small } from "./tier";
 import { type ViewKey, views } from "./views";
 
 /**
@@ -52,15 +53,16 @@ const poolTexture = () => {
 	return new CanvasTexture(canvas);
 };
 
-function Floor({ size }: { size: number }) {
+function Floor({ size, mirror }: { size: number; mirror: boolean }) {
 	const { floor, pools } = usePalette();
 	const pool = useMemo(poolTexture, []);
 	return (
 		<group>
 			<mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
 				<planeGeometry args={[size, size]} />
-				{/* A glossy floor: a soft, low-resolution reflection of what's above it, tinted by the night. */}
-				<MeshReflectorMaterial
+				{/* A glossy floor: a soft, low-resolution reflection of what's above it, tinted by the night. The
+				    reflection draws the whole scene a second time, so phones get the floor without it. */}
+				{mirror ? <MeshReflectorMaterial
 					blur={[160, 60]}
 					resolution={512}
 					mixBlur={0.55}
@@ -73,7 +75,7 @@ function Floor({ size }: { size: number }) {
 					color={floor}
 					metalness={0.6}
 					mirror={0.75}
-				/>
+				/> : <meshStandardMaterial color={floor} roughness={0.4} metalness={0.6} />}
 			</mesh>
 			{/* Two big pools of neon on the floor, one under each side, like light spilling from signs. */}
 			{([
@@ -90,8 +92,83 @@ function Floor({ size }: { size: number }) {
 }
 
 /** Says when everything inside the scene's Suspense has loaded. */
+/**
+ * Watches the frame rate and, while it stays low, steps the scene down (after Jesse Zhou's ramen
+ * shop, which sheds its mirror, then its videos, then its bloom). Only ever down, one step at a
+ * time, and only for a slowness that lasts: a view's flight can stutter for a moment.
+ *
+ * 1: no mirror on the floor, softer contact shadows, at most 1.5× resolution (where phones start)
+ * 2: 1× resolution, contact shadows drawn once instead of every frame
+ * 3: no bloom
+ */
+function Governor({ drop, onDrop }: { drop: number; onDrop: (drop: number) => void }) {
+	const watch = useRef({ from: 0, frames: 0, slow: 0, since: performance.now() });
+	useFrame(() => {
+		const w = watch.current;
+		const now = performance.now();
+		// A few seconds to settle after starting, or after a step, before judging.
+		if (drop >= 3 || document.hidden || now - w.since < 4000) {
+			w.from = now;
+			w.frames = 0;
+			return;
+		}
+		w.frames++;
+		if (now - w.from < 2000) return;
+		const fps = (w.frames * 1000) / (now - w.from);
+		w.from = now;
+		w.frames = 0;
+		w.slow = fps < 45 ? w.slow + 1 : 0;
+		// Two slow stretches in a row (4 s) is slowness that lasts.
+		if (w.slow >= 2) {
+			w.slow = 0;
+			w.since = now;
+			onDrop(drop + 1);
+		}
+	});
+	return null;
+}
+
+/**
+ * Says the scene is ready once the GPU has everything it'll need. three builds a material's shader,
+ * uploads a mesh and its textures, and builds its shadow shader the first time it draws it, so the
+ * dragon (hidden till summoned) and anything first seen from a new view would each stall the frame
+ * they appear in: about a second on a phone. Done here, behind the gate, nothing stalls later.
+ */
 function Ready({ onReady }: { onReady: () => void }) {
-	useEffect(onReady, []);
+	const { gl, scene, camera } = useThree();
+	useEffect(() => {
+		let live = true;
+		// Everything shown and nothing culled, just for the length of a call (no frame draws in between).
+		const reveal = () => {
+			const changed: { o: { visible: boolean; frustumCulled: boolean }; visible: boolean; culled: boolean }[] = [];
+			scene.traverse((o) => {
+				changed.push({ o, visible: o.visible, culled: o.frustumCulled });
+				o.visible = true;
+				o.frustumCulled = false;
+			});
+			return () => {
+				for (const { o, visible, culled } of changed) Object.assign(o, { visible, frustumCulled: culled });
+			};
+		};
+		// First the shaders, in the background where the browser can...
+		let hide = reveal();
+		const built = gl.compileAsync(scene, camera);
+		hide();
+		built
+			.catch(() => {})
+			.finally(() => {
+				if (!live) return;
+				// ...then one real draw, shadows and all, for the rest (meshes, textures, shadow shaders).
+				hide = reveal();
+				gl.shadowMap.needsUpdate = true;
+				gl.render(scene, camera);
+				hide();
+				onReady();
+			});
+		return () => {
+			live = false;
+		};
+	}, [gl, scene, camera]);
 	return null;
 }
 
@@ -231,6 +308,8 @@ export default function ArcadeScene({
 	);
 	const [running, setRunning] = useState(true);
 	const [touch, setTouch] = useState(false);
+	// How far the scene has stepped down to keep its frame rate (see `Governor`): phones start a step down.
+	const [drop, setDrop] = useState(0);
 
 	// Draw only while on screen and the tab is visible.
 	useEffect(() => {
@@ -245,6 +324,7 @@ export default function ArcadeScene({
 		observer.observe(el);
 		document.addEventListener("visibilitychange", update);
 		setTouch(window.matchMedia("(pointer: coarse)").matches);
+		if (small()) setDrop(1);
 		return () => {
 			observer.disconnect();
 			document.removeEventListener("visibilitychange", update);
@@ -256,9 +336,10 @@ export default function ArcadeScene({
 			<Canvas
 				frameloop={running ? "always" : "never"}
 				shadows
-				dpr={[1, 2]}
+				dpr={drop >= 2 ? 1 : drop >= 1 ? [1, 1.5] : [1, 2]}
 				camera={{ position: views.wide.position, fov: 36, near: 0.05, far: 80 }}
-				gl={{ antialias: true, toneMapping: ACESFilmicToneMapping }}
+				// The composer smooths edges itself (`multisampling`); the canvas doing it too is wasted work.
+				gl={{ antialias: false, toneMapping: ACESFilmicToneMapping }}
 				// On touch screens a swipe over the scene scrolls the page, unless the scene is the whole page.
 				style={{ touchAction: touch && !full ? "pan-y" : "none" }}
 			>
@@ -310,22 +391,23 @@ export default function ArcadeScene({
 						)}
 						<TvCorner />
 						<RecordCorner />
-						<Floor size={setting === "open" ? 80 : 12} />
-						<ContactShadows position={[0, 0.002, 0]} opacity={0.7} scale={3} blur={2.4} far={1.2} />
+						<Floor size={setting === "open" ? 80 : 12} mirror={drop < 1} />
+						<ContactShadows position={[0, 0.002, 0]} opacity={0.7} scale={3} blur={2.4} far={1.2} resolution={drop >= 1 ? 256 : 512} frames={drop >= 2 ? 1 : Infinity} />
 					</ViewContext.Provider>
 					</PaletteContext.Provider>
 				</Suspense>
 				{/* Limits come from the view (`CameraRig`); no panning, ever. */}
 				<OrbitControls ref={controls} enablePan={false} enableZoom zoomSpeed={0.6} enableRotate={!touch || full} enableDamping dampingFactor={0.08} />
-				<EffectComposer>
+				{entered && <Governor drop={drop} onDrop={setDrop} />}
+				<EffectComposer multisampling={drop >= 1 ? 4 : 8}>
 					{/* Soft and wide: a haze round the lights rather than a glare. */}
-					<Bloom mipmapBlur luminanceThreshold={1.05} luminanceSmoothing={0.3} intensity={0.55} radius={0.85} />
+					{drop < 3 ? <Bloom mipmapBlur luminanceThreshold={1.05} luminanceSmoothing={0.3} intensity={0.55} radius={0.85} /> : <></>}
 					<Vignette offset={0.3} darkness={0.55} />
 				</EffectComposer>
 			</Canvas>
 			{/* The HUD steps aside while the dragon's here. */}
 			<div className={`transition-opacity duration-700 ${stage === "off" ? "" : "pointer-events-none opacity-0"}`}>{children}</div>
-			{process.env.NODE_ENV === "development" && <DevWishes stage={stage} api={summonApi} wish={wish} open={setting === "open"} />}
+			{process.env.NODE_ENV === "development" && <DevWishes stage={stage} api={summonApi} wish={wish} open={setting === "open"} drop={drop} />}
 			<Wish stage={stage} api={summonApi} neon={palette === palettes.synthwave} open={setting === "open"} gold={gold} />
 			<Gate ready={ready} entered={entered} onEnter={onEnter} />
 		</div>
@@ -336,7 +418,7 @@ export default function ArcadeScene({
  * Development only (never in a build): summon him without the seven balls, or grant a scene wish
  * straight away, to try them without the hunt.
  */
-function DevWishes({ stage, api, wish, open }: { stage: Stage; api: React.RefObject<SummonApi | null>; wish: (kind: WishKind) => void; open: boolean }) {
+function DevWishes({ stage, api, wish, open, drop }: { stage: Stage; api: React.RefObject<SummonApi | null>; wish: (kind: WishKind) => void; open: boolean; drop: number }) {
 	const button = "border border-white/25 bg-black/60 px-2 py-1 text-left font-mono text-[10px] text-white/80 hover:border-white/70 hover:text-white";
 	const scene: [SceneWish, string][] = [
 		["fireworks", "Fireworks"],
@@ -369,6 +451,8 @@ function DevWishes({ stage, api, wish, open }: { stage: Stage; api: React.RefObj
 	return (
 		<div className="absolute top-1/2 right-3 z-30 flex -translate-y-1/2 flex-col gap-1">
 			<span className="font-mono text-[9px] text-white/40 uppercase">dev</span>
+			<Fps />
+			<span className="font-mono text-[10px] text-lime-300/70">quality step {drop} of 3</span>
 			<button type="button" className={button} disabled={stage !== "off"} onClick={() => api.current?.summon()}>
 				Summon
 			</button>
@@ -413,4 +497,31 @@ function DevWishes({ stage, api, wish, open }: { stage: Stage; api: React.RefObj
 			</button>
 		</div>
 	);
+}
+
+/** Development only: frames a second and the slowest frame (ms), over the last second. */
+function Fps() {
+	const [now, setNow] = useState("…");
+	useEffect(() => {
+		let frame = 0;
+		let last = performance.now();
+		let from = last;
+		let count = 0;
+		let worst = 0;
+		const tick = (t: number) => {
+			worst = Math.max(worst, t - last);
+			last = t;
+			count++;
+			if (t - from >= 1000) {
+				setNow(`${Math.round((count * 1000) / (t - from))} fps · ${Math.round(worst)} ms`);
+				from = t;
+				count = 0;
+				worst = 0;
+			}
+			frame = requestAnimationFrame(tick);
+		};
+		frame = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(frame);
+	}, []);
+	return <span className="font-mono text-[10px] text-lime-300">{now}</span>;
 }
