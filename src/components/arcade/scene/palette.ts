@@ -30,6 +30,10 @@ export type Palette = {
 	underglow: string;
 	/** The key light from above. */
 	key: string;
+	/** The paper lanterns, alternating along the wire. */
+	lanterns: [string, string];
+	/** The sakura's blossom, mixed through the crown and the petals: deep, pale, rose (the deepest) and blush. */
+	blossom: [string, string, string, string];
 };
 
 export const palettes = {
@@ -44,6 +48,8 @@ export const palettes = {
 		stick: "#ffb86b",
 		underglow: "#8b5cf6",
 		key: "#fff3e4",
+		lanterns: ["#e0352b", "#f3e1bd"],
+		blossom: ["#f28bb0", "#ffe3ee", "#d9497f", "#ffb8d0"],
 	},
 	synthwave: {
 		sky: "#0d0618",
@@ -56,6 +62,8 @@ export const palettes = {
 		stick: "#ff4d6d",
 		underglow: "#ff3dcb",
 		key: "#ffe9f6",
+		lanterns: ["#ff3dcb", "#2de2e6"],
+		blossom: ["#ff5fc8", "#ffd6f4", "#c92e9e", "#ff9ce0"],
 	},
 } satisfies Record<string, Palette>;
 

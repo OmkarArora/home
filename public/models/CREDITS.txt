@@ -32,3 +32,8 @@ dragon-balls.glb
   "The Dragon Balls" by Anthony Yanez
   https://sketchfab.com/3d-models/the-dragon-balls-77baebec10d940f08d09b5f9059d4066
   https://sketchfab.com/paulyanez
+
+sakura.glb
+  "Sakura Tree 01 - Low Poly Model" by Jogoss
+  https://sketchfab.com/3d-models/sakura-tree-01-low-poly-model-147ae7d0d332456a99ec6195e9b0cd4f
+  https://sketchfab.com/thejogoss9

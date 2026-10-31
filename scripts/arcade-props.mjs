@@ -7,7 +7,7 @@
  * to its real size, stand it on the floor centred, shrink the textures to
  * 1024 px WebP, and weld, quantize and meshopt-compress the geometry.
  *
- * Usage: pnpm arcade:props
+ * Usage: pnpm arcade:props [out names, to build only those]
  * Sources: scratch/models/<name>/scene.gltf (local only, not committed).
  * Output: public/models/<out>.glb
  */
@@ -81,12 +81,17 @@ const props = [
 	// scene, so here just a unit length; Shenlong's own pile of dragon balls is left out.
 	{ source: "dragon_ball_z_shenlong", out: "shenlong", axis: 2, size: 1, drop: ["dragonballs_DRAGONBALL_0"] },
 	{ source: "the_dragon_balls", out: "dragon-balls", axis: 0, size: 1 },
+	// The sakura over the dragon's pedestal (Jogoss), sized in the scene too.
+	{ source: "sakura_tree_01_-_low_poly_model", out: "sakura", axis: 1, size: 1 },
 ];
+
+/** Just these, if named (`pnpm arcade:props sakura`); otherwise all of them. */
+const only = process.argv.slice(2);
 
 await MeshoptEncoder.ready;
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ "meshopt.encoder": MeshoptEncoder });
 
-for (const prop of props) {
+for (const prop of props.filter((p) => !only.length || only.includes(p.out))) {
 	const from = `scratch/models/${prop.source}/scene.gltf`;
 	const doc = await io.read(from);
 	const scene = doc.getRoot().getDefaultScene() ?? doc.getRoot().listScenes()[0];

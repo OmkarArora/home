@@ -76,8 +76,8 @@ function place({ at, turn }: { at: V3; turn: number }, [x, y, z]: V3): V3 {
 	return [at[0] + x * c + z * s, at[1] + y, at[2] - x * s + z * c];
 }
 
-/** The pedestal, front left of the cabinet, and its seven cups: one in the middle, six round it. */
-const pedestal = { at: [-0.74, 0, 0.82] as V3, height: 0.62 };
+/** The pedestal, front left of the cabinet under the sakura, and its seven cups: one in the middle, six round it. */
+const pedestal = { at: [-1.2, 0, 0.72] as V3, height: 0.62 };
 const cups: V3[] = [
 	[0, 0, 0],
 	...Array.from({ length: 6 }, (_, i): V3 => [Math.cos((i / 6) * Math.PI * 2) * 0.118, 0, Math.sin((i / 6) * Math.PI * 2) * 0.118]),
@@ -90,8 +90,10 @@ const hidden: { stars: number; at: V3 }[] = [
 	{ stars: 3, at: place(anchors.records, [-0.47, r, 0.12]) }, // on the floor by the turntable's table
 	{ stars: 5, at: [0.12, r, -0.72] }, // on the floor behind the cabinet
 	{ stars: 6, at: [1.28, r, 0.34] }, // beside the sandwich board
-	{ stars: 7, at: [-1.85, r, 0.45] }, // out in the purple pool, far left
+	{ stars: 7, at: [-1.86, r, -0.18] }, // in the sakura's roots (out in the open)
 ];
+/** Indoors there's no tree: the seven-star ball waits on the floor where it would stand. */
+const indoors: V3 = [-1.9, r, 0.15];
 
 /** The balls' names in the model, by their number of stars. */
 const ballNames: Record<number, string> = { 1: "One Star", 2: "Two Star", 3: "Star Three", 4: "Four Star", 5: "Five Star", 6: "Six Star", 7: "Seven Star" };
@@ -184,8 +186,8 @@ type BallState = {
 const path = new CatmullRomCurve3(
 	[
 		[pedestal.at[0], pedestal.height, pedestal.at[2]],
-		[-0.74, 6, 0.82],
-		[-0.74, 12, 0.82],
+		[pedestal.at[0], 6, pedestal.at[2]],
+		[pedestal.at[0], 12, pedestal.at[2]],
 		[-0.4, 17, 0.3],
 		[-3, 20, -1.5],
 		[-2, 19, 3],
@@ -778,6 +780,7 @@ export function DragonBalls({
 	onStage,
 	api,
 	onWish,
+	open,
 }: {
 	controls: React.RefObject<OrbitControlsImpl | null>;
 	hold: React.RefObject<boolean>;
@@ -788,12 +791,14 @@ export function DragonBalls({
 	api: React.RefObject<SummonApi | null>;
 	/** A wish granted, once he's gone and the sky's back. */
 	onWish: (kind: WishKind) => void;
+	/** Out under the sky (with the sakura), not in the room. */
+	open: boolean;
 }) {
 	const { camera, scene } = useThree();
 	const { say, record, toggleRecord } = useView();
 	const balls = useRef<BallState[]>([
 		{ stars: 4, home: cups[0], cup: cups[0], phase: "placed", t: 1, stone: 0, back: 1, last: new Vector3() },
-		...hidden.map((h, i): BallState => ({ stars: h.stars, home: h.at, cup: cups[i + 1], phase: "hidden", t: 0, stone: 0, back: 1, last: new Vector3() })),
+		...hidden.map((h, i): BallState => ({ stars: h.stars, home: h.stars === 7 && !open ? indoors : h.at, cup: cups[i + 1], phase: "hidden", t: 0, stone: 0, back: 1, last: new Vector3() })),
 	]);
 	const groups = useRef<(Group | null)[]>([]);
 	const flares = useRef<(Group | null)[]>([]);
@@ -1234,7 +1239,7 @@ export function DragonBalls({
 		// The camera, shot by shot.
 		if (s.stage === "hush" || s.stage === "glow") {
 			// Low by the pedestal, looking up past the balls at the darkening sky.
-			w.set(-0.05, 0.32, 2.2);
+			w.set(pedestal.at[0] + 0.69, 0.32, pedestal.at[2] + 1.38);
 			target.copy(pedestalTop).setY(pedestal.height + 0.3 + (s.stage === "glow" ? smooth(clamp01(s.t / lasts.glow)) * 0.35 : 0));
 			camera.position.lerp(w, Math.min(1, dt * (s.stage === "hush" ? 1.4 : 0.6)));
 			c.target.lerp(target, Math.min(1, dt * 1.5));

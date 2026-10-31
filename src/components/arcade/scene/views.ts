@@ -58,7 +58,7 @@ const facing: Triple = [0, (geometry.screen.normal[1] / tilt) * 0.62, geometry.s
 const reach = 1.95 / Math.hypot(...facing);
 
 export const views: Record<ViewKey, View> = {
-	wide: { label: "The arcade", position: [0.9, 2.15, 4.3], target: [0, 0.98, 0], swing: null, polar: [0.9, 1.5], distance: [3.2, 6] },
+	wide: { label: "The arcade", position: [0.55, 2.3, 4.85], target: [-0.3, 1.02, 0], swing: null, polar: [0.9, 1.5], distance: [3.2, 6] },
 	cabinet: {
 		label: "The cabinet",
 		position: [glass[0] + facing[0] * reach, glass[1] + facing[1] * reach, glass[2] + facing[2] * reach],

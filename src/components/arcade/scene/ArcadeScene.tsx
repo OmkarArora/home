@@ -12,6 +12,7 @@ import { Cabinet } from "./Cabinet";
 import { DragonBalls, type Stage, type SummonApi, type WishKind } from "./DragonBalls";
 import { CameraRig, ViewContext } from "./CameraRig";
 import { Hologram, NeonPair, Sandwich, StringLights, Underglow } from "./Props";
+import { KatakanaSign, Lanterns, Sakura } from "./Japan";
 import { BackWall, NightSky, OpenSky, RecordCorner, TvCorner } from "./Room";
 import { fitScreen } from "./screenFit";
 import { Stickers } from "./Stickers";
@@ -260,7 +261,11 @@ export default function ArcadeScene({
 						<Underglow />
 						<Hologram bump={pressed === "coin"} />
 						{setting === "room" && <StringLights />}
-						<NeonPair />
+						{/* Out in the open, the street's own sign and lanterns take the place of the alien and heart. */}
+						{setting === "room" && <NeonPair />}
+						{setting === "open" && <KatakanaSign />}
+						{setting === "open" && <Lanterns stage={stage} />}
+						{setting === "open" && <Sakura stage={stage} />}
 						<Sandwich />
 						<DragonBalls
 							controls={controls}
@@ -268,6 +273,7 @@ export default function ArcadeScene({
 							onStage={setStage}
 							api={summonApi}
 							onWish={onWish}
+							open={setting === "open"}
 							onDone={() => {
 								onView("wide");
 								setAgain((n) => n + 1);

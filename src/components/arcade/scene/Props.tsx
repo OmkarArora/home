@@ -364,7 +364,7 @@ export function StringLights() {
  * lot), shaded on its sides and faintly lit from within, with a glowing face on the front brighter
  * than white so the bloom haloes it. It stutters now and then like a tired neon, on its own beat.
  */
-function NeonSign({
+export function NeonSign({
 	sprite,
 	colour,
 	width,
