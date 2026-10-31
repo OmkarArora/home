@@ -219,8 +219,8 @@ export function NightSky() {
 	);
 }
 
-/** Where the moon hangs in the open: low over the horizon behind the cabinet, off to the left. */
-const moonrise = new Vector3(-17, 2.4, -22);
+/** Where the moon hangs in the open: behind the cabinet, a little to the right, up over the lanterns (clear of the sakura). */
+const moonrise = new Vector3(1.0, 2.7, -21);
 
 /**
  * The night with no walls: stars all over the sky, and a big full moon
@@ -255,10 +255,10 @@ export function OpenSky() {
 					<meshBasicMaterial map={moon} transparent color={[1.9, 1.9, 1.85]} fog={false} toneMapped={false} />
 				</mesh>
 			</Billboard>
-			{/* Moonlight: cool, from up behind on the left, casting shadows. Higher than the moon looks, so it
+			{/* Moonlight: cool, from up behind, where the moon is, casting shadows. Higher than the moon looks, so it
 			    doesn't graze the floor, and its shadows reach past where the dark swallows the floor. */}
 			<directionalLight
-				position={[-5, 7, -7]}
+				position={[1, 7, -7]}
 				color="#b8ccff"
 				intensity={0.9}
 				castShadow
@@ -399,7 +399,7 @@ export function TvCorner() {
 	});
 
 	return (
-		<group position={anchors.tv.at} rotation={[0, anchors.tv.turn, 0]} {...useVisit("tv")}>
+		<group position={anchors.tv.at} rotation={[0, anchors.tv.turn, 0]} scale={anchors.tv.scale} {...useVisit("tv")}>
 			{/* The stand: a dark top and sides, open in front with a shelf. */}
 			<mesh position={[0, stand.h - 0.015, 0]}>
 				<boxGeometry args={[stand.w, 0.03, stand.d]} />
@@ -556,7 +556,7 @@ export function RecordCorner() {
 	});
 
 	return (
-		<group position={anchors.records.at} rotation={[0, anchors.records.turn, 0]} {...useVisit("records", toggleRecord)}>
+		<group position={anchors.records.at} rotation={[0, anchors.records.turn, 0]} scale={anchors.records.scale} {...useVisit("records", toggleRecord)}>
 			<mesh position={[0, 0.27, 0]}>
 				<cylinderGeometry args={[0.32, 0.3, 0.54, 32]} />
 				<meshStandardMaterial color="#141418" roughness={0.5} metalness={0.2} />

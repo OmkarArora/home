@@ -49,6 +49,7 @@ import { play } from "@/components/site/sound";
 
 import { bigRoar, bigThunder, heartbeat, hushAmbience, preloadSummon, rumble, stormWind, whoosh } from "./ambience";
 import { useView } from "./CameraRig";
+import { layout } from "./layout";
 import { anchors, isTap, stand } from "./views";
 
 /**
@@ -70,30 +71,31 @@ type V3 = [number, number, number];
 const r = 0.055;
 const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** A point in a corner's frame, in the world (as in `views.ts`). */
-function place({ at, turn }: { at: V3; turn: number }, [x, y, z]: V3): V3 {
+/** A ball resting on a point in a corner's frame (grown by its scale, as in `views.ts`); the ball stays its size. */
+function place({ at, turn, scale = 1 }: { at: V3; turn: number; scale?: number }, [x, y, z]: V3): V3 {
 	const [c, s] = [Math.cos(turn), Math.sin(turn)];
-	return [at[0] + x * c + z * s, at[1] + y, at[2] - x * s + z * c];
+	[x, y, z] = [x * scale, y * scale, z * scale];
+	return [at[0] + x * c + z * s, at[1] + y + r, at[2] - x * s + z * c];
 }
 
 /** The pedestal, front left of the cabinet under the sakura, and its seven cups: one in the middle, six round it. */
-const pedestal = { at: [-1.2, 0, 0.72] as V3, height: 0.62 };
+const pedestal = { at: [layout.pedestal[0], 0, layout.pedestal[1]] as V3, height: 0.62 };
 const cups: V3[] = [
 	[0, 0, 0],
 	...Array.from({ length: 6 }, (_, i): V3 => [Math.cos((i / 6) * Math.PI * 2) * 0.118, 0, Math.sin((i / 6) * Math.PI * 2) * 0.118]),
 ].map(([x, , z]): V3 => [pedestal.at[0] + x, pedestal.height + r, pedestal.at[2] + z]);
 
-/** Where the other six hide: by stars 1, 2, 3, 5, 6, 7. The four-star ball starts on the pedestal. */
+/** Where the other six hide (tucked away, each half seen): by stars 1, 2, 3, 5, 6, 7. The four-star ball starts on the pedestal. */
 const hidden: { stars: number; at: V3 }[] = [
-	{ stars: 1, at: place(anchors.tv, [0.37, stand.h + r, 0.19]) }, // on the TV stand, in front of the console
-	{ stars: 2, at: [0.25, 1.8 + r, 0.02] }, // on the cabinet's roof, by the projector
-	{ stars: 3, at: place(anchors.records, [-0.47, r, 0.12]) }, // on the floor by the turntable's table
+	{ stars: 1, at: place(anchors.tv, [0.3, 0.17, 0.02]) }, // on the TV stand's lower shelf
+	{ stars: 2, at: [layout.sign[0] + 0.38, r, layout.sign[1] - 0.06] }, // at the foot of the sign's pole
+	{ stars: 3, at: place(anchors.records, [0.12, 0, -0.42]) }, // on the floor behind the turntable's table
 	{ stars: 5, at: [0.12, r, -0.72] }, // on the floor behind the cabinet
-	{ stars: 6, at: [1.28, r, 0.34] }, // beside the sandwich board
-	{ stars: 7, at: [-1.86, r, -0.18] }, // in the sakura's roots (out in the open)
+	{ stars: 6, at: place(layout.sandwich, [0.02, 0, 0]) }, // under the sandwich board, between its legs
+	{ stars: 7, at: [layout.tree.foot[0] - 0.22, r, layout.tree.foot[1] - 0.4] }, // behind the sakura's trunk, clear of its roots (out in the open)
 ];
 /** Indoors there's no tree: the seven-star ball waits on the floor where it would stand. */
-const indoors: V3 = [-1.9, r, 0.15];
+const indoors: V3 = [layout.tree.foot[0] + 0.1, r, layout.tree.foot[1] + 0.65];
 
 /** The balls' names in the model, by their number of stars. */
 const ballNames: Record<number, string> = { 1: "One Star", 2: "Two Star", 3: "Star Three", 4: "Four Star", 5: "Five Star", 6: "Six Star", 7: "Seven Star" };

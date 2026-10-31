@@ -1,4 +1,5 @@
 import geometry from "./cabinet-geometry.json";
+import { layout } from "./layout";
 
 /**
  * Where the camera can be taken: a few viewpoints set by hand, as on Jesse
@@ -27,24 +28,23 @@ export type View = {
 };
 
 /** Where the corners stand: a position on the floor and a turn about the vertical. */
-export const anchors = {
-	tv: { at: [-1.3, 0, -0.85] as Triple, turn: 0.5 },
-	records: { at: [1.45, 0, -0.9] as Triple, turn: -0.55 },
-};
+export const anchors = { tv: layout.tv, records: layout.records };
 /** The TV's stand, and the picture on its screen in the corner's own frame. */
 export const stand = { w: 0.95, h: 0.42, d: 0.5 };
 export const tvScreen: Triple = [-0.17, stand.h + 0.194, 0.215];
 /** Height of the turntable's platter. */
 const deck = 0.6;
 
-/** A point in a corner's frame, placed in the world. */
-function place({ at, turn }: { at: Triple; turn: number }, [x, y, z]: Triple): Triple {
+/** A point in a corner's frame (which is grown by its scale), placed in the world. */
+function place({ at, turn, scale }: { at: Triple; turn: number; scale: number }, [x, y, z]: Triple): Triple {
 	const [c, s] = [Math.cos(turn), Math.sin(turn)];
+	[x, y, z] = [x * scale, y * scale, z * scale];
 	return [at[0] + x * c + z * s, at[1] + y, at[2] - x * s + z * c];
 }
 
-/** Out in front of a corner, `out` metres along its facing and `up` metres higher. */
-function before(anchor: { at: Triple; turn: number }, target: Triple, out: number, up: number): Triple {
+/** Out in front of a corner, `out` metres along its facing and `up` metres higher (both grown with it). */
+function before(anchor: { at: Triple; turn: number; scale: number }, target: Triple, out: number, up: number): Triple {
+	[out, up] = [out * anchor.scale, up * anchor.scale];
 	return [target[0] + Math.sin(anchor.turn) * out, target[1] + up, target[2] + Math.cos(anchor.turn) * out];
 }
 
@@ -58,7 +58,7 @@ const facing: Triple = [0, (geometry.screen.normal[1] / tilt) * 0.62, geometry.s
 const reach = 1.95 / Math.hypot(...facing);
 
 export const views: Record<ViewKey, View> = {
-	wide: { label: "The arcade", position: [0.55, 2.3, 4.85], target: [-0.3, 1.02, 0], swing: null, polar: [0.9, 1.5], distance: [3.2, 6] },
+	wide: { label: "The arcade", position: layout.wide.position, target: layout.wide.target, swing: null, polar: [0.9, 1.5], distance: [3.2, 6] },
 	cabinet: {
 		label: "The cabinet",
 		position: [glass[0] + facing[0] * reach, glass[1] + facing[1] * reach, glass[2] + facing[2] * reach],

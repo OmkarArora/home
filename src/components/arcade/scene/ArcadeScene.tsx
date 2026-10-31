@@ -18,6 +18,7 @@ import { fitScreen } from "./screenFit";
 import { Stickers } from "./Stickers";
 import { Wish } from "./Wish";
 import { type Palette, PaletteContext, palettes, usePalette } from "./palette";
+import { layout } from "./layout";
 import { type ViewKey, views } from "./views";
 
 /**
@@ -75,8 +76,8 @@ function Floor({ size }: { size: number }) {
 			</mesh>
 			{/* Two big pools of neon on the floor, one under each side, like light spilling from signs. */}
 			{([
-				[-1.9, 0.6, pools[0]],
-				[2.0, 0.2, pools[1]],
+				[...layout.pools[0], pools[0]],
+				[...layout.pools[1], pools[1]],
 			] as const).map(([x, z, colour]) => (
 				<mesh key={colour} position={[x, 0.004, z]} rotation={[-Math.PI / 2, 0, 0]}>
 					<planeGeometry args={[5.2, 5.2]} />

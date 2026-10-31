@@ -26,6 +26,7 @@ import { pixel } from "../pixelFont";
 import { lime } from "./marquee";
 import { useView } from "./CameraRig";
 import { usePalette } from "./palette";
+import { layout } from "./layout";
 import { facingWide, isTap, neonPair } from "./views";
 
 /**
@@ -557,7 +558,7 @@ export function Sandwich() {
 	const wood = "#c8742f";
 	const edge = "#3f8a3a";
 	return (
-		<group position={[0.86, 0, 0.4]} rotation={[0, -0.5, 0]}>
+		<group position={layout.sandwich.at} rotation={[0, layout.sandwich.turn, 0]}>
 			{[1, -1].map((face) => (
 				// Each half leans back from the hinge at the top, feet apart on the floor.
 				<group key={face} position={[0, h, 0]} rotation={[-face * splay, face === 1 ? 0 : Math.PI, 0]}>

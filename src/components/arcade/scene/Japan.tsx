@@ -25,6 +25,7 @@ import {
 } from "three";
 
 import type { Stage } from "./DragonBalls";
+import { layout } from "./layout";
 import { NeonSign } from "./Props";
 import { usePalette } from "./palette";
 
@@ -57,7 +58,7 @@ const glyphs: Record<string, string[]> = {
 const sprite = [...word].flatMap((char, i) => [...(i ? ["0".repeat(em), "0".repeat(em)] : []), ...glyphs[char]]);
 
 /** Where the sign stands: back right, past the records, framing the wide view. */
-const post = { x: 1.85, z: -1.75 };
+const post = { x: layout.sign[0], z: layout.sign[1] };
 /** How wide the sign is (m), and how high its top is. */
 const width = 0.25;
 const top = 2.3;
@@ -106,33 +107,75 @@ const paper = (() => {
 	return new LatheGeometry(points, 24);
 })();
 
-/** The paper's bamboo ribs: dark rings round it, so it reads as a chōchin, not a ball. */
-function ribs() {
+/**
+ * The paper's bamboo ribs, dark rings round it so it reads as a chōchin, not a ball, and a character
+ * brushed on in black on the side that faces you (the middle of the texture; the paper is turned
+ * half round to put it there). Without a Japanese font it would come out as an empty box: then plain.
+ */
+function paperTexture(character: string) {
+	const [w, h] = [256, 128];
 	const canvas = document.createElement("canvas");
-	canvas.width = 4;
-	canvas.height = 64;
+	canvas.width = w;
+	canvas.height = h;
 	const ctx = canvas.getContext("2d");
 	if (ctx) {
 		ctx.fillStyle = "#fff";
-		ctx.fillRect(0, 0, 4, 64);
+		ctx.fillRect(0, 0, w, h);
 		ctx.fillStyle = "#6b6b6b";
-		for (let y = 2; y < 64; y += 5) ctx.fillRect(0, y, 4, 1);
+		for (let y = 4; y < h; y += 10) ctx.fillRect(0, y, w, 2);
+		ctx.font = brush;
+		if (canDraw(character)) {
+			// The paper is about 2.5 times round as it is tall, the canvas only twice: narrow it to match.
+			ctx.save();
+			ctx.translate(w / 2, h / 2 + 4);
+			ctx.scale(((w / h) * lantern.height) / (2 * Math.PI * lantern.radius), 1);
+			ctx.fillStyle = "#1a0f0b";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(character, 0, 0);
+			ctx.restore();
+		}
 	}
 	const texture = new CanvasTexture(canvas);
 	texture.colorSpace = SRGBColorSpace;
+	texture.anisotropy = 4;
 	return texture;
 }
+
+const brush = `bold 84px "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP", serif`;
+
+/** Whether this browser has a font for the character: drawn, it differs from a character no font has (the empty box). */
+function canDraw(character: string) {
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = 32;
+	const ctx = canvas.getContext("2d", { willReadFrequently: true });
+	if (!ctx) return false;
+	ctx.font = brush.replace("84px", "28px");
+	ctx.textBaseline = "top";
+	const drawn = (c: string) => {
+		ctx.clearRect(0, 0, 32, 32);
+		ctx.fillText(c, 2, 2);
+		return ctx.getImageData(0, 0, 32, 32).data.join();
+	};
+	return drawn(character) !== drawn("\u{10FFFD}");
+}
+
+/** What's painted on them, by colour: 祭 (festival) on the red, 遊 (play) on the cream. */
+const characters = ["祭", "遊"] as const;
+
+/** How much bigger the tree is than the 2.7 m it was placed for (the lanterns' wire is tied to it). */
+const grown = layout.tree.height / 2.7;
 
 /**
  * Where the lanterns hang, hanami style: one wire from a high branch of the sakura, across the back
  * behind the cabinet to the sign's pole, sagging in the middle (spaced to miss the hologram and the
  * sign).
  */
-const wire = { from: new Vector3(-1.12, 2.28, -0.98), to: new Vector3(post.x + 0.3, top - 0.05, post.z), sag: 0.2, along: [0.1, 0.56, 0.7, 0.84] };
+const wire = { from: new Vector3(layout.tree.foot[0] + 0.88 * grown, 2.3, layout.tree.foot[1] - 0.48 * grown), to: new Vector3(post.x + 0.3, top - 0.05, post.z), sag: 0.2, along: [0.1, 0.56, 0.7, 0.84] };
 
 export function Lanterns({ stage }: { stage: Stage }) {
 	const { lanterns } = usePalette();
-	const texture = useMemo(ribs, []);
+	const textures = useMemo(() => characters.map(paperTexture), []);
 	const curve = useMemo(() => {
 		const middle = wire.from.clone().lerp(wire.to, 0.5);
 		middle.y -= wire.sag * 2;
@@ -161,6 +204,7 @@ export function Lanterns({ stage }: { stage: Stage }) {
 			</mesh>
 			{hung.map((at, i) => {
 				const colour = lanterns[i % 2];
+				const texture = textures[i % 2];
 				const cord = 0.06;
 				return (
 					<group
@@ -176,7 +220,7 @@ export function Lanterns({ stage }: { stage: Stage }) {
 							<meshBasicMaterial color="#141418" />
 						</mesh>
 						<group position={[0, -cord - lantern.height * 0.54, 0]}>
-							<mesh geometry={paper}>
+							<mesh geometry={paper} rotation={[0, Math.PI, 0]}>
 								<meshStandardMaterial color={colour} map={texture} emissive={colour} emissiveMap={texture} emissiveIntensity={1.7} roughness={0.9} />
 							</mesh>
 							{[1, -1].map((side) => (
@@ -206,7 +250,7 @@ function seeded(seed: number) {
 }
 
 /** The model's size and place: how tall (m), and where the foot of its trunk stands. */
-const sakura = { height: 2.7, foot: new Vector3(-2.0, 0, -0.5) };
+const sakura = { height: layout.tree.height, foot: new Vector3(layout.tree.foot[0], 0, layout.tree.foot[1]) };
 
 /** The blossom's colours, shared with its shader: the petals' four pinks and a white, and how much it glows. */
 const petalPinks = { uDeep: { value: new Color() }, uPale: { value: new Color() }, uRose: { value: new Color() }, uBlush: { value: new Color() }, uWhite: { value: new Color() }, uGlow: { value: 0.45 } };
@@ -329,8 +373,8 @@ export function Sakura({ stage }: { stage: Stage }) {
 			<group position={sakura.foot} ref={tree}>
 				<SakuraModel />
 			</group>
-			<pointLight position={[-1.25, 0.75, 0.9]} color={blossom[0]} intensity={1.1} distance={2.4} decay={1.8} />
-			<pointLight position={[-0.9, 3.4, 1.4]} color="#ffe6f0" intensity={4} distance={4.5} decay={1.6} />
+			<pointLight position={[layout.pedestal[0] - 0.05, 0.75, layout.pedestal[1] + 0.18]} color={blossom[0]} intensity={1.1} distance={2.4} decay={1.8} />
+			<pointLight position={[sakura.foot.x + 1.1 * grown, 3.4 * grown, sakura.foot.z + 1.9]} color="#ffe6f0" intensity={4} distance={4.5} decay={1.6} />
 			<Petals count={small() ? 110 : 240} stage={stage} storm={storm} />
 		</group>
 	);
@@ -348,7 +392,11 @@ const petal = (() => {
 })();
 
 /** Where the petals start from: inside the crown, roughly. */
-const crown = { x: [-2.6, -0.85], y: [1.5, 2.3], z: [-0.9, 0.9] };
+const crown = {
+	x: [sakura.foot.x - 0.6 * grown, sakura.foot.x + 1.15 * grown],
+	y: [1.5 * grown, 2.3 * grown],
+	z: [sakura.foot.z - 0.4 * grown, sakura.foot.z + 1.4 * grown],
+};
 
 /**
  * The falling petals: each drifts down from the crown with a flutter, lands, lies on the floor a
@@ -392,7 +440,7 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 		if (still()) {
 			// Still: a scatter of them lying on the floor under the tree.
 			for (let i = 0; i < count; i++) {
-				o.position.set(lerp([-2.7, -0.6], random()), 0.003, lerp([-0.8, 1.4], random()));
+				o.position.set(lerp([sakura.foot.x - 0.7, sakura.foot.x + 1.4], random()), 0.003, lerp([sakura.foot.z - 0.3, sakura.foot.z + 1.9], random()));
 				o.rotation.set(-Math.PI / 2, 0, random() * 6);
 				o.scale.setScalar(1);
 				o.updateMatrix();
@@ -401,10 +449,11 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 			m.instanceMatrix.needsUpdate = true;
 		}
 	}, [blossom, count, o, random]);
-	useFrame(({ clock }, dt) => {
+	useFrame(({ clock, camera }, dt) => {
 		const m = mesh.current;
 		if (!m || still()) return;
 		const t = clock.elapsedTime;
+		const eye = camera.position;
 		// After a stall (a hidden tab), don't jump.
 		const step = Math.min(dt, 1 / 20);
 		const wind = storm.current;
@@ -438,6 +487,9 @@ function Petals({ count, stage, storm }: { count: number; stage: Stage; storm: R
 				if (down[i] > lies + 1) respawn(i);
 			}
 			o.position.set(at[k], at[k + 1], at[k + 2]);
+			// Close to the camera (the TV's view is under the crown) a petal would fill the screen: let it vanish.
+			const near = o.position.distanceTo(eye);
+			if (near < 1) shrink *= Math.max(0, (near - 0.6) / 0.4);
 			o.scale.setScalar(shrink);
 			o.updateMatrix();
 			m.setMatrixAt(i, o.matrix);
